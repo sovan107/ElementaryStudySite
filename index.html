@@ -6,7 +6,42 @@
   <title>Saanvi's Interactive Learning Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      scroll-behavior: smooth;
+    }
+    .highlight-pulse {
+      animation: pulseBorder 1.8s ease-out;
+    }
+    @keyframes pulseBorder {
+      0% { box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.55); }
+      100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.92); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .pop-in {
+      animation: popIn 0.25s ease-out;
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(16px); opacity: 0; }
+      15% { transform: translateY(0); opacity: 1; }
+      85% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-10px); opacity: 0; }
+    }
+    .toast-anim {
+      animation: floatUp 3s ease-in-out forwards;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-break { break-inside: avoid; }
+      body { background: #ffffff !important; font-size: 11px; }
+      .tab-panel.hidden { display: none !important; }
+      .answer-badge { display: inline !important; }
+    }
+  </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
 
@@ -125,21 +160,6 @@
         <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">🎁 Redeem Stars for Fun Reward Coupons:</h4>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="reward-coupons-grid"></div>
       </div>
-
-      <!-- Parent Data Backup & Restore -->
-      <div class="border-t border-slate-200 pt-3">
-        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">💾 Parent Data Backup (Stars, Progress &amp; Timer):</h4>
-        <div class="flex flex-wrap items-center gap-2">
-          <button onclick="exportAllData()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold transition">
-            ⬇ Export Backup
-          </button>
-          <button onclick="document.getElementById('backup-file-input').click()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition">
-            ⬆ Restore Backup
-          </button>
-          <input type="file" id="backup-file-input" accept="application/json,.json" class="hidden" onchange="importAllData(event)" />
-        </div>
-        <p id="backup-status" class="text-[11px] text-slate-500 mt-1.5">Progress auto-saves on this device. Export a backup file before switching devices or domains, then restore it here.</p>
-      </div>
     </div>
   </div>
 
@@ -214,11 +234,8 @@
         <button onclick="switchTab('qbank')" id="tab-qbank" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">
           📝 990 Q-Bank
         </button>
-        <button onclick="switchTab('typing')" id="tab-typing" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100 transition">
-          ⌨️ Typing
-        </button>
         <button onclick="switchTab('parent')" id="tab-parent" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition">
-          🔒 Parent Syllabus
+          👨‍👩‍👧 Parent Syllabus
         </button>
 
         <!-- Search Input -->
@@ -275,6 +292,49 @@
               <div class="text-lg font-extrabold" id="hero-total-q-count">990</div>
               <div class="text-[10px] uppercase tracking-wider text-indigo-100">MAP Questions</div>
             </div>
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('qbank')">
+              <div class="text-lg font-extrabold" id="hero-total-q-count">990</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">MAP Questions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Quick-Access Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div onclick="switchTab('math')" class="cursor-pointer bg-white rounded-2xl border border-teal-200 hover:border-teal-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0">⭕</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-teal-700">New Math Modules</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Circles &amp; Beast 1B–1D</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Radius, diameter, patterns, parity &amp; magic squares.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('academy')" class="cursor-pointer bg-white rounded-2xl border border-purple-200 hover:border-purple-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl shrink-0">♟️</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-purple-700">20-Stage Strategy</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Chess &amp; Sudoku</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Unlock 20 stages per game &amp; earn +5 ⭐ each!</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('qbank')" class="cursor-pointer bg-white rounded-2xl border border-amber-200 hover:border-amber-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">📝</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-amber-700">Expanded Exam Bank</div>
+            <h3 class="text-sm font-extrabold text-slate-900">990 MAP Questions</h3>
+            <p class="text-xs text-slate-600 mt-0.5">English, Math, Circles, Beast 1B–1D &amp; Science.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('parent')" class="cursor-pointer bg-gradient-to-br from-rose-50 to-amber-50 rounded-2xl border border-rose-200 hover:border-rose-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl shrink-0">👨‍👩‍👧</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-rose-800">Parent Guide</div>
+            <h3 class="text-sm font-extrabold text-slate-900">MAP Test Syllabus</h3>
+            <p class="text-xs text-slate-700 mt-0.5">RIT goals, Lexile guide &amp; Beast Academy alignment.</p>
           </div>
         </div>
       </div>
@@ -1632,6 +1692,97 @@
     </section>
 
     <!-- =================================================================== -->
+    <!-- VIEW 8: PARENT MAP SYLLABUS & BEAST ACADEMY GUIDE                   -->
+    <!-- =================================================================== -->
+    <section id="view-parent" class="tab-panel hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-rose-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">👨‍👩‍👧 Parent Guide: NWEA MAP Growth Syllabus &amp; Beast Academy Roadmap</h2>
+        </div>
+        <span class="text-xs font-bold text-rose-800 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">Ivy Hill Elementary &bull; Arlington Heights SD 25</span>
+      </div>
+
+      <!-- Overview Card -->
+      <div class="bg-white rounded-2xl border border-rose-200 p-5 shadow-sm space-y-2 text-xs sm:text-sm">
+        <h3 class="text-base font-extrabold text-slate-900">🎯 How NWEA MAP Adaptive Testing Works for Saanvi</h3>
+        <p class="text-slate-700 leading-relaxed">
+          NWEA MAP Growth is <strong>computer-adaptive</strong>: every correct answer makes the next question harder, pinpointing her true instructional level (RIT score). Because Saanvi is already testing at the <strong>96th percentile in Reading (RIT 177)</strong> and <strong>99th percentile in Math (RIT 191)</strong> in 1st grade, the exam evaluates her on <strong>late 2nd-grade and early 3rd-grade concepts</strong> on the path to her Fall 2027 projections (<strong>189 Reading</strong>, <strong>203 Math</strong>).
+        </p>
+      </div>
+
+      <!-- Two-Column Syllabus Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+        <div class="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+          <div class="bg-teal-600 text-white px-4 py-3 font-extrabold text-sm">
+            🔢 MAP Mathematics Syllabus &amp; Beast Academy 1B–1D Alignment
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">1. Operations &amp; Algebraic Thinking</div>
+              <p class="text-slate-700 mt-0.5">Two-step word problems; missing addends; <strong>BA 1B Making-10 &amp; Compensation strategies</strong>; <strong>BA 1B Odds &amp; Evens parity</strong>; number patterns &amp; skip-counting series; arrays &amp; <strong>BA 1D Working Backwards / Magic Squares</strong>.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">2. Number &amp; Operations</div>
+              <p class="text-slate-700 mt-0.5">Place value up to 1,000; <strong>BA 1C flexible regrouping</strong> &amp; vertical addition/subtraction algorithms with carrying/borrowing across zeros; <strong>BA 1B inequalities (&lt;, &gt;, =)</strong>; rounding to nearest 10 &amp; 100.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">3. Measurement &amp; Data</div>
+              <p class="text-slate-700 mt-0.5"><strong>BA 1D Money &amp; Coins</strong> (making change over $1.00); analog clocks to 5-minute intervals &amp; elapsed time; <strong>BA 1C Measurement &amp; Perimeter</strong>; inches, feet, yards, miles, cm, meters; bar/picture graphs &amp; <strong>BA 1D Venn Diagrams</strong>.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">4. Geometry &amp; Circles</div>
+              <p class="text-slate-700 mt-0.5"><strong>Circles &amp; Curves</strong> (center, radius, diameter, chord, circumference, semicircle); <strong>BA 1D Fractions</strong> (halves, thirds, fourths); polygons (pentagon, hexagon, octagon); 3D faces/edges/vertices; symmetry &amp; area tiling.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
+          <div class="bg-indigo-600 text-white px-4 py-3 font-extrabold text-sm">
+            📚 MAP English Reading &amp; Language Arts Syllabus (RIT 177 &rarr; 189+)
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">1. Literature &amp; Informational Text</div>
+              <p class="text-slate-700 mt-0.5">Inferencing character feelings &amp; motives from text clues; cause &amp; effect; chronological story sequence; main idea vs. supporting details; nonfiction text features (glossary, index, headings, captions); comparing two texts.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">2. Vocabulary Use &amp; Functions</div>
+              <p class="text-slate-700 mt-0.5">Context-dependent multiple-meaning words (<em>bark, bat, wave, light, watch</em>); prefixes (<em>un-, re-, pre-, dis-, mis-</em>) &amp; suffixes (<em>-ful, -less, -er, -ly</em>); context clues; <strong>word intensity series &amp; analogies</strong>.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">3. Foundational Skills &amp; Phonics</div>
+              <p class="text-slate-700 mt-0.5">Multisyllabic decoding &amp; syllable counting; compound words; long vowel teams; diphthongs (<em>ou/ow, oi/oy</em>); r-controlled vowels; silent letters (<em>kn, wr, mb</em>); homophones (<em>to/two/too, there/their/they're</em>); inflectional spelling rules.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">4. Language &amp; Writing Mechanics</div>
+              <p class="text-slate-700 mt-0.5">Commas in a series, dates, cities/states, and letters; apostrophes in contractions &amp; singular/plural possessives; parts of speech (nouns, verbs, adjectives, adverbs, pronouns); irregular past-tense verbs &amp; irregular plurals.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Lexile & Parent Quick Controls -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
+          <div class="font-extrabold text-slate-900 text-sm">📖 Lexile&reg; "Find a Book" Guide</div>
+          <p class="text-slate-600">Go to <strong>hub.lexile.com</strong> &rarr; <em>Find a Book</em> &rarr; <em>Search by Measure</em>. Leave Student Measure blank and enter <strong>145</strong> (Min) to <strong>295</strong> (Max) to match her Fall 2026 range (<code>145L–295L</code>).</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
+          <div class="font-extrabold text-slate-900 text-sm">🗓️ Daily 30-Minute Study Plan</div>
+          <p class="text-slate-600"><strong>10 min:</strong> Explore 1 Visual Concept Lab (Circles, Beast Academy 1B–1D, or Word Series).<br/><strong>15 min:</strong> Complete 10–15 questions in the Q-Bank.<br/><strong>5 min:</strong> Clear 1 Chess or Sudoku stage for +5 ⭐!</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-2 no-print">
+          <div class="font-extrabold text-rose-900 text-sm">🔐 Parent Controls (Password: <code>missaa</code>)</div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="promptAddExtraTime()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold">+15m Daily Timer</button>
+            <button onclick="handleToggleAnswersClick()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold">Toggle Answer Keys</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
     <!-- VIEW 8: TYPING PRACTICE (WPM, Accuracy & Timed Tests)               -->
     <!-- =================================================================== -->
     <section id="view-typing" class="tab-panel hidden space-y-5">
@@ -1643,24 +1794,296 @@
         <span class="text-xs font-bold text-cyan-800 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200">Best: <span id="typing-best-wpm">0</span> WPM</span>
       </div>
 
-      <!-- Learn Mode: Guided Typing Lessons -->
-      <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-4 space-y-3">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="text-sm font-extrabold text-violet-900">📖 Learn Mode — Typing Lessons (Start Here!)</h3>
-          <span id="typing-lessons-progress" class="text-[11px] font-bold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full border border-violet-200">0/7 Complete</span>
-        </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <select id="typing-lesson-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-400">
-            <option value="0">Lesson 1: Home Row Keys</option>
-            <option value="1">Lesson 2: Top Row Keys</option>
-            <option value="2">Lesson 3: Bottom Row Keys</option>
-            <option value="3">Lesson 4: Number Row</option>
-            <option value="4">Lesson 5: All Letters Mix</option>
-            <option value="5">Lesson 6: Capital Letters &amp; Shift</option>
-            <option value="6">Lesson 7: Story Sentences</option>
-          </select>
-          <button onclick="startTypingLesson()" id="typing-lesson-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white text-xs font-extrabold shadow-md transition">
-            ▶ Start Lesson
+  <script>
+    // =========================================================================
+    // 0. PARENT PASSWORD GATEKEEPER ('missaa') & DAILY 30-MINUTE TIMER
+    // =========================================================================
+    const PARENT_PASSWORD = 'missaa';
+    let pendingPwdCallback = null;
+    let answersAuthorizedSession = false;
+
+    function requestParentAuth(title, desc, onSuccess) {
+      pendingPwdCallback = onSuccess;
+      document.getElementById('pwd-modal-title').textContent = title;
+      document.getElementById('pwd-modal-desc').textContent = desc;
+      document.getElementById('pwd-modal-input').value = '';
+      document.getElementById('pwd-modal-error').classList.add('hidden');
+      document.getElementById('parent-pwd-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('pwd-modal-input').focus(), 50);
+    }
+
+    function closePwdModal() {
+      document.getElementById('parent-pwd-modal').classList.add('hidden');
+      pendingPwdCallback = null;
+    }
+
+    function handlePwdModalSubmit(e) {
+      e.preventDefault();
+      const val = document.getElementById('pwd-modal-input').value.trim();
+      if (val === PARENT_PASSWORD) {
+        const cb = pendingPwdCallback;
+        closePwdModal();
+        if (cb) cb();
+      } else {
+        document.getElementById('pwd-modal-error').classList.remove('hidden');
+      }
+    }
+
+    function getTodayDateKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    }
+
+    function getTimerState() {
+      const today = getTodayDateKey();
+      try {
+        const saved = JSON.parse(localStorage.getItem('saanvi_daily_timer_v1') || 'null');
+        if (saved && saved.date === today) return saved;
+      } catch (e) {}
+      const fresh = { date: today, secondsLeft: 30 * 60 };
+      saveTimerState(fresh);
+      return fresh;
+    }
+
+    function saveTimerState(st) {
+      try { localStorage.setItem('saanvi_daily_timer_v1', JSON.stringify(st)); } catch (e) {}
+    }
+
+    function updateTimerDisplay() {
+      const st = getTimerState();
+      const mins = Math.floor(st.secondsLeft / 60);
+      const secs = st.secondsLeft % 60;
+      const disp = document.getElementById('daily-timer-display');
+      disp.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      if (st.secondsLeft <= 180 && st.secondsLeft > 0) {
+        disp.className = 'font-mono text-sm font-extrabold text-rose-400 animate-pulse';
+      } else {
+        disp.className = 'font-mono text-sm font-extrabold text-amber-300';
+      }
+      if (st.secondsLeft <= 0) document.getElementById('time-lock-overlay').classList.remove('hidden');
+      else document.getElementById('time-lock-overlay').classList.add('hidden');
+    }
+
+    function startDailyCountdown() {
+      updateTimerDisplay();
+      setInterval(() => {
+        if (document.hidden) return;
+        const st = getTimerState();
+        if (st.secondsLeft > 0) {
+          st.secondsLeft -= 1;
+          saveTimerState(st);
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function add15MinutesToTimer() {
+      const st = getTimerState();
+      st.secondsLeft += 15 * 60;
+      saveTimerState(st);
+      updateTimerDisplay();
+      showRewardToast('⏱️ +15 Minutes Added by Parent!');
+    }
+
+    function promptAddExtraTime() {
+      requestParentAuth(
+        '⏱️ Add +15 Minutes Study Time',
+        'Enter parent password to add 15 minutes to Saanvi’s timer today.',
+        () => add15MinutesToTimer()
+      );
+    }
+
+    function submitTimeUnlock(e) {
+      e.preventDefault();
+      const val = document.getElementById('lockout-pwd-input').value.trim();
+      if (val === PARENT_PASSWORD) {
+        document.getElementById('lockout-pwd-input').value = '';
+        document.getElementById('lockout-pwd-error').classList.add('hidden');
+        add15MinutesToTimer();
+      } else {
+        document.getElementById('lockout-pwd-error').classList.remove('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 1. GAMIFIED REWARDS, STARS & TROPHY SHOP SYSTEM
+    // =========================================================================
+    const AVATARS = ['🦄', '🦊', '🦉', '🐬', '🚀', '🦁', '🐼', '🦋'];
+
+    const TROPHY_BADGES = [
+      { id: 'b_first', icon: '🌟', title: 'First Star Spark', desc: 'Earn your very first star!', check: r => r.lifetimeStars >= 1 },
+      { id: 'b_math', icon: '🧮', title: 'Math Wizard', desc: 'Complete 10+ Math questions or labs', check: r => r.lifetimeStars >= 10 },
+      { id: 'b_science', icon: '🔬', title: 'Junior Scientist', desc: 'Explore 6+ Science facts or labs', check: r => r.factsRead >= 6 },
+      { id: 'b_chess', icon: '♞', title: 'Chess Tactician', desc: 'Unlock Stage 3+ in Chess Academy', check: (r, a) => a.chessUnlocked >= 3 },
+      { id: 'b_sudoku', icon: '🔢', title: 'Sudoku Detective', desc: 'Unlock Stage 3+ in Sudoku Academy', check: (r, a) => a.sudokuUnlocked >= 3 },
+      { id: 'b_scholar', icon: '👑', title: 'Super Scholar', desc: 'Collect 50+ lifetime Stars!', check: r => r.lifetimeStars >= 50 }
+    ];
+
+    const REWARD_COUPONS = [
+      { id: 'c_story', icon: '📖', title: '15 Min Extra Bedtime Story', cost: 15 },
+      { id: 'c_game', icon: '🎲', title: 'Pick Family Board Game', cost: 25 },
+      { id: 'c_treat', icon: '🍦', title: 'Special Ice Cream Topping', cost: 35 },
+      { id: 'c_movie', icon: '🎬', title: 'Choose Family Movie Night', cost: 50 }
+    ];
+
+    function getRewardsState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('saanvi_rewards_v1') || 'null');
+        if (saved) return saved;
+      } catch (e) {}
+      return { stars: 5, lifetimeStars: 5, avatar: '🦄', factsRead: 0, redeemed: [] };
+    }
+
+    function saveRewardsState(st) {
+      try { localStorage.setItem('saanvi_rewards_v1', JSON.stringify(st)); } catch (e) {}
+      updateRewardsHeader();
+    }
+
+    function awardStars(amount, reason) {
+      const st = getRewardsState();
+      st.stars += amount;
+      st.lifetimeStars += amount;
+      saveRewardsState(st);
+      showRewardToast(`+${amount} ⭐ ${reason}`);
+    }
+
+    function showRewardToast(msg) {
+      const container = document.getElementById('reward-toast-container');
+      const div = document.createElement('div');
+      div.className = 'toast-anim bg-slate-900 text-amber-300 border-2 border-amber-400 px-4 py-2.5 rounded-2xl shadow-xl text-xs sm:text-sm font-extrabold flex items-center gap-2';
+      div.textContent = msg;
+      container.appendChild(div);
+      setTimeout(() => div.remove(), 3000);
+    }
+
+    function updateRewardsHeader() {
+      const st = getRewardsState();
+      document.getElementById('header-star-count').textContent = `${st.stars} ⭐`;
+      document.getElementById('header-avatar-badge').textContent = st.avatar;
+    }
+
+    function selectAvatar(emoji) {
+      const st = getRewardsState();
+      st.avatar = emoji;
+      saveRewardsState(st);
+      renderRewardsModalContent();
+    }
+
+    function redeemCoupon(couponId) {
+      const coupon = REWARD_COUPONS.find(c => c.id === couponId);
+      const st = getRewardsState();
+      if (!coupon || st.stars < coupon.cost) return;
+      st.stars -= coupon.cost;
+      st.redeemed.push({ title: coupon.title, date: getTodayDateKey() });
+      saveRewardsState(st);
+      showRewardToast(`🎁 Redeemed: ${coupon.title}! Show a parent!`);
+      renderRewardsModalContent();
+    }
+
+    function openRewardsModal() {
+      renderRewardsModalContent();
+      document.getElementById('rewards-modal').classList.remove('hidden');
+    }
+
+    function closeRewardsModal() {
+      document.getElementById('rewards-modal').classList.add('hidden');
+    }
+
+    function renderRewardsModalContent() {
+      const st = getRewardsState();
+      const acad = getAcademyProgress();
+      document.getElementById('reward-modal-avatar').textContent = st.avatar;
+      document.getElementById('reward-stars-balance').textContent = `${st.stars} ⭐`;
+      document.getElementById('reward-stars-total').textContent = `${st.lifetimeStars} ⭐`;
+
+      document.getElementById('avatar-picker-list').innerHTML = AVATARS.map(av => `
+        <button onclick="selectAvatar('${av}')" class="w-10 h-10 rounded-xl text-xl flex items-center justify-center border-2 transition ${st.avatar === av ? 'border-amber-500 bg-amber-100 scale-105' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}">
+          ${av}
+        </button>
+      `).join('');
+
+      document.getElementById('trophy-badges-grid').innerHTML = TROPHY_BADGES.map(b => {
+        const unlocked = b.check(st, acad);
+        return `
+          <div class="p-3 rounded-2xl border ${unlocked ? 'bg-amber-50 border-amber-300' : 'bg-slate-50 border-slate-200 opacity-60'} flex items-center gap-2.5">
+            <span class="text-2xl">${unlocked ? b.icon : '🔒'}</span>
+            <div>
+              <div class="text-xs font-extrabold text-slate-900">${b.title}</div>
+              <div class="text-[11px] text-slate-600">${b.desc}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('reward-coupons-grid').innerHTML = REWARD_COUPONS.map(c => {
+        const canBuy = st.stars >= c.cost;
+        return `
+          <div class="p-3 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">${c.icon}</span>
+              <div>
+                <div class="text-xs font-extrabold text-slate-900">${c.title}</div>
+                <div class="text-[11px] font-bold text-amber-700">Cost: ${c.cost} ⭐</div>
+              </div>
+            </div>
+            <button onclick="redeemCoupon('${c.id}')" ${canBuy ? '' : 'disabled'} class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${canBuy ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}">
+              Redeem
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 2. CONCEPT DIRECTORY INDEX (Landing Page TOC & Search)
+    // =========================================================================
+    const CONCEPT_INDEX = [
+      { id: 'concept-m9', subject: 'math', code: 'M9', title: 'Circles: Center, Radius, Diameter & Chord', tag: 'New • Circle Lab' },
+      { id: 'concept-m10', subject: 'math', code: 'M10', title: 'Number Patterns, Series & Machines', tag: 'New • Series Lab' },
+      { id: 'concept-ba', subject: 'math', code: 'BA', title: 'Beast Academy 1B, 1C & 1D Hub', tag: 'New • AoPS Labs' },
+      { id: 'concept-m1', subject: 'math', code: 'M1', title: 'Place Value & Base-10 Blocks', tag: 'Interactive Builder' },
+      { id: 'concept-m2', subject: 'math', code: 'M2', title: '2-Digit Regrouping / Borrowing', tag: 'Step-by-Step' },
+      { id: 'concept-m3', subject: 'math', code: 'M3', title: 'Coins & $1.00 Equivalence', tag: 'Coin Jar Lab' },
+      { id: 'concept-m4', subject: 'math', code: 'M4', title: 'Inches, Feet, Yards & Miles', tag: 'Unit Picker' },
+      { id: 'concept-m5', subject: 'math', code: 'M5', title: 'Analog Clock to 5 Minutes', tag: 'Live Clock' },
+      { id: 'concept-m6', subject: 'math', code: 'M6', title: 'Bar Graphs & Comparisons', tag: 'Interactive Chart' },
+      { id: 'concept-m7', subject: 'math', code: 'M7', title: 'Early Multiplication Arrays', tag: 'Array Builder' },
+      { id: 'concept-m8', subject: 'math', code: 'M8', title: 'Fractions & 3D Shape Attributes', tag: 'Pizza Slicer' },
+
+      { id: 'concept-e7', subject: 'english', code: 'E7', title: 'Word Patterns, Analogies & Series', tag: 'New • Series Lab' },
+      { id: 'concept-e1', subject: 'english', code: 'E1', title: 'Reading Detective: Inferencing', tag: 'Clue Matcher' },
+      { id: 'concept-e2', subject: 'english', code: 'E2', title: 'Main Idea Tabletop & Details', tag: 'Visual Diagram' },
+      { id: 'concept-e3', subject: 'english', code: 'E3', title: 'Word Surgery: Prefixes/Suffixes', tag: 'Word Lab' },
+      { id: 'concept-e4', subject: 'english', code: 'E4', title: 'Multiple-Meaning Words', tag: 'Context Cards' },
+      { id: 'concept-e5', subject: 'english', code: 'E5', title: 'Syllable Chunking & Vowel Teams', tag: 'Syllable Clapper' },
+      { id: 'concept-e6', subject: 'english', code: 'E6', title: 'Grammar, Commas & Homophones', tag: 'Sentence Map' },
+
+      { id: 'concept-s1', subject: 'science', code: 'S1', title: 'States of Matter (Solid/Liquid/Gas)', tag: 'Temp Simulator' },
+      { id: 'concept-s2', subject: 'science', code: 'S2', title: 'Solar System & 8 Planets Explorer', tag: 'Planet Cards' },
+      { id: 'concept-s3', subject: 'science', code: 'S3', title: 'Plant Life Cycle & Parts', tag: 'Growth Lab' },
+      { id: 'concept-s4', subject: 'science', code: 'S4', title: 'The Water Cycle Explorer', tag: '4-Stage Lab' },
+      { id: 'concept-s5', subject: 'science', code: 'S5', title: 'Forces & Magnetic Poles', tag: 'Magnet Tester' },
+      { id: 'concept-s6', subject: 'science', code: 'S6', title: 'Ecosystem Food Chains', tag: 'Visual Guide' },
+      { id: 'concept-s7', subject: 'science', code: 'S7', title: 'Earth Rotation & Moon Phases', tag: 'Moon Explorer' }
+    ];
+
+    function renderTableOfContents() {
+      const grid = document.getElementById('toc-directory-grid');
+      const subjects = [
+        { key: 'math', title: '🔢 Mathematics & Beast 1B–1D', subtitle: '11 Visual Labs + Circles + AoPS (Target RIT 203+)', color: 'teal', headerBg: 'bg-teal-600' },
+        { key: 'english', title: '📚 English, Series & Reading', subtitle: '7 Visual Labs (Target RIT 189+)', color: 'indigo', headerBg: 'bg-indigo-600' },
+        { key: 'science', title: '🔬 Science Discovery', subtitle: '7 Interactive Labs + 24 Facts', color: 'emerald', headerBg: 'bg-emerald-600' }
+      ];
+
+      grid.innerHTML = subjects.map(sub => {
+        const items = CONCEPT_INDEX.filter(c => c.subject === sub.key);
+        const listHtml = items.map(item => `
+          <button onclick="jumpToConcept('${item.subject}', '${item.id}')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-${sub.color}-50 border border-slate-200 hover:border-${sub.color}-300 transition flex items-center justify-between gap-2 group">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-extrabold text-${sub.color}-700 shrink-0">${item.code}</span>
+              <span class="text-xs font-bold text-slate-800 truncate">${item.title}</span>
+            </div>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shrink-0">${item.tag}</span>
           </button>
         </div>
         <div id="typing-lesson-instruction" class="text-xs text-slate-700 bg-violet-50 border border-violet-200 rounded-xl px-3.5 py-2.5 font-semibold leading-relaxed">
@@ -1783,73 +2206,1710 @@
               <div class="font-extrabold text-teal-900">3. Measurement &amp; Data</div>
               <p class="text-slate-700 mt-0.5"><strong>BA 1D Money &amp; Coins</strong> (making change over $1.00); analog clocks to 5-minute intervals &amp; elapsed time; <strong>BA 1C Measurement &amp; Perimeter</strong>; inches, feet, yards, miles, cm, meters; bar/picture graphs &amp; <strong>BA 1D Venn Diagrams</strong>.</p>
             </div>
-            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
-              <div class="font-extrabold text-teal-900">4. Geometry &amp; Circles</div>
-              <p class="text-slate-700 mt-0.5"><strong>Circles &amp; Curves</strong> (center, radius, diameter, chord, circumference, semicircle); <strong>BA 1D Fractions</strong> (halves, thirds, fourths); polygons (pentagon, hexagon, octagon); 3D faces/edges/vertices; symmetry &amp; area tiling.</p>
+            <div class="p-3.5 space-y-2 flex-1">${listHtml}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(`view-${tabName}`);
+      if (target) target.classList.remove('hidden');
+
+      const activeStyles = {
+        home: 'bg-slate-900 text-white',
+        scores: 'bg-sky-600 text-white',
+        math: 'bg-teal-600 text-white',
+        english: 'bg-indigo-600 text-white',
+        science: 'bg-emerald-600 text-white',
+        academy: 'bg-purple-600 text-white',
+        qbank: 'bg-amber-500 text-white',
+        parent: 'bg-rose-600 text-white'
+      };
+      const idleStyles = {
+        home: 'bg-slate-100 text-slate-700 hover:bg-slate-200',
+        scores: 'bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100',
+        math: 'bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100',
+        english: 'bg-indigo-50 text-indigo-800 border border-indigo-200 hover:bg-indigo-100',
+        science: 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100',
+        academy: 'bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100',
+        qbank: 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100',
+        parent: 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
+      };
+
+      Object.keys(idleStyles).forEach(key => {
+        const btn = document.getElementById(`tab-${key}`);
+        if (btn) {
+          btn.className = `nav-tab px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${key === tabName ? activeStyles[key] : idleStyles[key]}`;
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function jumpToConcept(subject, conceptId) {
+      switchTab(subject);
+      setTimeout(() => {
+        const card = document.getElementById(conceptId);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.classList.remove('highlight-pulse');
+          void card.offsetWidth;
+          card.classList.add('highlight-pulse');
+        }
+      }, 60);
+    }
+
+    function handleGlobalSearch(query) {
+      const bar = document.getElementById('search-results-bar');
+      const list = document.getElementById('search-results-list');
+      const q = query.trim().toLowerCase();
+      if (!q) {
+        bar.classList.add('hidden');
+        return;
+      }
+      const matches = CONCEPT_INDEX.filter(c =>
+        c.title.toLowerCase().includes(q) || c.tag.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
+      );
+      bar.classList.remove('hidden');
+      let html = matches.map(m => `
+        <button onclick="jumpToConcept('${m.subject}', '${m.id}')" class="px-2.5 py-1 rounded-md bg-white border border-indigo-200 hover:bg-indigo-600 hover:text-white font-semibold transition">
+          ${m.code}: ${m.title}
+        </button>
+      `).join('');
+      html += `
+        <button onclick="searchInQBank('${q.replace(/'/g, '')}')" class="px-2.5 py-1 rounded-md bg-amber-100 border border-amber-300 text-amber-950 hover:bg-amber-500 hover:text-white font-bold transition">
+          🔍 Search "${query}" in ${Q_BANK_DATA.length} Questions &rarr;
+        </button>
+      `;
+      list.innerHTML = html;
+    }
+
+    function searchInQBank(term) {
+      switchTab('qbank');
+      document.getElementById('qbank-search-input').value = term;
+      filterQBank('ALL');
+    }
+
+    // =========================================================================
+    // 3. SCORE TRENDS & SEPARATE SVG CHARTS
+    // =========================================================================
+    const DEFAULT_SCORES = [
+      { term: 'FA25', grade: 'K', mathRit: 165, mathDist: 149, mathNorm: 141, mathPct: '98th', readRit: 157, readDist: 144, readNorm: 138, readPct: '98th', lexile: '—' },
+      { term: 'WI26', grade: 'K', mathRit: 170, mathDist: 158, mathNorm: 148, mathPct: '96th', readRit: 169, readDist: 154, readNorm: 144, readPct: '99th', lexile: 'BR10L–140L' },
+      { term: 'SP26', grade: 'K', mathRit: 181, mathDist: 168, mathNorm: 157, mathPct: '97th', readRit: 168, readDist: 162, readNorm: 151, readPct: '91st', lexile: 'BR25L–125L' },
+      { term: 'FA26', grade: '1', mathRit: 191, mathDist: 168, mathNorm: 159, mathPct: '99th', readRit: 177, readDist: 164, readNorm: 155, readPct: '96th', lexile: '145L–295L' }
+    ];
+
+    function getScores() {
+      try {
+        const saved = localStorage.getItem('saanvi_map_scores_v1');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {}
+      return [...DEFAULT_SCORES];
+    }
+
+    function saveScores(list) {
+      try { localStorage.setItem('saanvi_map_scores_v1', JSON.stringify(list)); } catch (e) {}
+    }
+
+    function addNewScoreEntry(e) {
+      e.preventDefault();
+      const term = document.getElementById('inp-term').value.trim().toUpperCase();
+      const grade = document.getElementById('inp-grade').value.trim();
+      const mathRit = parseInt(document.getElementById('inp-math-rit').value, 10);
+      const mathPct = document.getElementById('inp-math-pct').value.trim();
+      const readRit = parseInt(document.getElementById('inp-read-rit').value, 10);
+      const readPct = document.getElementById('inp-read-pct').value.trim();
+      const lexile = document.getElementById('inp-lexile').value.trim() || '—';
+
+      const scores = getScores();
+      scores.push({
+        term, grade,
+        mathRit, mathDist: null, mathNorm: null, mathPct,
+        readRit, readDist: null, readNorm: null, readPct, lexile
+      });
+      saveScores(scores);
+      e.target.reset();
+      document.getElementById('inp-grade').value = '1';
+      renderScoreSection();
+    }
+
+    function resetCustomScores() {
+      saveScores([...DEFAULT_SCORES]);
+      renderScoreSection();
+    }
+
+    function renderTrendChart(svgId, data, subjectKey, targetRit, colorHex) {
+      const svg = document.getElementById(svgId);
+      const points = [...data, { term: 'FA27*', isTarget: true, [subjectKey]: targetRit }];
+      const W = 480, H = 230, padL = 42, padR = 26, padT = 22, padB = 34;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+      const minY = 125, maxY = 215;
+
+      const getX = idx => padL + (idx / Math.max(1, points.length - 1)) * plotW;
+      const getY = val => padT + plotH - ((val - minY) / (maxY - minY)) * plotH;
+
+      let out = '';
+      [130, 150, 170, 190, 210].forEach(val => {
+        const y = getY(val);
+        out += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+        out += `<text x="${padL - 6}" y="${y + 3}" text-anchor="end" font-size="9.5" fill="#64748b" font-weight="600">${val}</text>`;
+      });
+
+      const distKey = subjectKey === 'mathRit' ? 'mathDist' : 'readDist';
+      const normKey = subjectKey === 'mathRit' ? 'mathNorm' : 'readNorm';
+      const distPts = data.map((d, i) => d[distKey] ? `${getX(i)},${getY(d[distKey])}` : null).filter(Boolean);
+      const normPts = data.map((d, i) => d[normKey] ? `${getX(i)},${getY(d[normKey])}` : null).filter(Boolean);
+
+      if (normPts.length > 1) out += `<polyline fill="none" stroke="#94a3b8" stroke-width="2" points="${normPts.join(' ')}"/>`;
+      if (distPts.length > 1) out += `<polyline fill="none" stroke="#f59e0b" stroke-width="2" points="${distPts.join(' ')}"/>`;
+
+      const actualPts = data.map((d, i) => `${getX(i)},${getY(d[subjectKey])}`);
+      out += `<polyline fill="none" stroke="${colorHex}" stroke-width="3" points="${actualPts.join(' ')}"/>`;
+
+      const lastActualIdx = data.length - 1;
+      const targetIdx = points.length - 1;
+      out += `<line x1="${getX(lastActualIdx)}" y1="${getY(data[lastActualIdx][subjectKey])}" x2="${getX(targetIdx)}" y2="${getY(targetRit)}" stroke="${colorHex}" stroke-width="2.5" stroke-dasharray="5,4"/>`;
+
+      points.forEach((p, idx) => {
+        const x = getX(idx);
+        const y = getY(p[subjectKey]);
+        out += `<text x="${x}" y="${H - 10}" text-anchor="middle" font-size="10" font-weight="bold" fill="#334155">${p.term}</text>`;
+        if (!p.isTarget && p[normKey]) out += `<circle cx="${x}" cy="${getY(p[normKey])}" r="3.5" fill="#94a3b8"/>`;
+        if (!p.isTarget && p[distKey]) out += `<circle cx="${x}" cy="${getY(p[distKey])}" r="3.5" fill="#f59e0b"/>`;
+        if (p.isTarget) {
+          out += `<circle cx="${x}" cy="${y}" r="5.5" fill="#ffffff" stroke="${colorHex}" stroke-width="2.5" stroke-dasharray="2,1"/>`;
+          out += `<text x="${x}" y="${y - 9}" text-anchor="middle" font-size="10.5" font-weight="800" fill="${colorHex}">${p[subjectKey]}*</text>`;
+        } else {
+          out += `<circle cx="${x}" cy="${y}" r="5" fill="${colorHex}"/>`;
+          out += `<text x="${x}" y="${y - 9}" text-anchor="middle" font-size="10.5" font-weight="800" fill="${colorHex}">${p[subjectKey]}</text>`;
+        }
+      });
+
+      svg.innerHTML = out;
+    }
+
+    function renderScoreSection() {
+      const scores = getScores();
+      renderTrendChart('math-trend-svg', scores, 'mathRit', 203, '#0d9488');
+      renderTrendChart('reading-trend-svg', scores, 'readRit', 189, '#4f46e5');
+
+      document.getElementById('math-score-tbody').innerHTML = scores.map(s => `
+        <tr class="hover:bg-teal-50/40">
+          <td class="p-2 font-bold">${s.term}</td>
+          <td class="p-2">${s.grade}</td>
+          <td class="p-2 font-extrabold text-teal-700">${s.mathRit}</td>
+          <td class="p-2 text-slate-600">${s.mathDist ? `${s.mathDist} / ${s.mathNorm}` : 'Custom'}</td>
+          <td class="p-2 font-bold">${s.mathPct}</td>
+        </tr>
+      `).join('') + `
+        <tr class="bg-teal-50/60 italic text-teal-900">
+          <td class="p-2 font-bold">FA27 Goal</td><td class="p-2">2</td><td class="p-2 font-extrabold">203</td><td class="p-2">—</td><td class="p-2">Target</td>
+        </tr>
+      `;
+
+      document.getElementById('reading-score-tbody').innerHTML = scores.map(s => `
+        <tr class="hover:bg-indigo-50/40">
+          <td class="p-2 font-bold">${s.term}</td>
+          <td class="p-2">${s.grade}</td>
+          <td class="p-2 font-extrabold text-indigo-700">${s.readRit}</td>
+          <td class="p-2 text-slate-600">${s.readDist ? `${s.readDist} / ${s.readNorm}` : 'Custom'}</td>
+          <td class="p-2 font-bold">${s.readPct}</td>
+          <td class="p-2 font-mono text-[11px]">${s.lexile}</td>
+        </tr>
+      `).join('') + `
+        <tr class="bg-indigo-50/60 italic text-indigo-900">
+          <td class="p-2 font-bold">FA27 Goal</td><td class="p-2">2</td><td class="p-2 font-extrabold">189</td><td class="p-2">—</td><td class="p-2">Target</td><td class="p-2">~300L+</td>
+        </tr>
+      `;
+    }
+
+    // =========================================================================
+    // 4. INTERACTIVE LABS: CIRCLES, PATTERNS, BEAST ACADEMY, MATH, ENG, SCI
+    // =========================================================================
+    let circleR = 4, circleMode = 'radius';
+    function updateCircleLab(newR, newMode) {
+      if (newR !== null) circleR = parseInt(newR, 10);
+      if (newMode !== null) circleMode = newMode;
+      const d = circleR * 2;
+      document.getElementById('circle-r-label').textContent = `${circleR} in`;
+      const cx = 80, cy = 80, R = 22 + circleR * 4.2;
+      let overlay = '', desc = '';
+      if (circleMode === 'radius') {
+        overlay = `<line x1="${cx}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="#e11d48" stroke-width="3"/>
+                   <text x="${cx + R / 2}" y="${cy - 6}" text-anchor="middle" font-size="10" font-weight="bold" fill="#e11d48">r = ${circleR}</text>`;
+        desc = `Radius (r) = ${circleR} in | Diameter (d = 2 × r) = ${d} in`;
+      } else if (circleMode === 'diameter') {
+        overlay = `<line x1="${cx - R}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="#4f46e5" stroke-width="3"/>
+                   <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="10" font-weight="bold" fill="#4f46e5">d = ${d}</text>`;
+        desc = `Diameter (d) = ${d} in (straight across Center; twice radius ${circleR} in)`;
+      } else if (circleMode === 'chord') {
+        overlay = `<line x1="${cx - R * 0.72}" y1="${cy - R * 0.68}" x2="${cx + R * 0.85}" y2="${cy - R * 0.52}" stroke="#d97706" stroke-width="3"/>
+                   <text x="${cx}" y="${cy - R * 0.68}" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400e">Chord</text>`;
+        desc = `Chord connects 2 edge points without needing to cross the Center.`;
+      } else if (circleMode === 'semi') {
+        overlay = `<path d="M ${cx - R} ${cy} A ${R} ${R} 0 0 1 ${cx + R} ${cy} Z" fill="#99f6e4" opacity="0.85" stroke="#0d9488" stroke-width="2"/>`;
+        desc = `Semicircle = 1/2 of a circle! Two semicircles make 1 whole circle.`;
+      }
+      document.getElementById('circle-lab-readout').textContent = desc;
+      document.getElementById('circle-lab-svg').innerHTML = `
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="#f0fdfa" stroke="#0d9488" stroke-width="2.5"/>
+        ${overlay}
+        <circle cx="${cx}" cy="${cy}" r="3.5" fill="#0f172a"/>
+        <text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="9" font-weight="bold" fill="#0f172a">Center</text>
+      `;
+    }
+
+    // Math Series Lab
+    const MATH_SERIES_LIST = [
+      { title: 'Series #1: Skip Counting by 3s', seq: [12, 15, 18, '?', 24, 27], ans: 21, hint: 'Rule: Add +3 each step' },
+      { title: 'Series #2: Growing Jumps (+2, +3, +4, +5)', seq: [2, 4, 7, 11, '?', 22], ans: 16, hint: 'Jumps grow by +1 each step!' },
+      { title: 'Series #3: Quarter Series (+25s)', seq: [25, 50, 75, '?', 125, 150], ans: 100, hint: 'Think of quarters: 25¢, 50¢, 75¢...' },
+      { title: 'Series #4: Backward Subtraction (-6)', seq: [60, 54, 48, '?', 36, 30], ans: 42, hint: 'Rule: Subtract 6 each step' },
+      { title: 'Series #5: Function Machine (Add 9)', seq: ['8→17', '14→23', '25→?'], ans: 34, hint: '25 + 9 = 34' },
+      { title: 'Series #6: Doubling Sequence (×2)', seq: [3, 6, 12, 24, '?'], ans: 48, hint: 'Each term doubles!' }
+    ];
+    let mathSeriesIdx = 0, mathSeriesSolved = new Set();
+    function renderMathSeries() {
+      const s = MATH_SERIES_LIST[mathSeriesIdx];
+      document.getElementById('math-series-title').textContent = s.title;
+      document.getElementById('math-series-tiles').innerHTML = s.seq.map(v =>
+        `<span class="px-2.5 py-1.5 rounded-lg border-2 font-extrabold text-sm ${String(v).includes('?') ? 'bg-amber-100 border-amber-400 text-amber-900' : 'bg-white border-slate-300 text-slate-800'}">${v}</span>`
+      ).join('');
+      document.getElementById('math-series-input').value = '';
+      document.getElementById('math-series-feedback').textContent = '';
+    }
+    function nextMathSeries() { mathSeriesIdx = (mathSeriesIdx + 1) % MATH_SERIES_LIST.length; renderMathSeries(); }
+    function checkMathSeries() {
+      const s = MATH_SERIES_LIST[mathSeriesIdx];
+      const val = parseInt(document.getElementById('math-series-input').value, 10);
+      const fb = document.getElementById('math-series-feedback');
+      if (val === s.ans) {
+        fb.className = 'text-center font-extrabold text-emerald-700';
+        fb.textContent = `🎉 Correct! ${s.ans} completes the series (${s.hint}).`;
+        if (!mathSeriesSolved.has(mathSeriesIdx)) { mathSeriesSolved.add(mathSeriesIdx); awardStars(2, 'Math Series Solved!'); }
+      } else {
+        fb.className = 'text-center font-bold text-rose-700';
+        fb.textContent = `❌ Try again! Hint: ${s.hint}`;
+      }
+    }
+
+    // Beast Academy 1B/1C/1D Interactive Labs
+    const BA_PARITY_LIST = [
+      { q: 'Odd Number + Odd Number (e.g., 17 + 25) = ?', ans: 'Even', why: 'Two leftover singletons pair up to make an Even sum!' },
+      { q: 'Even Number + Odd Number (e.g., 34 + 19) = ?', ans: 'Odd', why: 'One leftover singleton remains unpaired → Odd!' },
+      { q: 'Sum of THREE Odd Numbers (e.g., 5 + 7 + 9) = ?', ans: 'Odd', why: 'Odd + Odd = Even, then Even + Odd = Odd!' },
+      { q: 'Difference between Two Odd Numbers (43 − 17) = ?', ans: 'Even', why: 'Both have 1 leftover; subtracting cancels the leftovers → Even!' }
+    ];
+    let baParIdx = 0, baParSolved = new Set();
+    function renderBAParity() {
+      document.getElementById('ba-parity-q').textContent = BA_PARITY_LIST[baParIdx].q;
+      document.getElementById('ba-parity-fb').textContent = '';
+    }
+    function nextBAParity() { baParIdx = (baParIdx + 1) % BA_PARITY_LIST.length; renderBAParity(); }
+    function checkBAParity(choice) {
+      const p = BA_PARITY_LIST[baParIdx];
+      const fb = document.getElementById('ba-parity-fb');
+      if (choice === p.ans) {
+        fb.className = 'font-bold text-emerald-700';
+        fb.textContent = `✅ Always ${p.ans}! ${p.why}`;
+        if (!baParSolved.has(baParIdx)) { baParSolved.add(baParIdx); awardStars(2, 'Beast 1B Parity Master!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = `❌ ${p.why}`;
+      }
+    }
+
+    const BA_BW_LIST = [
+      { q: 'Start with ?, add 7, subtract 4, and end at 15. Start #?', ans: 12, hint: 'Reverse from 15: 15 + 4 − 7 = 12' },
+      { q: 'Leo doubles his stickers, gives 3 away, and has 11 left. Start #?', ans: 7, hint: '11 + 3 = 14, half of 14 = 7' },
+      { q: 'Add 10, subtract 5, and get 23. What went in?', ans: 18, hint: '23 + 5 − 10 = 18' }
+    ];
+    let baBwIdx = 0, baBwSolved = new Set();
+    function renderBABackwards() {
+      document.getElementById('ba-bw-q').textContent = BA_BW_LIST[baBwIdx].q;
+      document.getElementById('ba-bw-inp').value = '';
+      document.getElementById('ba-bw-fb').textContent = '';
+    }
+    function nextBABackwards() { baBwIdx = (baBwIdx + 1) % BA_BW_LIST.length; renderBABackwards(); }
+    function checkBABackwards() {
+      const p = BA_BW_LIST[baBwIdx];
+      const val = parseInt(document.getElementById('ba-bw-inp').value, 10);
+      const fb = document.getElementById('ba-bw-fb');
+      if (val === p.ans) {
+        fb.className = 'font-bold text-emerald-700';
+        fb.textContent = `🎉 Correct! ${p.hint}`;
+        if (!baBwSolved.has(baBwIdx)) { baBwSolved.add(baBwIdx); awardStars(2, 'Beast 1D Working Backwards!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = `❌ Hint: ${p.hint}`;
+      }
+    }
+
+    const BA_MAGIC_SOL = [8, 1, 6, 3, 5, 7, 4, 9, 2];
+    const BA_MAGIC_GIVEN = [8, 0, 6, 0, 5, 0, 4, 0, 2];
+    let baMagicSolved = false;
+    function renderBAMagic() {
+      document.getElementById('ba-magic-grid').innerHTML = BA_MAGIC_GIVEN.map((v, i) =>
+        v !== 0
+          ? `<div class="w-9 h-9 rounded-lg bg-orange-100 border border-orange-300 flex items-center justify-center font-extrabold text-orange-950">${v}</div>`
+          : `<input type="number" min="1" max="9" id="bamg-${i}" class="w-9 h-9 rounded-lg bg-amber-50 border-2 border-orange-400 text-center font-extrabold text-indigo-700"/>`
+      ).join('');
+    }
+    function checkBAMagic() {
+      let ok = true;
+      BA_MAGIC_SOL.forEach((ans, i) => {
+        if (BA_MAGIC_GIVEN[i] === 0 && parseInt(document.getElementById('bamg-' + i).value, 10) !== ans) ok = false;
+      });
+      const fb = document.getElementById('ba-magic-fb');
+      if (ok) {
+        fb.className = 'font-bold text-emerald-700';
+        fb.textContent = '🎉 Magic Square Solved! Every row, column & diagonal = 15!';
+        if (!baMagicSolved) { baMagicSolved = true; awardStars(3, 'Beast 1D Magic Square!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = '❌ Top row: 8 + ? + 6 = 15 → ? = 1. Check all rows & columns!';
+      }
+    }
+
+
+    // === NEW BEAST ACADEMY 1B LABS: CIRCLE DIAGRAMS, DIFFERENCE PYRAMIDS, X-OUTS ===
+    const BA_CIRCLE_DIAGS = [
+      {
+        title: 'Place words into: Left = "3 letters", Right = "Has letter E"',
+        leftLabel: '3 letters', rightLabel: 'Has E',
+        items: [
+          { label: 'one', ans: 'both' },
+          { label: 'two', ans: 'left' },
+          { label: 'three', ans: 'right' },
+          { label: 'four', ans: 'out' },
+          { label: 'six', ans: 'left' },
+          { label: 'nine', ans: 'right' }
+        ]
+      },
+      {
+        title: 'Place letters into: Left = "in SIXTY", Right = "in EIGHTY"',
+        leftLabel: 'in SIXTY', rightLabel: 'in EIGHTY',
+        items: [
+          { label: 'S', ans: 'left' },
+          { label: 'T', ans: 'both' },
+          { label: 'Y', ans: 'both' },
+          { label: 'E', ans: 'right' },
+          { label: 'G', ans: 'right' },
+          { label: 'Z', ans: 'out' }
+        ]
+      },
+      {
+        title: 'Place numbers into: Left = "Even", Right = "Greater than 5"',
+        leftLabel: 'Even', rightLabel: '> 5',
+        items: [
+          { label: '2', ans: 'left' },
+          { label: '6', ans: 'both' },
+          { label: '7', ans: 'right' },
+          { label: '3', ans: 'out' },
+          { label: '8', ans: 'both' },
+          { label: '9', ans: 'right' }
+        ]
+      }
+    ];
+    let baCdIdx = 0, baCdSolved = new Set();
+    function renderCircleDiag() {
+      const p = BA_CIRCLE_DIAGS[baCdIdx];
+      document.getElementById('ba-cd-prompt').textContent = p.title;
+      document.getElementById('ba-cd-fb').textContent = '';
+      document.getElementById('ba-cd-items').innerHTML = p.items.map((it, idx) => `
+        <div class="flex items-center justify-between gap-2 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
+          <span class="font-extrabold text-slate-900">${it.label}</span>
+          <select id="bacd-${idx}" class="px-1.5 py-0.5 rounded border border-slate-300 bg-white text-[11px] font-bold">
+            <option value="">Choose...</option>
+            <option value="left">${p.leftLabel} Only</option>
+            <option value="both">Both (Overlap)</option>
+            <option value="right">${p.rightLabel} Only</option>
+            <option value="out">Outside Both</option>
+          </select>
+        </div>
+      `).join('');
+    }
+    function nextCircleDiag() { baCdIdx = (baCdIdx + 1) % BA_CIRCLE_DIAGS.length; renderCircleDiag(); }
+    function checkCircleDiag() {
+      const p = BA_CIRCLE_DIAGS[baCdIdx];
+      let wrong = 0;
+      p.items.forEach((it, idx) => {
+        const sel = document.getElementById('bacd-' + idx);
+        if (sel.value === it.ans) { sel.classList.remove('border-rose-500', 'bg-rose-50'); sel.classList.add('border-emerald-500', 'bg-emerald-50'); }
+        else { wrong++; sel.classList.remove('border-emerald-500', 'bg-emerald-50'); sel.classList.add('border-rose-500', 'bg-rose-50'); }
+      });
+      const fb = document.getElementById('ba-cd-fb');
+      if (wrong === 0) {
+        fb.className = 'font-extrabold text-emerald-700';
+        fb.textContent = '🎉 Perfect Circle Diagram! Every item is in the right region!';
+        if (!baCdSolved.has(baCdIdx)) { baCdSolved.add(baCdIdx); awardStars(3, 'Beast 1B Circle Diagram!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = `❌ ${wrong} item(s) need moving—check the red boxes!`;
+      }
+    }
+
+    const BA_DIFF_PYRS = [
+      {
+        rule: 'Use 1–9 once each. Every brick = difference of the 2 bricks below it!',
+        rows: [[0, 6], [0, 7, 0], [5, 0, 9, 0]],
+        sol: [[4, 6], [3, 7, 1], [5, 2, 9, 8]]
+      },
+      {
+        rule: 'Use 1–9 once each. Every brick = difference of the 2 bricks below it!',
+        rows: [[6, 0], [7, 1, 5], [0, 0, 8, 3]],
+        sol: [[6, 4], [7, 1, 5], [2, 9, 8, 3]]
+      },
+      {
+        rule: 'Use 1–10 once each. Every brick = difference of the 2 bricks below it!',
+        rows: [[3], [0, 4], [2, 0, 5], [0, 0, 1, 0]],
+        sol: [[3], [7, 4], [2, 9, 5], [8, 10, 1, 6]]
+      }
+    ];
+    let baPyrIdx = 0, baPyrSolved = new Set();
+    function renderDiffPyr() {
+      const p = BA_DIFF_PYRS[baPyrIdx];
+      document.getElementById('ba-pyr-rule').textContent = p.rule;
+      document.getElementById('ba-pyr-fb').textContent = '';
+      document.getElementById('ba-pyr-board').innerHTML = p.rows.map((row, r) => `
+        <div class="flex gap-1 justify-center">
+          ${row.map((val, c) => val !== 0
+            ? `<div class="w-9 h-8 rounded-md bg-indigo-100 border border-indigo-300 flex items-center justify-center font-extrabold text-indigo-950">${val}</div>`
+            : `<input type="number" min="1" max="10" id="bapyr-${r}-${c}" class="w-9 h-8 rounded-md bg-amber-50 border-2 border-indigo-400 text-center font-extrabold text-indigo-800" />`
+          ).join('')}
+        </div>
+      `).join('');
+    }
+    function nextDiffPyr() { baPyrIdx = (baPyrIdx + 1) % BA_DIFF_PYRS.length; renderDiffPyr(); }
+    function checkDiffPyr() {
+      const p = BA_DIFF_PYRS[baPyrIdx];
+      let wrong = 0;
+      p.rows.forEach((row, r) => row.forEach((val, c) => {
+        if (val === 0) {
+          const inp = document.getElementById(`bapyr-${r}-${c}`);
+          if (parseInt(inp.value, 10) === p.sol[r][c]) { inp.classList.remove('bg-rose-100'); inp.classList.add('bg-emerald-100'); }
+          else { wrong++; inp.classList.remove('bg-emerald-100'); inp.classList.add('bg-rose-100'); }
+        }
+      }));
+      const fb = document.getElementById('ba-pyr-fb');
+      if (wrong === 0) {
+        fb.className = 'font-extrabold text-emerald-700';
+        fb.textContent = '🎉 Pyramid Solved! Every brick equals the difference below it!';
+        if (!baPyrSolved.has(baPyrIdx)) { baPyrSolved.add(baPyrIdx); awardStars(3, 'Beast 1B Difference Pyramid!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = `❌ ${wrong} brick(s) need fixing (check pink boxes)!`;
+      }
+    }
+
+    const BA_XOUTS = [
+      { target: 7, grid: [[3, 3, 4], [2, 4, 1], [5, 2, 2]] },
+      { target: 8, grid: [[5, 6, 2], [8, 4, 3], [1, 2, 6]] },
+      { target: 6, grid: [[4, 3, 2], [5, 6, 4], [2, 1, 4]] },
+      { target: 10, grid: [[3, 5, 7], [7, 4, 3], [2, 10, 6]] }
+    ];
+    let baXoutIdx = 0, baXoutCrossed = new Set(), baXoutSolved = new Set();
+    function renderXOut() {
+      const p = BA_XOUTS[baXoutIdx];
+      document.getElementById('ba-xout-target').textContent = `Target: ${p.target}`;
+      document.getElementById('ba-xout-fb').textContent = '';
+      const n = p.grid.length;
+      let html = `<div class="grid gap-1.5" style="grid-template-columns: repeat(${n}, minmax(0, 1fr));">`;
+      for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+          const key = `${r},${c}`, isX = baXoutCrossed.has(key);
+          html += `<button onclick="toggleXOutCell('${key}')" class="w-10 h-10 rounded-lg border-2 font-extrabold text-sm transition ${isX ? 'bg-slate-200 border-slate-400 text-slate-400 line-through' : 'bg-white border-rose-300 text-slate-900 hover:bg-rose-50'}">${isX ? '✕' : p.grid[r][c]}</button>`;
+        }
+      }
+      html += '</div>';
+      document.getElementById('ba-xout-grid').innerHTML = html;
+    }
+    function toggleXOutCell(key) {
+      if (baXoutCrossed.has(key)) baXoutCrossed.delete(key);
+      else baXoutCrossed.add(key);
+      renderXOut();
+    }
+    function nextXOut() { baXoutIdx = (baXoutIdx + 1) % BA_XOUTS.length; baXoutCrossed = new Set(); renderXOut(); }
+    function checkXOut() {
+      const p = BA_XOUTS[baXoutIdx], n = p.grid.length;
+      let ok = true;
+      for (let r = 0; r < n; r++) {
+        let rSum = 0, cSum = 0;
+        for (let c = 0; c < n; c++) {
+          if (!baXoutCrossed.has(`${r},${c}`)) rSum += p.grid[r][c];
+          if (!baXoutCrossed.has(`${c},${r}`)) cSum += p.grid[c][r];
+        }
+        if (rSum !== p.target || cSum !== p.target) ok = false;
+      }
+      const fb = document.getElementById('ba-xout-fb');
+      if (ok) {
+        fb.className = 'font-extrabold text-emerald-700';
+        fb.textContent = `🎉 Every row & column equals ${p.target}! Awesome X-Out!`;
+        if (!baXoutSolved.has(baXoutIdx)) { baXoutSolved.add(baXoutIdx); awardStars(3, 'Beast 1B X-Out Grid!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = `❌ Not yet—make sure EVERY row AND EVERY column adds up to ${p.target}!`;
+      }
+    }
+
+    // English Word Series & Analogy Lab (E7)
+    const ENG_SERIES_LIST = [
+      { title: 'Word Intensity Series (Quietest → Loudest)', prompt: 'whisper → speak → shout → [ ? ]', opts: ['murmur', 'roar', 'tiptoe', 'blink'], ans: 'roar' },
+      { title: 'Analogy Relationship Series', prompt: 'Puppy is to Dog as Kitten is to [ ? ]', opts: ['Bird', 'Cat', 'Fish', 'Bear'], ans: 'Cat' },
+      { title: 'Temperature Scale Series', prompt: 'freezing → cool → warm → [ ? ]', opts: ['icy', 'chilly', 'hot', 'snowy'], ans: 'hot' },
+      { title: 'Story Event Sequence', prompt: '1. Plant seed → 2. Water soil → 3. Sprout grows → 4. [ ? ]', opts: ['Buy seeds', 'Flower blooms', 'Dig hole', 'Sleep'], ans: 'Flower blooms' },
+      { title: 'Antonym Analogy Pair', prompt: 'Up is to Down as Ancient is to [ ? ]', opts: ['Old', 'Modern', 'Dusty', 'Heavy'], ans: 'Modern' }
+    ];
+    let engSerIdx = 0, engSerSolved = new Set();
+    function renderEngSeries() {
+      const p = ENG_SERIES_LIST[engSerIdx];
+      document.getElementById('eng-series-title').textContent = p.title;
+      document.getElementById('eng-series-prompt').textContent = p.prompt;
+      document.getElementById('eng-series-fb').textContent = '';
+      document.getElementById('eng-series-opts').innerHTML = p.opts.map(o =>
+        `<button onclick="checkEngSeries('${o}')" class="px-3 py-1.5 rounded-lg bg-white border border-slate-300 hover:bg-indigo-50 font-bold">${o}</button>`
+      ).join('');
+    }
+    function nextEngSeries() { engSerIdx = (engSerIdx + 1) % ENG_SERIES_LIST.length; renderEngSeries(); }
+    function checkEngSeries(choice) {
+      const p = ENG_SERIES_LIST[engSerIdx];
+      const fb = document.getElementById('eng-series-fb');
+      if (choice === p.ans) {
+        fb.className = 'font-bold text-emerald-700';
+        fb.textContent = `🎉 Spot on! "${p.ans}" completes the word series!`;
+        if (!engSerSolved.has(engSerIdx)) { engSerSolved.add(engSerIdx); awardStars(2, 'English Word Series!'); }
+      } else {
+        fb.className = 'font-bold text-rose-700';
+        fb.textContent = '❌ Not quite—look at how the words change step by step!';
+      }
+    }
+
+    // Place Value, Coin Jar, Unit Picker, Clock, Graph, Arrays, Pizza, English & Science Labs
+    const pvState = { h: 3, t: 4, o: 8 };
+    function changePV(place, delta) {
+      pvState[place] = Math.max(0, Math.min(9, pvState[place] + delta));
+      document.getElementById('pv-h').textContent = pvState.h;
+      document.getElementById('pv-t').textContent = pvState.t;
+      document.getElementById('pv-o').textContent = pvState.o;
+      const total = pvState.h * 100 + pvState.t * 10 + pvState.o;
+      document.getElementById('pv-expanded').textContent = `${pvState.h * 100} + ${pvState.t * 10} + ${pvState.o} = ${total}`;
+
+      const vis = document.getElementById('pv-blocks-visual');
+      let html = '';
+      for (let i = 0; i < pvState.h; i++) html += '<span class="w-5 h-5 bg-indigo-500 border border-indigo-700 rounded-sm inline-block" title="100"></span>';
+      for (let i = 0; i < pvState.t; i++) html += '<span class="w-1.5 h-5 bg-teal-500 border border-teal-700 rounded-sm inline-block" title="10"></span>';
+      for (let i = 0; i < pvState.o; i++) html += '<span class="w-1.5 h-1.5 bg-amber-500 border border-amber-700 rounded-full inline-block" title="1"></span>';
+      vis.innerHTML = html || '<span class="text-slate-400 text-[11px]">0 blocks</span>';
+    }
+
+    let coinCents = 0, coinGoal = 63, coinList = [], coinRewardClaimed = false;
+    const coinGoals = [41, 63, 78, 85, 92, 115];
+    function addCoin(val, label) { coinCents += val; coinList.push(label); updateCoinUI(); }
+    function resetCoins() { coinCents = 0; coinList = []; coinRewardClaimed = false; updateCoinUI(); }
+    function newCoinChallenge() {
+      coinGoal = coinGoals[Math.floor(Math.random() * coinGoals.length)];
+      document.getElementById('coin-goal-label').textContent = `Make ${coinGoal}¢ ($${(coinGoal / 100).toFixed(2)})`;
+      resetCoins();
+    }
+    function updateCoinUI() {
+      const badge = document.getElementById('coin-status-badge');
+      const tray = document.getElementById('coin-tray');
+      const dollars = (coinCents / 100).toFixed(2);
+      if (coinCents === coinGoal) {
+        badge.className = 'text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+        badge.textContent = `🎉 Exact Match! ${coinCents}¢ ($${dollars})`;
+        if (!coinRewardClaimed) { coinRewardClaimed = true; awardStars(2, 'Coin Jar Match!'); }
+      } else if (coinCents > coinGoal) {
+        badge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800';
+        badge.textContent = `Too high: ${coinCents}¢ ($${dollars})`;
+      } else {
+        badge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700';
+        badge.textContent = `Jar: ${coinCents}¢ ($${dollars})`;
+      }
+      tray.innerHTML = coinList.length
+        ? coinList.map(c => `<span class="px-1.5 py-0.5 rounded-full bg-amber-100 border border-amber-300 font-bold text-amber-900">${c}</span>`).join('')
+        : '<span class="text-slate-400 italic">Tap coins below to drop into jar...</span>';
+    }
+
+    const unitItems = [
+      { text: '🚗 The drive from Arlington Heights to Brookfield Zoo', ans: 'miles', why: 'Long road trips between towns are measured in miles!' },
+      { text: '✏️ The length of a brand new pencil', ans: 'inches', why: 'Small objects shorter than a ruler are measured in inches!' },
+      { text: '🏫 The width of Saanvi’s classroom', ans: 'feet', why: 'Room sizes are best measured in feet (or yards)!' },
+      { text: '✈️ How far an airplane flies on vacation', ans: 'miles', why: 'Hundreds of miles!' }
+    ];
+    let unitIdx = 0, unitSolved = false;
+    function nextUnitQuestion() {
+      unitIdx = (unitIdx + 1) % unitItems.length;
+      unitSolved = false;
+      document.getElementById('unit-prompt').textContent = unitItems[unitIdx].text;
+      const fb = document.getElementById('unit-feedback');
+      fb.textContent = 'Tap a unit above to test your answer!';
+      fb.className = 'mt-2.5 text-xs font-semibold text-slate-600';
+    }
+    function checkUnit(choice) {
+      const item = unitItems[unitIdx];
+      const fb = document.getElementById('unit-feedback');
+      if (choice === item.ans) {
+        fb.className = 'mt-2.5 text-xs font-bold text-emerald-700';
+        fb.textContent = `✅ Correct! ${item.why}`;
+        if (!unitSolved) { unitSolved = true; awardStars(1, 'Unit Picker Correct!'); }
+      } else {
+        fb.className = 'mt-2.5 text-xs font-bold text-rose-700';
+        fb.textContent = `❌ Not quite—think about how big that is! Try again.`;
+      }
+    }
+
+    let clockMinutesTotal = 4 * 60 + 45;
+    function renderClock() {
+      const hrs24 = Math.floor(clockMinutesTotal / 60) % 12;
+      const displayHr = hrs24 === 0 ? 12 : hrs24;
+      const mins = clockMinutesTotal % 60;
+      document.getElementById('clock-digital-readout').textContent = `${displayHr}:${mins.toString().padStart(2, '0')}`;
+      const minRad = (((mins / 60) * 360 - 90) * Math.PI) / 180;
+      const hrRad = ((((hrs24 + mins / 60) / 12) * 360 - 90) * Math.PI) / 180;
+      document.getElementById('clock-min-hand').setAttribute('x2', 90 + 54 * Math.cos(minRad));
+      document.getElementById('clock-min-hand').setAttribute('y2', 90 + 54 * Math.sin(minRad));
+      document.getElementById('clock-hour-hand').setAttribute('x2', 90 + 36 * Math.cos(hrRad));
+      document.getElementById('clock-hour-hand').setAttribute('y2', 90 + 36 * Math.sin(hrRad));
+    }
+    function stepClock(d) { clockMinutesTotal = (clockMinutesTotal + d) % 720; renderClock(); }
+    function randomClock() { clockMinutesTotal = Math.floor(Math.random() * 12) * 60 + Math.floor(Math.random() * 12) * 5; renderClock(); }
+
+    function selectBar(pet, count) {
+      document.getElementById('graph-readout').innerHTML =
+        `<strong>Selected ${pet}:</strong> <span class="text-indigo-700 font-bold">${count} votes</span> &bull; Dogs (11) has <strong>${11 - count}</strong> more votes than ${pet}.`;
+    }
+
+    let arrRows = 3, arrCols = 4;
+    function updateArray(r, c) {
+      if (r !== null) arrRows = parseInt(r, 10);
+      if (c !== null) arrCols = parseInt(c, 10);
+      document.getElementById('arr-r-val').textContent = arrRows;
+      document.getElementById('arr-c-val').textContent = arrCols;
+      const container = document.getElementById('array-visual-grid');
+      let html = '';
+      for (let i = 0; i < arrRows; i++) {
+        html += '<div class="flex gap-1.5">';
+        for (let j = 0; j < arrCols; j++) html += '<span class="w-4 h-4 rounded-full bg-teal-500 border border-teal-700 inline-block"></span>';
+        html += '</div>';
+      }
+      container.innerHTML = html;
+      const addParts = Array(arrRows).fill(arrCols).join(' + ');
+      const total = arrRows * arrCols;
+      document.getElementById('array-equation').innerHTML = `Addition: ${addParts} = ${total} &nbsp;|&nbsp; Array: ${arrRows} &times; ${arrCols} = ${total}`;
+    }
+
+    let pizzaTotal = 4, pizzaShaded = [true, false, false, false];
+    function setPizzaSlices(n) { pizzaTotal = n; pizzaShaded = Array(n).fill(false); pizzaShaded[0] = true; renderPizza(); }
+    function toggleSlice(idx) { pizzaShaded[idx] = !pizzaShaded[idx]; renderPizza(); }
+    function renderPizza() {
+      const svg = document.getElementById('pizza-svg');
+      const cx = 60, cy = 60, r = 50;
+      let paths = '';
+      for (let i = 0; i < pizzaTotal; i++) {
+        const a1 = (i / pizzaTotal) * 2 * Math.PI - Math.PI / 2;
+        const a2 = ((i + 1) / pizzaTotal) * 2 * Math.PI - Math.PI / 2;
+        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+        const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+        const fill = pizzaShaded[i] ? '#f59e0b' : '#fef3c7';
+        paths += `<path onclick="toggleSlice(${i})" d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z" fill="${fill}" stroke="#92400e" stroke-width="2"/>`;
+      }
+      svg.innerHTML = paths;
+      const count = pizzaShaded.filter(Boolean).length;
+      const names = { 2: 'Halves', 3: 'Thirds', 4: 'Fourths' };
+      document.getElementById('pizza-readout').textContent = `Shaded: ${count}/${pizzaTotal} (${names[pizzaTotal]})`;
+    }
+
+    let inferenceSolved = false;
+    function checkInference(choice) {
+      const fb = document.getElementById('inference-feedback');
+      if (choice === 'disappointed') {
+        fb.className = 'mt-2 font-bold text-emerald-700';
+        fb.textContent = '✅ Spot on! Soggy shoes + sighing are clues that she is disappointed by the rain.';
+        if (!inferenceSolved) { inferenceSolved = true; awardStars(1, 'Reading Detective!'); }
+      } else {
+        fb.className = 'mt-2 font-bold text-rose-700';
+        fb.textContent = '❌ Look at the clues: "soggy shoes" and "sighed". Try again!';
+      }
+    }
+    function buildWordSurgery() {
+      const [pre, preMean] = document.getElementById('ws-prefix').value.split('|');
+      const [root, rootMean] = document.getElementById('ws-root').value.split('|');
+      const [suf, sufMean] = document.getElementById('ws-suffix').value.split('|');
+      const word = `${pre}${root}${suf}`;
+      const meaning = `${preMean}${sufMean}${rootMean}`.trim();
+      document.getElementById('ws-output').innerHTML = `
+        <div class="text-lg font-extrabold tracking-wide text-amber-300">${word}</div>
+        <div class="text-xs text-slate-300 mt-0.5">Meaning: <strong>${meaning}</strong></div>
+      `;
+    }
+    function showSyllables(chunks, count) {
+      document.getElementById('syllable-display').innerHTML = `
+        <span class="font-mono text-base font-extrabold text-indigo-700">${chunks.replace(/-/g, ' - ')}</span>
+        <span class="px-2.5 py-1 rounded-full bg-indigo-600 text-white font-bold">👏 ${count} Claps</span>
+      `;
+    }
+
+    const SCIENCE_FACTS = [
+      { cat: 'Space', icon: '🪐', text: 'One day on Venus is longer than one whole year on Venus! Venus spins so slowly that it takes 243 Earth days to rotate once, while orbiting the Sun in 225 Earth days.' },
+      { cat: 'Space', icon: '🪐', text: 'Jupiter is so massive that more than 1,300 Earths could fit inside it! Its Great Red Spot is a giant storm that has been spinning for over 300 years.' },
+      { cat: 'Space', icon: '🪐', text: 'There is no wind or rain on the Moon, which means astronauts’ footprints from 1969 will stay on the Moon’s dusty surface for millions of years!' },
+      { cat: 'Space', icon: '🪐', text: 'Light from the Sun takes about 8 minutes and 20 seconds to travel 93 million miles across space to reach Earth.' },
+      { cat: 'Space', icon: '🪐', text: 'Saturn is the second-largest planet, yet it is made mostly of light gases—if you had a giant bathtub big enough, Saturn would float!' },
+      { cat: 'Animals', icon: '🐾', text: 'Sea otters hold hands while sleeping on their backs in ocean kelp forests so the waves don’t drift them apart!' },
+      { cat: 'Animals', icon: '🐾', text: 'An octopus has THREE hearts, NINE brains (one central brain plus one mini-brain in each of its 8 arms), and blue blood!' },
+      { cat: 'Animals', icon: '🐾', text: 'Honeybees communicate by doing a figure-eight "waggle dance" that tells other bees the exact angle and distance to blooming flowers.' },
+      { cat: 'Animals', icon: '🐾', text: 'A group of flamingos is called a "flamboyance"—and flamingos are born gray, turning pink only from eating shrimp and algae!' },
+      { cat: 'Animals', icon: '🐾', text: 'Hummingbirds are the only birds in the world that can fly backward, upside down, and hover in mid-air like a helicopter.' },
+      { cat: 'Body', icon: '🧠', text: 'Babies are born with about 300 bones, while adults have 206—because many smaller bones fuse together as you grow!' },
+      { cat: 'Body', icon: '🧠', text: 'Your heart beats about 100,000 times every single day, pumping blood through 60,000 miles of blood vessels.' },
+      { cat: 'Body', icon: '🧠', text: 'Just like fingerprints, every human being has a completely unique tongue print!' },
+      { cat: 'Body', icon: '🧠', text: 'Your brain uses about 20% of all the oxygen and energy in your body—even while you are fast asleep dreaming!' },
+      { cat: 'Earth', icon: '🌋', text: 'A bolt of lightning is five times hotter than the surface of the Sun—reaching temperatures of 50,000°F in a split second!' },
+      { cat: 'Earth', icon: '🌋', text: 'Every snowflake has 6 sides (a hexagon), and no two snowflakes falling from the sky are ever shaped identically.' },
+      { cat: 'Earth', icon: '🌋', text: 'About 71% of Earth’s surface is covered by oceans, and the deepest part—the Mariana Trench—is deeper than Mount Everest is tall!' },
+      { cat: 'Earth', icon: '🌋', text: 'Trees talk and share nutrients underground using a giant network of helpful fungi roots scientists call the "Wood Wide Web."' },
+      { cat: 'Earth', icon: '🌋', text: 'Sound travels 4 times faster through water than through air, which is why whales can hear each other singing hundreds of miles away.' },
+      { cat: 'Physics', icon: '⚡', text: 'Water is the only common substance on Earth found naturally in all three states of matter: solid ice, liquid water, and invisible water vapor gas.' },
+      { cat: 'Physics', icon: '⚡', text: 'Hot water actually expands and takes up slightly more space than cold water, and ice floats because frozen water is less dense than liquid water.' },
+      { cat: 'Physics', icon: '⚡', text: 'Earth itself acts like a giant bar magnet with a North and South magnetic pole—that is why a compass needle always points North!' },
+      { cat: 'Physics', icon: '⚡', text: 'If you drop a feather and a hammer on the Moon (where there is no air resistance), both hit the ground at the exact same time!' },
+      { cat: 'Physics', icon: '⚡', text: 'Sunlight looks white, but it is actually made of all 7 colors of the rainbow (ROYGBIV) mixed together!' }
+    ];
+
+    let activeFactCat = 'ALL', currentFactIndex = 0;
+    function filterScienceFacts(cat) {
+      activeFactCat = cat; currentFactIndex = 0;
+      document.querySelectorAll('.sf-pill').forEach(btn => {
+        const isMatch = btn.getAttribute('onclick').includes(`'${cat}'`);
+        btn.className = isMatch
+          ? 'sf-pill px-3 py-1 rounded-lg font-extrabold bg-amber-400 text-slate-950'
+          : 'sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white';
+      });
+      renderScienceFact();
+    }
+    function getFilteredFacts() { return activeFactCat === 'ALL' ? SCIENCE_FACTS : SCIENCE_FACTS.filter(f => f.cat === activeFactCat); }
+    function renderScienceFact() {
+      const list = getFilteredFacts();
+      const fact = list[currentFactIndex % list.length];
+      document.getElementById('fact-counter-badge').textContent = `Fact ${(currentFactIndex % list.length) + 1} of ${list.length}`;
+      document.getElementById('science-fact-tag').textContent = `${fact.icon} ${fact.cat}`;
+      document.getElementById('science-fact-text').textContent = fact.text;
+    }
+    function nextScienceFact() {
+      const list = getFilteredFacts();
+      currentFactIndex = (currentFactIndex + 1) % list.length;
+      renderScienceFact();
+      const st = getRewardsState();
+      st.factsRead = (st.factsRead || 0) + 1;
+      saveRewardsState(st);
+      if (st.factsRead % 3 === 0) awardStars(1, 'Explored 3 Science Facts!');
+    }
+    function randomScienceFact() {
+      const list = getFilteredFacts();
+      currentFactIndex = Math.floor(Math.random() * list.length);
+      renderScienceFact();
+    }
+
+    const PLANET_INFO = {
+      Mercury: { title: '☿️ Mercury — Closest to the Sun', type: 'Inner Rocky Planet', desc: 'The smallest planet in our solar system! Mercury has no atmosphere to trap heat, so it is scorching hot by day and freezing cold at night.' },
+      Venus: { title: '♀️ Venus — Hottest Planet', type: 'Inner Rocky Planet', desc: 'Covered in thick clouds of carbon dioxide that trap heat like a greenhouse, making Venus even hotter than Mercury!' },
+      Earth: { title: '🌍 Earth — Our Ocean Home', type: 'Inner Rocky Planet', desc: 'The only known planet with liquid water oceans on its surface and oxygen-rich air supporting millions of living species.' },
+      Mars: { title: '♂️ Mars — The Red Planet', type: 'Inner Rocky Planet', desc: 'Rusty iron dust gives Mars its red color. It is home to Olympus Mons, the largest volcano in the entire solar system!' },
+      Jupiter: { title: '♃ Jupiter — King of Planets', type: 'Outer Gas Giant', desc: 'The largest planet in our solar system with 95+ moons and a giant spinning storm called the Great Red Spot.' },
+      Saturn: { title: '🪐 Saturn — The Ringed Gas Giant', type: 'Outer Gas Giant', desc: 'Famous for its dazzling rings made of billions of chunks of ice and rock! Saturn is so light it could float in a giant bathtub of water.' },
+      Uranus: { title: '♅ Uranus — The Sideways Ice Giant', type: 'Outer Ice Giant', desc: 'Methane gas gives Uranus its pale blue-green color, and it rolls around the Sun tilted completely on its side!' },
+      Neptune: { title: '♆ Neptune — The Windy Blue Giant', type: 'Outer Ice Giant', desc: 'The farthest planet from the Sun, swept by supersonic winds blowing over 1,200 miles per hour!' }
+    };
+    function selectPlanet(name) {
+      const p = PLANET_INFO[name];
+      document.getElementById('planet-info-card').innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="font-extrabold text-amber-300 text-sm">${p.title}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-white/15">${p.type}</span>
+        </div>
+        <p class="text-slate-200">${p.desc}</p>
+      `;
+    }
+    function selectWaterStage(stage, title, desc) {
+      document.getElementById('water-stage-box').innerHTML = `
+        <div class="font-extrabold text-sky-900 text-sm mb-1">${title}</div>
+        <p class="text-slate-700">${desc}</p>
+      `;
+    }
+    function setMatterTemp(tempVal) {
+      const t = parseInt(tempVal, 10);
+      document.getElementById('matter-slider').value = t;
+      const svg = document.getElementById('matter-svg');
+      const title = document.getElementById('matter-state-title');
+      const desc = document.getElementById('matter-state-desc');
+      const readout = document.getElementById('temp-readout');
+      if (t <= 32) {
+        readout.textContent = `${t}°F (Freezing)`; title.textContent = '🧊 SOLID (Ice Cube)'; title.className = 'text-sm font-extrabold text-sky-800';
+        desc.textContent = 'Particles are packed tightly together in neat rows and keep a fixed shape.';
+        let dots = '';
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) dots += `<circle cx="${32 + c * 15}" cy="${28 + r * 15}" r="5.5" fill="#0284c7"/>`;
+        svg.innerHTML = dots;
+      } else if (t < 212) {
+        readout.textContent = `${t}°F (Room / Warm)`; title.textContent = '💧 LIQUID (Water)'; title.className = 'text-sm font-extrabold text-teal-800';
+        desc.textContent = 'Particles stay close together but slide past each other to take the container’s shape.';
+        const coords = [[22,68],[38,72],[54,66],[70,73],[86,68],[28,54],[46,56],[64,53],[80,57],[36,42],[58,41]];
+        svg.innerHTML = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#0d9488"/>`).join('');
+      } else {
+        readout.textContent = `${t}°F (Boiling!)`; title.textContent = '☁️ GAS (Water Vapor / Steam)'; title.className = 'text-sm font-extrabold text-rose-700';
+        desc.textContent = 'Particles have lots of energy and bounce fast and far apart to fill all available space!';
+        const coords = [[18,20],[88,18],[52,32],[25,65],[82,68],[48,74],[72,44],[20,42]];
+        svg.innerHTML = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#e11d48"/>`).join('');
+      }
+    }
+    const plantNeeds = { sun: true, water: true };
+    function togglePlantNeed(type) {
+      plantNeeds[type] = !plantNeeds[type];
+      const btnSun = document.getElementById('btn-plant-sun'), btnWater = document.getElementById('btn-plant-water');
+      btnSun.textContent = plantNeeds.sun ? '☀️ Sun: ON' : '☁️ Sun: OFF';
+      btnSun.className = plantNeeds.sun ? 'px-2.5 py-1 rounded bg-amber-400 text-amber-950 font-bold' : 'px-2.5 py-1 rounded bg-slate-200 text-slate-600 font-bold';
+      btnWater.textContent = plantNeeds.water ? '💧 Water: ON' : '🏜️ Water: OFF';
+      btnWater.className = plantNeeds.water ? 'px-2.5 py-1 rounded bg-sky-500 text-white font-bold' : 'px-2.5 py-1 rounded bg-slate-200 text-slate-600 font-bold';
+      renderPlant();
+    }
+    function renderPlant() {
+      const svg = document.getElementById('plant-svg');
+      const healthy = plantNeeds.sun && plantNeeds.water;
+      svg.innerHTML = `
+        <rect x="0" y="108" width="130" height="37" fill="#92400e"/>
+        ${plantNeeds.sun ? '<circle cx="105" cy="24" r="14" fill="#facc15"/>' : ''}
+        <path d="M65 108 L52 128 M65 108 L65 134 M65 108 L78 128" stroke="#fde68a" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="65" y1="108" x2="65" y2="${healthy ? 45 : 80}" stroke="${healthy ? '#16a34a' : '#ca8a04'}" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="50" cy="${healthy ? 78 : 92}" rx="12" ry="6" fill="${healthy ? '#22c55e' : '#eab308'}" transform="rotate(-20 50 78)"/>
+        <ellipse cx="80" cy="${healthy ? 72 : 90}" rx="12" ry="6" fill="${healthy ? '#22c55e' : '#eab308'}" transform="rotate(20 80 72)"/>
+        ${healthy ? `<circle cx="65" cy="40" r="14" fill="#f43f5e"/><circle cx="65" cy="40" r="6" fill="#facc15"/>`
+          : `<text x="65" y="30" text-anchor="middle" font-size="9" font-weight="bold" fill="#92400e">Needs Sun & Water!</text>`}
+      `;
+    }
+    let magnetFlipped = false;
+    function flipMagnet() {
+      magnetFlipped = !magnetFlipped;
+      const m2 = document.getElementById('magnet-2'), arrow = document.getElementById('magnet-arrow');
+      if (magnetFlipped) {
+        m2.innerHTML = '<span class="bg-blue-600 px-2.5 py-1.5">S</span><span class="bg-rose-600 px-2.5 py-1.5">N</span>';
+        arrow.textContent = '← REPEL →'; arrow.className = 'text-xs font-extrabold text-rose-600';
+      } else {
+        m2.innerHTML = '<span class="bg-rose-600 px-2.5 py-1.5">N</span><span class="bg-blue-600 px-2.5 py-1.5">S</span>';
+        arrow.textContent = '→ ATTRACT ←'; arrow.className = 'text-xs font-extrabold text-emerald-700';
+      }
+    }
+    function setMoonPhase(name, icon, desc) {
+      document.getElementById('moon-readout').innerHTML = `<div class="font-extrabold text-amber-300">${icon} ${name}</div><div class="text-[11px] text-slate-300">${desc}</div>`;
+    }
+
+    // =========================================================================
+    // 5. CHESS & SUDOKU LOGIC ACADEMY (20 PROGRESSIVE LOCKED STAGES EACH)
+    // =========================================================================
+    const PIECE_GLYPHS = { wK: '♔', wQ: '♕', wR: '♖', wB: '♗', wN: '♘', wP: '♙', bK: '♚', bQ: '♛', bR: '♜', bB: '♝', bN: '♞', bP: '♟' };
+    const CHESS_STAGES = [
+      { stage: 1, title: 'The Board & Corner Square', concept: 'A chessboard has 64 squares (8 rows called Ranks and 8 columns called Files). Always set up the board with a Light square in the bottom-right corner (h1)!', task: 'Tap the bottom-right corner square (h1) to verify board setup.', size: 5, pieces: { '0,0': 'wR', '4,4': 'wK' }, target: ['4,4'], hint: 'Tap the square where the White King (♔) stands in the bottom-right corner!' },
+      { stage: 2, title: 'The Rook — Straight Lines', concept: 'The Rook (♖) moves like a plus sign (+)—straight up, down, left, or right as many squares as it wants, as long as nothing blocks its path.', task: 'Tap the square where your Rook (♖) can capture the Black Pawn (♟).', size: 5, pieces: { '3,1': 'wR', '3,4': 'bP', '1,3': 'bP' }, target: ['3,4'], hint: 'Look along the same horizontal row as your Rook (♖)!' },
+      { stage: 3, title: 'The Bishop — Diagonals', concept: 'The Bishop (♗) zooms along diagonal lines (like an X) and always stays on the same color squares it started on!', task: 'Tap the Black Pawn (♟) that your Bishop (♗) can capture diagonally.', size: 5, pieces: { '4,0': 'wB', '1,3': 'bP', '1,0': 'bP' }, target: ['1,3'], hint: 'Follow the diagonal line up and right from your Bishop (♗).' },
+      { stage: 4, title: 'The Queen — Super Piece', concept: 'The Queen (♕) is the most powerful piece! She combines the Rook and Bishop—moving straight OR diagonally in any direction.', task: 'Tap the Black Knight (♞) that your Queen (♕) can capture.', size: 5, pieces: { '2,2': 'wQ', '0,4': 'bN', '0,1': 'bP' }, target: ['0,4'], hint: 'Trace the diagonal from the center square up to the top-right corner!' },
+      { stage: 5, title: 'The King — One Step & Safety', concept: 'The King (♔) is the most important piece, moving 1 square in any direction. A King can NEVER step onto a square attacked by an enemy piece!', task: 'Move the White King (♔) 1 step to a SAFE square (avoid the Black Rook’s row/column!).', size: 5, pieces: { '2,2': 'wK', '0,1': 'bR' }, target: ['2,3', '3,2', '3,3', '1,2', '1,3'], hint: 'The Black Rook controls column 1—step right or straight up/down!' },
+      { stage: 6, title: 'The Knight — The L-Jump', concept: 'The Knight (♘) moves in an "L" shape: 2 squares in one direction and 1 square to the side. Knights are the ONLY piece that can jump over other pieces!', task: 'Tap the Black Pawn (♟) that your Knight (♘) can reach with an L-jump.', size: 5, pieces: { '3,1': 'wN', '2,2': 'wP', '3,2': 'wP', '1,2': 'bP', '1,1': 'bP' }, target: ['1,2'], hint: 'Jump 2 squares UP and 1 square RIGHT from your Knight (♘)!' },
+      { stage: 7, title: 'The Pawn — Forward & Diagonal Capture', concept: 'Pawns (♙) march straight forward 1 square (or 2 on their very first move), but they capture diagonally 1 square forward!', task: 'Tap the Black Pawn (♟) that your White Pawn (♙) can capture diagonally.', size: 5, pieces: { '3,2': 'wP', '2,2': 'bP', '2,3': 'bP' }, target: ['2,3'], hint: 'Pawns cannot capture straight ahead—tap the diagonal enemy pawn!' },
+      { stage: 8, title: 'Piece Values: 1 - 3 - 3 - 5 - 9', concept: 'Every piece has a point value: Pawn = 1, Knight = 3, Bishop = 3, Rook = 5, Queen = 9. Always trade a lower-value piece for a higher-value piece!', task: 'Your Bishop (3 pts) can capture either a Pawn (1 pt) or a Rook (5 pts). Tap the best target!', size: 5, pieces: { '2,2': 'wB', '0,0': 'bR', '4,4': 'bP' }, target: ['0,0'], hint: '5 points is worth way more than 1 point—capture the Rook (♜)!' },
+      { stage: 9, title: 'Capturing Undefended Targets', concept: 'Before capturing a piece, check if an enemy piece is guarding it! Free (undefended) pieces are the safest captures.', task: 'Two Black Pawns are in range of your Rook. One is guarded by a Bishop, one is FREE. Tap the FREE pawn!', size: 5, pieces: { '3,2': 'wR', '3,0': 'bP', '3,4': 'bP', '1,2': 'bB' }, target: ['3,0'], hint: 'The Black Bishop on the top row guards the right pawn—take the left one!' },
+      { stage: 10, title: 'Defending an Attacked Piece', concept: 'If your piece is under attack, you can move it away OR bring another piece to guard it so the opponent won’t trade.', task: 'Your Knight (♘) is attacked by the Black Rook (♜). Tap the square where your Rook (♖) can guard your Knight!', size: 5, pieces: { '2,2': 'wN', '0,2': 'bR', '4,0': 'wR' }, target: ['2,0', '4,2'], hint: 'Move your White Rook (♖) onto row 2 or column 2 to back up your Knight!' },
+      { stage: 11, title: 'What is Check?', concept: 'When a piece directly threatens the enemy King, it is called "Check!" The King is never captured—instead, the attacked player must respond immediately.', task: 'Tap the square where your Rook (♖) puts the Black King (♚) in Check!', size: 5, pieces: { '0,3': 'bK', '4,1': 'wR', '4,4': 'wK' }, target: ['0,1', '4,3'], hint: 'Line up your Rook on the same row (row 0) or same column (col 3) as the Black King!' },
+      { stage: 12, title: '3 Ways Out of Check: ABC', concept: 'When in Check, remember A-B-C: Away (move King), Block (put a piece in between), or Capture (take the attacker).', task: 'Your King (♔) is in Check from the Black Rook (♜)! Tap the square to CAPTURE the attacker with your Bishop (♗).', size: 5, pieces: { '4,2': 'wK', '1,2': 'bR', '3,4': 'wB' }, target: ['1,2'], hint: 'Your Bishop on the right can slice diagonally right onto the Black Rook!' },
+      { stage: 13, title: 'Checkmate in 1: Back Rank Mate', concept: 'Checkmate happens when the King is in Check AND has zero legal squares to escape! Trapping a King behind its own pawns on the back row is called Back Rank Mate.', task: 'Move your Rook (♖) to the top row to deliver Checkmate!', size: 5, pieces: { '0,3': 'bK', '1,2': 'bP', '1,3': 'bP', '1,4': 'bP', '3,0': 'wR' }, target: ['0,0'], hint: 'Slide your Rook (♖) all the way up to the top-left corner (0,0)!' },
+      { stage: 14, title: 'Checkmate in 1: Queen + King Kiss', concept: 'With your King guarding your Queen right next to the enemy King, the Queen takes away every escape square without being captured!', task: 'Move your Queen (♕) right in front of the Black King (guarded by your King) for Checkmate!', size: 5, pieces: { '0,2': 'bK', '2,2': 'wK', '3,4': 'wQ' }, target: ['1,2'], hint: 'Move the Queen to the square directly between the two Kings!' },
+      { stage: 15, title: 'Avoid the Stalemate Trap!', concept: 'If the enemy King is NOT in Check, but has NO legal moves left, the game ends in a Stalemate (a Tie)! Always give Check when closing in.', task: 'Don’t stalemate! Tap the square that gives CHECKMATE instead of trapping the King with no check.', size: 5, pieces: { '0,0': 'bK', '2,1': 'wK', '3,3': 'wQ' }, target: ['1,1', '0,3'], hint: 'Move the Queen to (1,1) guarded by your King, or (0,3) along the top row!' },
+      { stage: 16, title: 'Double Attack: The Knight Fork', concept: 'A "Fork" is when one piece attacks TWO enemy pieces at the exact same time! Knights are masters of forking the King and Queen.', task: 'Jump your Knight (♘) to a square that attacks BOTH the Black King (♚) and Black Queen (♛)!', size: 5, pieces: { '0,1': 'bK', '0,3': 'bQ', '4,1': 'wN' }, target: ['2,2'], hint: 'Jump to the exact center square (2,2) to fork both top pieces!' },
+      { stage: 17, title: 'Pinning a Piece to the King', concept: 'A "Pin" happens when a Rook, Bishop, or Queen attacks an enemy piece that cannot move because the enemy King is hiding right behind it!', task: 'Move your Bishop (♗) to pin the Black Knight (♞) against the Black King (♚)!', size: 5, pieces: { '0,4': 'bK', '1,3': 'bN', '4,2': 'wB' }, target: ['3,1'], hint: 'Step your Bishop down-left to (3,1) to line up Bishop -> Knight -> King!' },
+      { stage: 18, title: 'Opening Rule: Control the Center', concept: 'At the start of a chess game, move your center pawns (e4 or d4) to control the middle of the board and open paths for your Bishops and Queen.', task: 'Tap the center square directly in front of your King’s Pawn to control the center!', size: 5, pieces: { '4,2': 'wK', '4,1': 'wQ', '4,3': 'wB', '3,2': 'wP' }, target: ['2,2'], hint: 'Push the center Pawn (♙) forward to the middle square (2,2)!' },
+      { stage: 19, title: 'Castling for King Safety', concept: 'Castling is a special move where the King moves 2 squares toward a Rook, and the Rook hops over the King to tuck him safely behind pawns!', task: 'Tap the safe corner square (4,4) where the King castles to safety behind the pawns.', size: 5, pieces: { '4,2': 'wK', '4,4': 'wR', '3,3': 'wP', '3,4': 'wP' }, target: ['4,4'], hint: 'Tap the White Rook on (4,4) to castle kingside!' },
+      { stage: 20, title: 'Grandmaster Graduation: Mate in 1!', concept: 'Combine everything you learned! Your Bishop guards the diagonal while your Rook delivers the final blow.', task: 'Deliver Checkmate in 1 move with your Rook (♖)!', size: 5, pieces: { '0,4': 'bK', '1,4': 'bP', '3,1': 'wB', '4,0': 'wR' }, target: ['0,0'], hint: 'Your Bishop guards (1,3), so slide your Rook all the way to the top-left corner (0,0)!' }
+    ];
+
+    const SUDOKU_STAGES = [
+      { stage: 1, title: 'Rule 1: Every Row Needs 1, 2, 3, 4', concept: 'In 4×4 Mini-Sudoku, every horizontal Row must contain the numbers 1, 2, 3, and 4 with NO repeats!', size: 4, grid: [[1,2,3,0],[3,4,1,2],[2,1,4,3],[4,3,2,1]], sol: [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]] },
+      { stage: 2, title: 'Rule 2: Every Column Needs 1, 2, 3, 4', concept: 'Every vertical Column (top to bottom) must also have 1, 2, 3, and 4 with NO repeats!', size: 4, grid: [[1,2,3,4],[3,0,1,2],[2,1,4,3],[4,3,2,1]], sol: [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]] },
+      { stage: 3, title: 'Rule 3: Every 2×2 Box Needs 1–4', concept: 'Look at the bold 2×2 corner boxes! Each 2×2 box must also hold 1, 2, 3, and 4.', size: 4, grid: [[1,2,3,4],[3,4,0,2],[2,1,4,3],[4,3,2,0]], sol: [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]] },
+      { stage: 4, title: 'Scanning Rows & Columns Together', concept: 'When two numbers are missing, check which number is already used in that column!', size: 4, grid: [[0,2,3,4],[3,4,1,2],[2,1,0,3],[4,3,2,1]], sol: [[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]] },
+      { stage: 5, title: 'Four Corners Challenge', concept: 'Fill in the missing corner numbers by checking each corner’s 2×2 box.', size: 4, grid: [[0,3,2,0],[2,4,1,3],[3,1,4,2],[0,2,3,0]], sol: [[1,3,2,4],[2,4,1,3],[3,1,4,2],[4,2,3,1]] },
+      { stage: 6, title: 'Center X-Pattern', concept: 'Look at the middle squares—solve one box at a time so each 2×2 box has 1, 2, 3, 4.', size: 4, grid: [[2,1,4,3],[4,0,0,1],[1,0,0,4],[3,4,1,2]], sol: [[2,1,4,3],[4,3,2,1],[1,2,3,4],[3,4,1,2]] },
+      { stage: 7, title: 'Two-Step Deduction', concept: 'Find a row or column that already has 3 numbers filled in—that square is guaranteed!', size: 4, grid: [[1,0,4,2],[4,2,0,1],[2,3,1,0],[0,1,2,4]], sol: [[1,3,4,2],[4,2,3,1],[2,3,1,4],[3,1,2,4]] },
+      { stage: 8, title: '4×4 Master Puzzle', concept: 'You are ready for a full 6-blank 4×4 Sudoku! Start with the easiest rows first.', size: 4, grid: [[0,4,1,2],[1,2,0,4],[4,0,2,1],[2,1,4,0]], sol: [[3,4,1,2],[1,2,3,4],[4,3,2,1],[2,1,4,3]] },
+      { stage: 9, title: 'Level Up: 6×6 Sudoku Intro (1–6)', concept: 'Welcome to 6×6 Sudoku! Now every row, column, and 2×3 rectangle uses digits 1, 2, 3, 4, 5, and 6.', size: 6, grid: [[1,2,3,4,5,0],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 10, title: '6×6 Row & Column Elimination', concept: 'Count 1 through 6 in each row to spot the missing digit!', size: 6, grid: [[1,2,3,4,5,6],[4,0,6,1,2,3],[2,3,1,5,0,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 11, title: '6×6 Cross-Hatching', concept: 'Look across rows and down columns to place 3 missing numbers in this 6×6 board.', size: 6, grid: [[1,2,0,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,0,3,1],[3,1,2,6,4,5],[6,4,5,3,1,0]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 12, title: '6×6 Diagonal Blanks', concept: 'Four blanks along the diagonal—solve them one row at a time!', size: 6, grid: [[0,2,3,4,5,6],[4,0,6,1,2,3],[2,3,0,5,6,4],[5,6,4,0,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 13, title: '6×6 Twin Pairs', concept: 'When two numbers are missing in a row, check which one is already in the column above!', size: 6, grid: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,0,1,5,0,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,0,5,3,0,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 14, title: '6×6 Box Detective', concept: 'Use the 2×3 boxes to deduce 5 missing cells.', size: 6, grid: [[1,2,3,0,5,6],[4,5,6,1,2,3],[2,3,1,5,6,0],[0,6,4,2,3,1],[3,1,0,6,4,5],[6,4,5,3,1,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 15, title: '6×6 Champion Puzzle', concept: 'Solve all 6 missing cells to graduate to full 9×9 Championship Sudoku!', size: 6, grid: [[0,2,3,4,5,6],[4,5,6,1,2,0],[2,3,1,0,6,4],[5,6,4,2,3,1],[3,0,2,6,4,5],[6,4,5,3,0,2]], sol: [[1,2,3,4,5,6],[4,5,6,1,2,3],[2,3,1,5,6,4],[5,6,4,2,3,1],[3,1,2,6,4,5],[6,4,5,3,1,2]] },
+      { stage: 16, title: 'Championship 9×9 Intro (1–9)', concept: 'In 9×9 Sudoku, every row, column, and 3×3 box contains digits 1 through 9. Find the single missing digit in Row 1!', size: 9, grid: [[5,3,4,6,7,8,9,1,0],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]], sol: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]] },
+      { stage: 17, title: '9×9 Naked Singles (2 Blanks)', concept: 'Count 1 to 9 in each row with a blank cell to discover the missing digits.', size: 9, grid: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,0,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,0,3,5],[3,4,5,2,8,6,1,7,9]], sol: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]] },
+      { stage: 18, title: '9×9 Center Box Master', concept: 'Focus on the middle 3×3 box and surrounding rows to fill 3 missing numbers.', size: 9, grid: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,0,6,1,4,2,3],[4,2,6,8,0,3,7,9,1],[7,1,3,9,2,0,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]], sol: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]] },
+      { stage: 19, title: '9×9 Four-Quadrant Challenge', concept: 'Scan all four corners of the 9×9 grid to complete the missing digits.', size: 9, grid: [[0,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,0],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[0,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,0]], sol: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]] },
+      { stage: 20, title: 'Grandmaster 9×9 Graduation!', concept: 'Solve all 5 missing numbers across the 9×9 championship board to earn your Sudoku Master badge!', size: 9, grid: [[5,3,0,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,0,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,0,8,4],[2,0,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,0]], sol: [[5,3,4,6,7,8,9,1,2],[6,7,2,1,9,5,3,4,8],[1,9,8,3,4,2,5,6,7],[8,5,9,7,6,1,4,2,3],[4,2,6,8,5,3,7,9,1],[7,1,3,9,2,4,8,5,6],[9,6,1,5,3,7,2,8,4],[2,8,7,4,1,9,6,3,5],[3,4,5,2,8,6,1,7,9]] }
+    ];
+
+    let currentAcademyGame = 'chess', selectedStageNum = 1;
+    function getAcademyProgress() {
+      try { const saved = JSON.parse(localStorage.getItem('saanvi_academy_progress_v1') || 'null'); if (saved) return saved; } catch (e) {}
+      return { chessUnlocked: 1, sudokuUnlocked: 1 };
+    }
+    function saveAcademyProgress(prog) {
+      try { localStorage.setItem('saanvi_academy_progress_v1', JSON.stringify(prog)); } catch (e) {}
+    }
+    function promptParentUnlockAllStages() {
+      requestParentAuth('🔓 Unlock All 20 Logic Stages', 'Enter parent password to unlock all 20 stages in Chess & Sudoku.', () => {
+        saveAcademyProgress({ chessUnlocked: 20, sudokuUnlocked: 20 }); renderAcademy();
+      });
+    }
+    function resetAcademyProgress() { saveAcademyProgress({ chessUnlocked: 1, sudokuUnlocked: 1 }); selectedStageNum = 1; renderAcademy(); }
+    function switchAcademyGame(game) {
+      currentAcademyGame = game;
+      const prog = getAcademyProgress();
+      const maxUnlocked = game === 'chess' ? prog.chessUnlocked : prog.sudokuUnlocked;
+      selectedStageNum = Math.max(1, Math.min(selectedStageNum, maxUnlocked));
+      document.getElementById('btn-game-chess').className = game === 'chess'
+        ? 'px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white shadow-sm transition'
+        : 'px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      document.getElementById('btn-game-sudoku').className = game === 'sudoku'
+        ? 'px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white shadow-sm transition'
+        : 'px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      renderAcademy();
+    }
+    function selectAcademyStage(num) {
+      const prog = getAcademyProgress();
+      const maxUnlocked = currentAcademyGame === 'chess' ? prog.chessUnlocked : prog.sudokuUnlocked;
+      if (num > maxUnlocked) return;
+      selectedStageNum = num; renderAcademy();
+    }
+    function renderAcademy() {
+      const prog = getAcademyProgress();
+      const maxUnlocked = currentAcademyGame === 'chess' ? prog.chessUnlocked : prog.sudokuUnlocked;
+      document.getElementById('academy-progress-summary').textContent = `Unlocked: Stage ${maxUnlocked} / 20 (+5 ⭐ per stage!)`;
+      const pills = document.getElementById('academy-stage-pills');
+      let pillHtml = '';
+      for (let i = 1; i <= 20; i++) {
+        const isLocked = i > maxUnlocked, isCompleted = i < maxUnlocked, isSelected = i === selectedStageNum;
+        if (isLocked) pillHtml += `<button disabled class="py-2 px-1.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-400 text-xs font-bold flex flex-col items-center justify-center cursor-not-allowed"><span>🔒</span><span>Stg ${i}</span></button>`;
+        else {
+          const ring = isSelected ? 'ring-2 ring-purple-600 bg-purple-600 text-white' : (isCompleted ? 'bg-emerald-50 border-emerald-300 text-emerald-900 hover:bg-emerald-100' : 'bg-purple-50 border-purple-300 text-purple-900 hover:bg-purple-100');
+          pillHtml += `<button onclick="selectAcademyStage(${i})" class="py-2 px-1.5 rounded-xl border text-xs font-extrabold flex flex-col items-center justify-center transition ${ring}"><span>${isCompleted ? '⭐' : '🔓'}</span><span>Stg ${i}</span></button>`;
+        }
+      }
+      pills.innerHTML = pillHtml;
+      if (currentAcademyGame === 'chess') renderChessStage(CHESS_STAGES[selectedStageNum - 1]);
+      else renderSudokuStage(SUDOKU_STAGES[selectedStageNum - 1]);
+    }
+    function renderChessStage(st) {
+      const container = document.getElementById('academy-active-stage');
+      let boardHtml = '';
+      for (let r = 0; r < st.size; r++) {
+        for (let c = 0; c < st.size; c++) {
+          const isLight = (r + c) % 2 === 0;
+          const bg = isLight ? 'bg-amber-100 hover:bg-amber-200' : 'bg-emerald-700/80 hover:bg-emerald-600 text-white';
+          const key = `${r},${c}`, pCode = st.pieces[key], glyph = pCode ? PIECE_GLYPHS[pCode] : '';
+          const pieceColor = pCode && pCode.startsWith('w') ? 'text-slate-900 drop-shadow-[0_1px_1px_rgba(255,255,255,0.9)]' : 'text-slate-950';
+          boardHtml += `<button onclick="handleChessSquareClick('${key}')" class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center text-2xl sm:text-3xl font-bold border border-slate-400/40 transition ${bg}"><span class="${pieceColor}">${glyph}</span></button>`;
+        }
+      }
+      container.innerHTML = `
+        <div class="bg-purple-600 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div><span class="text-[11px] font-bold uppercase tracking-wider text-purple-200">Chess Stage ${st.stage} of 20</span><h3 class="text-base sm:text-lg font-extrabold">${st.title}</h3></div>
+          <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">Interactive Board</span>
+        </div>
+        <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+          <div class="space-y-3">
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3.5"><div class="text-xs font-extrabold text-purple-900 uppercase mb-1">💡 Concept Lesson</div><p class="text-xs sm:text-sm text-slate-800 leading-relaxed">${st.concept}</p></div>
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5"><div class="text-xs font-extrabold text-amber-900 uppercase mb-1">🎯 Your Mission</div><p class="text-xs sm:text-sm font-bold text-slate-900">${st.task}</p></div>
+            <div id="chess-stage-feedback" class="text-xs font-bold text-slate-600 min-h-[24px]">Hint: ${st.hint}</div>
+          </div>
+          <div class="flex flex-col items-center"><div class="grid grid-cols-5 border-4 border-slate-800 rounded-xl overflow-hidden shadow-md">${boardHtml}</div></div>
+        </div>
+      `;
+    }
+    function handleChessSquareClick(coord) {
+      const st = CHESS_STAGES[selectedStageNum - 1], fb = document.getElementById('chess-stage-feedback');
+      if (st.target.includes(coord)) {
+        const prog = getAcademyProgress();
+        if (st.stage === prog.chessUnlocked) {
+          awardStars(5, `Chess Stage ${st.stage} Cleared!`);
+          if (prog.chessUnlocked < 20) { prog.chessUnlocked++; saveAcademyProgress(prog); }
+        }
+        fb.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-extrabold pop-in';
+        fb.innerHTML = st.stage < 20
+          ? `🎉 Brilliant move, Saanvi! Stage ${st.stage + 1} is now UNLOCKED! <button onclick="selectAcademyStage(${st.stage + 1})" class="ml-2 px-3 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Next Stage &rarr;</button>`
+          : `🏆 CONGRATULATIONS! You completed all 20 Chess Academy Stages!`;
+      } else {
+        fb.className = 'p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold';
+        fb.textContent = `❌ Not that square! Hint: ${st.hint}`;
+      }
+    }
+    function renderSudokuStage(st) {
+      const container = document.getElementById('academy-active-stage');
+      const boxR = st.size === 4 ? 2 : (st.size === 6 ? 2 : 3), boxC = st.size === 4 ? 2 : 3;
+      const cellSize = st.size === 9 ? 'w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm' : 'w-11 h-11 sm:w-12 sm:h-12 text-base';
+      let gridHtml = '';
+      for (let r = 0; r < st.size; r++) {
+        for (let c = 0; c < st.size; c++) {
+          const val = st.grid[r][c];
+          const bRight = (c + 1) % boxC === 0 && c !== st.size - 1 ? 'border-r-2 border-r-slate-800' : 'border-r border-r-slate-300';
+          const bBottom = (r + 1) % boxR === 0 && r !== st.size - 1 ? 'border-b-2 border-b-slate-800' : 'border-b border-b-slate-300';
+          if (val !== 0) gridHtml += `<div class="${cellSize} flex items-center justify-center font-extrabold bg-slate-100 text-slate-900 ${bRight} ${bBottom}">${val}</div>`;
+          else gridHtml += `<input type="number" min="1" max="${st.size}" data-r="${r}" data-c="${c}" class="sudoku-cell ${cellSize} text-center font-extrabold text-indigo-700 bg-amber-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 ${bRight} ${bBottom}" />`;
+        }
+      }
+      container.innerHTML = `
+        <div class="bg-purple-600 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
+          <div><span class="text-[11px] font-bold uppercase tracking-wider text-purple-200">Sudoku Stage ${st.stage} of 20 (${st.size}&times;${st.size} Grid)</span><h3 class="text-base sm:text-lg font-extrabold">${st.title}</h3></div>
+          <span class="text-xs font-bold bg-white/20 px-3 py-1 rounded-full">Digits 1–${st.size}</span>
+        </div>
+        <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+          <div class="space-y-3">
+            <div class="bg-purple-50 border border-purple-200 rounded-xl p-3.5"><div class="text-xs font-extrabold text-purple-900 uppercase mb-1">💡 Strategy Tip</div><p class="text-xs sm:text-sm text-slate-800 leading-relaxed">${st.concept}</p></div>
+            <button onclick="checkSudokuSolution()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-extrabold shadow-sm">✅ Check My Sudoku Answer</button>
+            <div id="sudoku-stage-feedback" class="text-xs font-bold text-slate-600 min-h-[24px]">Fill in the yellow empty boxes with numbers 1 to ${st.size}, then click Check!</div>
+          </div>
+          <div class="flex flex-col items-center overflow-x-auto"><div class="grid border-2 border-slate-800 rounded-lg overflow-hidden shadow-md" style="grid-template-columns: repeat(${st.size}, minmax(0, 1fr));">${gridHtml}</div></div>
+        </div>
+      `;
+    }
+    function checkSudokuSolution() {
+      const st = SUDOKU_STAGES[selectedStageNum - 1], inputs = document.querySelectorAll('.sudoku-cell');
+      let allCorrect = true;
+      inputs.forEach(inp => {
+        const r = parseInt(inp.dataset.r, 10), c = parseInt(inp.dataset.c, 10), userVal = parseInt(inp.value, 10);
+        if (userVal === st.sol[r][c]) { inp.classList.remove('bg-rose-100'); inp.classList.add('bg-emerald-100', 'text-emerald-900'); }
+        else { allCorrect = false; inp.classList.add('bg-rose-100'); }
+      });
+      const fb = document.getElementById('sudoku-stage-feedback');
+      if (allCorrect) {
+        const prog = getAcademyProgress();
+        if (st.stage === prog.sudokuUnlocked) {
+          awardStars(5, `Sudoku Stage ${st.stage} Cleared!`);
+          if (prog.sudokuUnlocked < 20) { prog.sudokuUnlocked++; saveAcademyProgress(prog); }
+        }
+        fb.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-extrabold pop-in';
+        fb.innerHTML = st.stage < 20
+          ? `🎉 Awesome logic, Saanvi! Sudoku Stage ${st.stage + 1} is now UNLOCKED! <button onclick="selectAcademyStage(${st.stage + 1})" class="ml-2 px-3 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Next Stage &rarr;</button>`
+          : `🏆 CONGRATULATIONS! You completed all 20 Sudoku Academy Stages!`;
+      } else {
+        fb.className = 'p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold';
+        fb.textContent = '❌ Some pink boxes need fixing—make sure every row, column, and box has no repeated numbers!';
+      }
+    }
+
+    // =========================================================================
+    // 6. FULL 760-QUESTION PRACTICE BANK (Q1-Q265 PRESERVED + Q266-Q760 NEW)
+    // =========================================================================
+    const READING_STORIES = {
+      A: { title: 'Story A — The Lost Kite (For Q1–Q5)', text: 'Maya ran across the breezy hill holding her bright red kite string. Suddenly, a strong gust of wind snapped the string, and the kite drifted into the tall branches of an old oak tree. Maya’s shoulders slumped, and she stared up at the leaves with a quiet sigh. Her older brother Leo walked over carrying a long wooden ladder. "Don\'t worry," Leo smiled. "We will have it flying again before lunch."' },
+      B: { title: 'Article B — Amazing Honeybees (For Q6–Q10)', text: 'Honeybees live together in busy colonies inside a hive. Each hive has one queen bee, thousands of female worker bees, and a few hundred drones. Worker bees fly from flower to flower collecting sweet nectar and yellow pollen. When a worker finds a patch of blooming flowers, it returns to the hive and performs a special "waggle dance." The direction and speed of the dance tell the other bees exactly where to fly for food!' },
+      C: { title: 'Story C — Midnight in the Attic (For Q11–Q15)', text: 'During a thunderstorm, the lights in Sam’s house flickered out. Sam clutched his flashlight and tiptoed up the creaky attic stairs to find extra candles. Scratch, scratch, scratch! A strange noise echoed from behind an old trunk. Sam froze, his heart thumping like a drum. Slowly, he aimed his beam behind the box—and laughed when he saw Whiskers, his gray kitten, chasing a rolled-up sock.' },
+      D: { title: 'Article D — Sea Otters\' Floating Beds (For Q16–Q20)', text: 'Sea otters spend almost their entire lives in the cold ocean water. Unlike whales and seals, sea otters do not have a thick layer of blubber to stay warm. Instead, they have the thickest fur of any animal, with up to one million hairs per square inch! When it is time to sleep, sea otters float on their backs and wrap themselves in long strands of ocean kelp. The kelp acts like an anchor so the waves do not carry them away while they nap.' },
+      E: { title: 'Story E — The Science Fair Volcano (For Q21–Q25)', text: 'Priya spent two weeks painting her papier-mâché volcano brown and green. On the morning of the science fair, she poured baking soda into the crater, added red food coloring, and poured in vinegar. Nothing happened! Priya checked her bottles and realized she had grabbed water instead of vinegar. She quickly asked her teacher for a cup of real vinegar, tried again, and cheered as bubbly red "lava" foamed over the sides.' }
+    };
+
+    const Q_BANK_DATA = [
+      // Q1 - Q25: ENG_LIT
+      { n: 1, cat: 'ENG_LIT', sub: 'English: Literature & Informational', story: 'A', q: 'How does Maya feel right after the kite gets stuck, and which clue shows this?', a: 'Disappointed/sad; her shoulders slumped and she sighed' },
+      { n: 2, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What caused the kite string to break?', a: 'A strong gust of wind' },
+      { n: 3, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What can you infer about Leo’s personality from his actions?', a: 'He is kind, helpful, and supportive' },
+      { n: 4, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Where does this story take place (setting)?', a: 'On a breezy hill near an old oak tree' },
+      { n: 5, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What will most likely happen next in the story?', a: 'Leo will climb the ladder to rescue the kite' },
+      { n: 6, cat: 'ENG_LIT', sub: 'English: Literature & Informational', story: 'B', q: 'What is the main idea of this nonfiction article?', a: 'Honeybees work together and communicate to gather food for their hive' },
+      { n: 7, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Why does a worker bee perform a "waggle dance"?', a: 'To show other bees the direction and distance to flowers' },
+      { n: 8, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'According to the text, what two things do worker bees collect from flowers?', a: 'Nectar and pollen' },
+      { n: 9, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'If this article had a bold title above this paragraph, what is that nonfiction text feature called?', a: 'Heading' },
+      { n: 10, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'How is "Article B" different from "Story A"?', a: 'Article B gives real science facts; Story A is made-up fiction' },
+      { n: 11, cat: 'ENG_LIT', sub: 'English: Literature & Informational', story: 'C', q: 'Why did Sam go up to the attic during the storm?', a: 'To find extra candles after the power went out' },
+      { n: 12, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What does the comparison "his heart thumping like a drum" tell you about Sam?', a: 'He was very scared or nervous' },
+      { n: 13, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'How did Sam’s feelings change from the middle of the story to the end?', a: 'He went from frightened to relieved and amused' },
+      { n: 14, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What was actually making the scratching sound behind the trunk?', a: 'His kitten Whiskers playing with a sock' },
+      { n: 15, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Which detail proves this story happens at night or in the dark?', a: 'He needed a flashlight and candles when the lights went out' },
+      { n: 16, cat: 'ENG_LIT', sub: 'English: Literature & Informational', story: 'D', q: 'How do sea otters stay warm in cold ocean water without blubber?', a: 'They have the thickest fur of any animal' },
+      { n: 17, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Why do sea otters wrap themselves in kelp before sleeping?', a: 'So ocean waves do not carry them away' },
+      { n: 18, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'In the text, what does the author compare kelp to?', a: 'An anchor' },
+      { n: 19, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'If a book about sea otters has a small dictionary of bold words in the back, what is that feature called?', a: 'Glossary' },
+      { n: 20, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Which detail supports the fact that sea otters have super-thick fur?', a: 'Up to one million hairs per square inch' },
+      { n: 21, cat: 'ENG_LIT', sub: 'English: Literature & Informational', story: 'E', q: 'What problem did Priya face at the science fair?', a: 'Her volcano did not erupt because she used water instead of vinegar' },
+      { n: 22, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'How did Priya solve her problem?', a: 'She got real vinegar from her teacher and tried again' },
+      { n: 23, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'What lesson or theme does this story teach?', a: 'Check your work carefully and don\'t give up when mistakes happen' },
+      { n: 24, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'Put these events in order: (A) Red foam erupted. (B) Priya painted the volcano. (C) She poured water by mistake.', a: 'B, C, A' },
+      { n: 25, cat: 'ENG_LIT', sub: 'English: Literature & Informational', q: 'How is Priya like Leo from Story A?', a: 'Both stay calm and solve problems instead of giving up' },
+
+      // Q26 - Q50: ENG_VOC
+      { n: 26, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Multiple Meaning (Bark): What does bark mean in "The rough tree bark scratched my arm" vs. "The puppy began to bark"?', a: 'Outer tree covering vs. dog sound' },
+      { n: 27, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Multiple Meaning (Bat): Give two meanings for bat: "He swung the wooden bat" vs. "A bat flew out of the cave."', a: 'Sports stick vs. flying mammal' },
+      { n: 28, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Multiple Meaning (Wave): What does wave mean in "A huge ocean wave splashed us" vs. "I wave goodbye to Mom"?', a: 'Moving water vs. hand gesture' },
+      { n: 29, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Multiple Meaning (Light): Explain light in "This empty box is very light" vs. "Please turn on the bedroom light."', a: 'Not heavy vs. lamp/brightness' },
+      { n: 30, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Multiple Meaning (Watch): Explain watch in "Look at my new wrist watch" vs. "Let\'s watch the parade."', a: 'Timepiece vs. observe/look at' },
+      { n: 31, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Prefix (un-): What does unfair mean if fair means treating everyone equally?', a: 'Not fair' },
+      { n: 32, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Prefix (re-): If you reread a chapter, what are you doing?', a: 'Reading it again' },
+      { n: 33, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Prefix (pre-): What does the prefix pre- mean in preheat and preview?', a: 'Before (heat before; view before)' },
+      { n: 34, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Prefix (dis-): What happens when a magician makes a rabbit disappear?', a: 'It stops being visible / vanishes' },
+      { n: 35, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Prefix (mis-): If you misspell a word, what did you do?', a: 'Spelled it wrongly' },
+      { n: 36, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Suffix (-ful): What does joyful mean?', a: 'Full of joy' },
+      { n: 37, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Suffix (-less): What is the difference between fearful and fearless?', a: 'Full of fear vs. without fear' },
+      { n: 38, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Suffix (-er): Adding -er to teach makes teacher. What does -er mean here?', a: 'A person who teaches' },
+      { n: 39, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Suffix (-ly): How does -ly change brave in "She spoke bravely"?', a: 'In a brave way' },
+      { n: 40, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Context Clues: "The desert was arid, with cracked dirt and no rain for months." What does arid mean?', a: 'Very dry' },
+      { n: 41, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Context Clues: "The famished puppy gobbled up its entire bowl of food in ten seconds." What does famished mean?', a: 'Extremely hungry' },
+      { n: 42, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Context Clues: "Glass is fragile, so carry the vase gently so it won\'t shatter." What does fragile mean?', a: 'Easily broken' },
+      { n: 43, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Context Clues: "After hiking up the steep mountain, the campers were exhausted and fell asleep right away." What does exhausted mean?', a: 'Very tired' },
+      { n: 44, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Synonyms: Which word is a synonym for enormous: tiny, gigantic, narrow, or swift?', a: 'gigantic' },
+      { n: 45, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Synonyms: Replace smart with a stronger synonym: "The smart fox solved the puzzle."', a: 'clever / intelligent' },
+      { n: 46, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Antonyms: What is an antonym (opposite) for ancient?', a: 'modern / new / young' },
+      { n: 47, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Antonyms: What is an antonym for generous?', a: 'selfish / greedy / stingy' },
+      { n: 48, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Shades of Meaning: Order these from coldest to warmest: warm, freezing, hot, cool.', a: 'freezing, cool, warm, hot' },
+      { n: 49, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Shades of Meaning: Order these from slowest to fastest: sprint, stroll, jog, crawl.', a: 'crawl, stroll, jog, sprint' },
+      { n: 50, cat: 'ENG_VOC', sub: 'English: Vocabulary Use & Functions', q: 'Categorizing Words: Which word does not belong and why: apple, banana, carrot, grape?', a: 'carrot (vegetable; others are fruits)' },
+
+      // Q51 - Q75: ENG_PHO
+      { n: 51, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Syllables: How many syllables are in unbelievable? Break it apart.', a: '5; un-be-liev-a-ble' },
+      { n: 52, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Syllables: Clap and count the syllables in watermelon and butterfly.', a: 'wa-ter-mel-on (4); but-ter-fly (3)' },
+      { n: 53, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Syllables: Break hippopotamus into syllables.', a: 'hip-po-pot-a-mus (5)' },
+      { n: 54, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Compound Words: Split sunflower and lighthouse into their two root words.', a: 'sun+flower; light+house' },
+      { n: 55, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Compound Words: Combine two words to make a word meaning "a box for mail."', a: 'mailbox' },
+      { n: 56, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Long Vowel Teams: Which long vowel sound do rain, tray, and eight share?', a: 'Long A' },
+      { n: 57, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Long Vowel Teams: Which long vowel sound do boat, snow, and toe share?', a: 'Long O' },
+      { n: 58, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Long Vowel Teams: Identify the vowel team making the Long E sound in beach and wheel.', a: 'ea; ee' },
+      { n: 59, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Diphthongs (ou/ow): Read cloud and clown. What vowel sound do ou and ow make?', a: '/ow/ sound' },
+      { n: 60, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Diphthongs (oi/oy): Choose the correct spelling: c__n (oi/oy) and t__ (oi/oy).', a: 'coin; toy' },
+      { n: 61, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'R-Controlled Vowels: Underline the r-controlled vowel pair in shark, storm, and turtle.', a: 'ar, or, ur' },
+      { n: 62, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'R-Controlled Vowels: Which word has the same vowel sound as bird: barn, fern, or fork?', a: 'fern (er/ir sound)' },
+      { n: 63, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Silent Letters: Which letter is silent in knight, wrist, and lamb?', a: 'k, w, b' },
+      { n: 64, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Silent E (Magic E): How does adding silent e change cub to cube and tap to tape?', a: 'Changes short vowel to long vowel' },
+      { n: 65, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Hard vs. Soft C: Does c make a hard /k/ or soft /s/ sound in city vs. camel?', a: 'city = soft /s/; camel = hard /k/' },
+      { n: 66, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Hard vs. Soft G: Does g make a hard /g/ or soft /j/ sound in giraffe vs. garden?', a: 'giraffe = soft /j/; garden = hard /g/' },
+      { n: 67, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Consonant Blends/Digraphs: What is the difference between a blend (bl in blue) and a digraph (sh in ship)?', a: 'Blend keeps both sounds; digraph makes 1 new sound' },
+      { n: 68, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Homophones (to/too/two): "I ate ___ (to/too/two) cookies, and my sister ate some ___ (to/too/two)."', a: 'two; too' },
+      { n: 69, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Homophones (there/their/they\'re): "___ (There/Their/They\'re) going to park ___ (there/their/they\'re) car over ___."', a: 'They\'re; their; there' },
+      { n: 70, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Homophones (sea/see): Pick the right words: "We can ___ (sea/see) whales in the blue ___ (sea/see)."', a: 'see; sea' },
+      { n: 71, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Inflectional Endings (-ed): Which -ed word ends with a /t/ sound: jumped, played, or landed?', a: 'jumped' },
+      { n: 72, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Doubling Consonant Rule: Spell hop + ing and run + er correctly.', a: 'hopping; runner' },
+      { n: 73, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Drop-E Rule: Spell bake + ing and smile + ed correctly.', a: 'baking; smiled' },
+      { n: 74, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Y-to-I Rule: Change baby and puppy into plurals (more than one).', a: 'babies; puppies' },
+      { n: 75, cat: 'ENG_PHO', sub: 'English: Foundational Skills & Phonics', q: 'Alphabetical Order: Put these words in ABC order: grape, giant, garden, globe.', a: 'garden, giant, globe, grape' },
+
+      // Q76 - Q100: ENG_GRA
+      { n: 76, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Commas in a Series: Fix punctuation: "We packed sandwiches juice boxes and apples."', a: 'sandwiches, juice boxes, and apples.' },
+      { n: 77, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Commas in Dates: Where does the comma go in "December 4 2026"?', a: 'December 4, 2026' },
+      { n: 78, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Commas in Cities/States: Fix: "Saanvi lives in Arlington Heights Illinois."', a: 'Arlington Heights, Illinois.' },
+      { n: 79, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Commas in Letters: Add commas: "Dear Grandma / Love Saanvi"', a: 'Dear Grandma, / Love, Saanvi' },
+      { n: 80, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Contractions: Write contractions for do not, cannot, and will not.', a: 'don\'t, can\'t, won\'t' },
+      { n: 81, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Contractions: Expand these contractions into two words: she\'s, they\'ve, I\'m.', a: 'she is/has, they have, I am' },
+      { n: 82, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Singular Possessives: Show that the bone belongs to one dog: "the ___ bone" (dogs / dog\'s / dogs\').', a: 'dog\'s' },
+      { n: 83, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Plural Possessives: Show that the classroom belongs to many students: "the ___ classroom" (student\'s / students\').', a: 'students\'' },
+      { n: 84, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Nouns (Common vs. Proper): Which words need capital letters: "on monday, we visited lincoln park zoo."', a: 'On, Monday, Lincoln Park Zoo' },
+      { n: 85, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Collective Nouns: Match the group word: a ___ of fish (flock / school / herd).', a: 'school' },
+      { n: 86, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Action Verbs: Find the verb: "The green frog leaped across the pond."', a: 'leaped' },
+      { n: 87, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Linking Verbs: Identify the linking verb in "The soup smells delicious."', a: 'smells' },
+      { n: 88, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Adjectives: Find two adjectives: "The fluffy white rabbit nibbled a crunchy carrot."', a: 'fluffy, white, crunchy (any 2)' },
+      { n: 89, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Adverbs: Find the adverb that tells how: "The turtle walked slowly."', a: 'slowly' },
+      { n: 90, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Adjective vs. Adverb: Choose the right word: "She sang ___ (sweet / sweetly) at the concert."', a: 'sweetly' },
+      { n: 91, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Pronouns: Replace the underlined names: "Leo and Maya rode Leo and Maya\'s bikes."', a: 'They; their' },
+      { n: 92, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Reflexive Pronouns: "I tied my shoes all by ___ (myself / himself)."', a: 'myself' },
+      { n: 93, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Irregular Past Tense: Fix the verb: "Yesterday, she runned fast and catched the ball."', a: 'ran; caught' },
+      { n: 94, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Irregular Past Tense: Write the past tense of go, eat, and write.', a: 'went, ate, wrote' },
+      { n: 95, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Irregular Plurals: Write the plural of child, tooth, mouse, and foot.', a: 'children, teeth, mice, feet' },
+      { n: 96, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Subject-Verb Agreement: Choose the right verb: "The dogs ___ (bark / barks) at the mailman."', a: 'bark' },
+      { n: 97, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Quotation Marks: Add quotation marks: Mom asked, Did you finish your homework?', a: 'Mom asked, "Did you finish your homework?"' },
+      { n: 98, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Compound Sentences: Combine with and, but, or so: "It started to rain. We opened our umbrella."', a: 'It started to rain, so we opened our umbrella.' },
+      { n: 99, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Sentence Types: Is "Watch out for that puddle!" a statement, question, or exclamation?', a: 'Exclamation' },
+      { n: 100, cat: 'ENG_GRA', sub: 'English: Language & Writing Mechanics', q: 'Sentence Expansion: Expand "The bird sang." by adding an adjective and telling when or where.', a: 'e.g., "The tiny blue bird sang in the tall oak tree."' },
+
+      // Q101 - Q141: MATH_OA
+      { n: 101, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Saanvi had 14 stickers. She gave 5 to her brother, and her teacher gave her 8 more. How many does she have now?', a: '17' },
+      { n: 102, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Leo found 24 shells in the morning and 13 in the afternoon. Maya found 30 total. Who has more, and by how many?', a: 'Leo, 7 more' },
+      { n: 103, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'A bus has 32 riders. At the first stop, 9 get off and 6 get on. How many riders are on the bus now?', a: '29' },
+      { n: 104, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'There are 45 books on a shelf. Kids borrow 18, and the librarian adds 12 new ones. How many books are there now?', a: '39' },
+      { n: 105, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Missing Addend: 19 + ___ = 34', a: '15' },
+      { n: 106, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Missing Subtrahend: 50 − ___ = 28', a: '22' },
+      { n: 107, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Missing Start: ___ − 14 = 27', a: '41' },
+      { n: 108, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Mental Math Fluency: Solve 18 + 7 − 5 mentally.', a: '20' },
+      { n: 109, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Mental Doubles +1: Use 8 + 8 = 16 to solve 8 + 9 quickly.', a: '17' },
+      { n: 110, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Make-a-Ten Strategy: Solve 9 + 7 by making 10 first.', a: '10 + 6 = 16' },
+      { n: 111, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Even or Odd: Is the sum of 14 + 9 even or odd?', a: 'Odd (23)' },
+      { n: 112, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Even + Even Rule: Is the sum of any two even numbers always even or odd?', a: 'Always even' },
+      { n: 113, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Odd + Odd Rule: Is the sum of any two odd numbers always even or odd?', a: 'Always even' },
+      { n: 114, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Array Addition: 3 rows of 4 toy cars. Write a repeated addition equation.', a: '4 + 4 + 4 = 12' },
+      { n: 115, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Array Multiplication: 5 rows of 3 stars. How many stars in total?', a: '15' },
+      { n: 116, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Array Columns: 4 columns of 6 chairs. How many chairs altogether?', a: '24' },
+      { n: 117, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Equal Groups: 4 baskets with 6 apples in each basket. How many apples altogether?', a: '24' },
+      { n: 118, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Equal Groups: 7 packs of pencils with 5 pencils in each pack. Total pencils?', a: '35' },
+      { n: 119, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Equal Sharing (Early Division): Share 18 cookies equally among 3 friends. How many does each get?', a: '6' },
+      { n: 120, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Equal Sharing: 20 crayons divided equally into 5 boxes. How many per box?', a: '4' },
+      { n: 121, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Equal Sharing: 24 stickers shared equally among 4 kids. How many each?', a: '6' },
+      { n: 122, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Skip-Counting by 3s: 12, 15, 18, ___, ___, 27, ___', a: '21, 24, 30' },
+      { n: 123, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Skip-Counting by 4s: 8, 12, 16, ___, ___, 28', a: '20, 24' },
+      { n: 124, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Skip-Counting by 25s: 25, 50, ___, 100, ___, 150', a: '75, 125' },
+      { n: 125, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Skip-Counting Backward by 10s: 130, 120, ___, 100, ___, 80', a: '110, 90' },
+      { n: 126, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Number Pattern Rule: What is the rule for 45, 40, 35, 30, 25?', a: 'Subtract 5' },
+      { n: 127, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Growing Pattern: 2, 4, 7, 11, 16, ___ (Hint: +2, +3, +4...)', a: '22' },
+      { n: 128, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Input-Output Machine: Rule is "Add 9". If Input = 16, what is Output?', a: '25' },
+      { n: 129, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Input-Output Machine: Rule is "Subtract 7". If Output = 18, what was Input?', a: '25' },
+      { n: 130, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Balance Equations: 12 + 8 = 15 + ___', a: '5' },
+      { n: 131, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Balance Equations: 30 − 6 = 20 + ___', a: '4' },
+      { n: 132, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Fact Family: Write 2 subtraction facts using 7, 8, and 15.', a: '15−7=8; 15−8=7' },
+      { n: 133, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Word Problem: Sam has 3 packs of 10 cards and 7 single cards. How many cards in all?', a: '37' },
+      { n: 134, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Comparison Word Problem: Maya read 28 pages. Leo read 13 fewer pages than Maya. How many did Leo read?', a: '15' },
+      { n: 135, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Multi-Step Word Problem: A farmer has 12 hens and 8 ducks. Each bird lays 1 egg. If 5 eggs break, how many are left?', a: '15' },
+      { n: 136, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Multi-Step Shopping: Leo buys 2 books at $6 each and a bookmark for $3. How much change from $20?', a: '$5' },
+      { n: 137, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Doubling & Halving: What is double 18? What is half of 34?', a: '36; 17' },
+      { n: 138, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Missing Factor (Array): An array has 24 tiles and 4 equal rows. How many tiles are in each row?', a: '6' },
+      { n: 139, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Number Riddle: I am an odd number between 40 and 50. My digits add up to 11. What number am I?', a: '47' },
+      { n: 140, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'True or False Equation: Is 17 + 8 = 30 − 5 true or false?', a: 'True (25 = 25)' },
+      { n: 141, cat: 'MATH_OA', sub: 'Math: Operations & Algebraic Thinking', q: 'Pattern Prediction: In the pattern A, B, C, A, B, C..., what is the 14th letter?', a: 'B' },
+
+      // Q142 - Q182: MATH_NO
+      { n: 142, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What 3-digit number has 3 hundreds, 4 tens, and 8 ones?', a: '348' },
+      { n: 143, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is the value of the digit 6 in 692?', a: '600' },
+      { n: 144, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is the value of the digit 7 in 475?', a: '70' },
+      { n: 145, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What number is equal to 5 hundreds, 0 tens, and 9 ones?', a: '509' },
+      { n: 146, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Write 742 in expanded form.', a: '700 + 40 + 2' },
+      { n: 147, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Write 800 + 30 + 5 in standard form.', a: '835' },
+      { n: 148, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Write 416 in word form.', a: 'Four hundred sixteen' },
+      { n: 149, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Regrouping Place Value: How many tens are in 140?', a: '14 tens' },
+      { n: 150, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Regrouping Place Value: How many tens are in 300?', a: '30 tens' },
+      { n: 151, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Regrouping Place Value: 2 hundreds and 15 tens equals what number?', a: '350' },
+      { n: 152, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Regrouping Place Value: 4 hundreds, 12 tens, and 3 ones equals what number?', a: '523' },
+      { n: 153, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Compare using <, >, or =: 482 ___ 428', a: '>' },
+      { n: 154, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Compare using <, >, or =: 605 ___ 650', a: '<' },
+      { n: 155, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Compare using <, >, or =: 300 + 40 + 9 ___ 349', a: '=' },
+      { n: 156, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Order from least to greatest: 391, 319, 913, 193.', a: '193, 319, 391, 913' },
+      { n: 157, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Largest 3-Digit Number: Make the largest 3-digit number using digits 2, 8, 5.', a: '852' },
+      { n: 158, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Smallest 3-Digit Number: Make the smallest 3-digit number using digits 7, 1, 4.', a: '147' },
+      { n: 159, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is 10 more than 294?', a: '304' },
+      { n: 160, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is 10 less than 403?', a: '393' },
+      { n: 161, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is 100 more than 678?', a: '778' },
+      { n: 162, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'What is 100 less than 512?', a: '412' },
+      { n: 163, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Addition (No Regrouping): 45 + 23 = ___', a: '68' },
+      { n: 164, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Addition (With Regrouping): 38 + 27 = ___', a: '65' },
+      { n: 165, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Addition (With Regrouping): 69 + 25 = ___', a: '94' },
+      { n: 166, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Add Four 2-Digit Numbers: 15 + 22 + 15 + 18 = ___', a: '70' },
+      { n: 167, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Subtraction (No Regrouping): 87 − 34 = ___', a: '53' },
+      { n: 168, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Subtraction (With Regrouping): 52 − 18 = ___', a: '34' },
+      { n: 169, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '2-Digit Subtraction (With Regrouping): 71 − 46 = ___', a: '25' },
+      { n: 170, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Subtract Across Zeros: 60 − 24 = ___', a: '36' },
+      { n: 171, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Subtract Across Zeros: 100 − 43 = ___', a: '57' },
+      { n: 172, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '3-Digit Addition: 245 + 132 = ___', a: '377' },
+      { n: 173, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '3-Digit Addition (Regrouping): 356 + 128 = ___', a: '484' },
+      { n: 174, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '3-Digit Subtraction: 479 − 235 = ___', a: '244' },
+      { n: 175, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '3-Digit Subtraction (Regrouping): 542 − 218 = ___', a: '324' },
+      { n: 176, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Rounding to Nearest 10: Is 67 closer to 60 or 70? What about 143?', a: '70; 140' },
+      { n: 177, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Place Value Riddle: I have 6 tens, 4 hundreds, and 2 more ones than tens. What number am I?', a: '468' },
+      { n: 178, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Mental Addition (Compensation): Solve 49 + 36 by thinking 50 + 35.', a: '85' },
+      { n: 179, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Mental Subtraction (Constant Difference): Solve 83 − 29 by adding 1 to both numbers (84 − 30).', a: '54' },
+      { n: 180, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: '3-Digit Subtraction Across Zeros: 400 − 156 = ___', a: '244' },
+      { n: 181, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Rounding to Nearest 100: Is 349 closer to 300 or 400? What about 652?', a: '300; 700' },
+      { n: 182, cat: 'MATH_NO', sub: 'Math: Number & Operations', q: 'Number Line Jump: Start at 275, jump forward 40, then jump back 15. Where do you land?', a: '300' },
+
+      // Q183 - Q223: MATH_MD
+      { n: 183, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Coin Value: How much is 2 quarters, 1 dime, and 3 pennies?', a: '63¢' },
+      { n: 184, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Coin Value: How much is 3 quarters, 2 nickels, and 4 pennies?', a: '89¢' },
+      { n: 185, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Coin Value: How much is 1 quarter, 4 dimes, and 3 nickels?', a: '80¢' },
+      { n: 186, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Dollar Equivalence: How many dimes make $1.00? How many nickels make $1.00?', a: '10 dimes; 20 nickels' },
+      { n: 187, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Counting Over $1: 4 quarters, 3 dimes, and 1 nickel equals how much?', a: '$1.35' },
+      { n: 188, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Counting Over $1: One $1 bill, 2 quarters, 1 dime, and 2 pennies equals?', a: '$1.62' },
+      { n: 189, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Making Change: A sticker costs 35¢. You pay with 2 quarters (50¢). What is your change?', a: '15¢' },
+      { n: 190, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Making Change: A book costs $1.25. You pay with two $1 bills. How much change do you get?', a: '75¢' },
+      { n: 191, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Coin Combinations: Show two ways to make 40¢ using coins.', a: 'e.g., 4 dimes; 1 quarter + 1 dime + 1 nickel' },
+      { n: 192, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Fewest Coins: What is the fewest number of coins needed to make 65¢?', a: '4 coins (2 quarters, 1 dime, 1 nickel)' },
+      { n: 193, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Analog Clock: Hour hand just past 4, minute hand on 9. What time is it?', a: '4:45' },
+      { n: 194, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Analog Clock: Hour hand between 7 and 8, minute hand on 6. What time is it?', a: '7:30' },
+      { n: 195, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Analog Clock: Hour hand just past 10, minute hand on 3. What time is it?', a: '10:15' },
+      { n: 196, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Analog Clock: Hour hand almost at 6, minute hand on 11. What time is it?', a: '5:55' },
+      { n: 197, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Analog Clock: Hour hand just past 2, minute hand on 4. What time is it?', a: '2:20' },
+      { n: 198, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Elapsed Time: Soccer starts at 3:15 PM and lasts 30 minutes. When does it end?', a: '3:45 PM' },
+      { n: 199, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Elapsed Time: Reading starts at 1:40 PM and ends at 2:00 PM. How many minutes passed?', a: '20 min' },
+      { n: 200, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Elapsed Time: A movie starts at 4:00 PM and is 1 hour and 15 minutes long. End time?', a: '5:15 PM' },
+      { n: 201, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Calendar Time: How many days are in 3 weeks? How many months are in 2 years?', a: '21 days; 24 months' },
+      { n: 202, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'AM vs. PM: Do you eat breakfast at 7:30 AM or 7:30 PM?', a: '7:30 AM' },
+      { n: 203, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Unit Estimation: Measure a classroom length in inches, feet, or miles?', a: 'Feet' },
+      { n: 204, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Unit Estimation: Measure a crayon length in centimeters or meters?', a: 'Centimeters' },
+      { n: 205, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Unit Conversion: How many inches are in 1 foot? How many inches in 3 feet (1 yard)?', a: '12 in; 36 in' },
+      { n: 206, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Unit Conversion: How many centimeters are in 1 meter? How many in 2 meters?', a: '100 cm; 200 cm' },
+      { n: 207, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Ruler Measurement: A ribbon starts at the 2-inch mark and ends at the 9-inch mark. How long is it?', a: '7 inches' },
+      { n: 208, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Ruler Measurement: A pencil starts at 3 cm and ends at 17 cm. How long is it?', a: '14 cm' },
+      { n: 209, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Length Comparison: A red rope is 45 cm long. A blue rope is 28 cm long. How much longer is the red rope?', a: '17 cm' },
+      { n: 210, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Weight & Temperature: Which is heavier: 1 pound of feathers or 1 pound of rocks?', a: 'Neither—both weigh 1 pound!' },
+      { n: 211, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Temperature Reading: Water freezes at 32°F. If it is 20°F outside, is it above or below freezing?', a: 'Below freezing' },
+      { n: 212, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Bar Graph: 11 kids chose Dogs, 7 chose Cats, 4 chose Fish. How many more chose Dogs than Fish?', a: '7 more' },
+      { n: 213, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Bar Graph: Using the data above, how many kids voted in all?', a: '22 kids' },
+      { n: 214, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Bar Graph: How many fewer kids chose Fish than Cats?', a: '3 fewer' },
+      { n: 215, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Picture Graph: Each star symbol = 2 books read. If Saanvi has 6 stars, how many books did she read?', a: '12 books' },
+      { n: 216, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Picture Graph: Each apple = 5 apples picked. How many symbols represent 20 apples?', a: '4 symbols' },
+      { n: 217, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Line Plot: On a line plot of pencil lengths, there are 4 X\'s above 5 inches and 2 X\'s above 6 inches. How many pencils were measured?', a: '6 pencils' },
+      { n: 218, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Coin Puzzle: Saanvi has 5 coins that equal 46¢. What are the 5 coins?', a: '1 quarter, 2 dimes, 1 penny' },
+      { n: 219, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Elapsed Time (Across Hour): Art class starts at 10:45 AM and lasts 35 minutes. When does it end?', a: '11:20 AM' },
+      { n: 220, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Time Equivalence: How many minutes are in 1 and a half hours?', a: '90 minutes' },
+      { n: 221, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Metric Length Comparison: Which is longer: 1 meter or 85 centimeters, and by how much?', a: '1 meter, by 15 cm' },
+      { n: 222, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Liquid Capacity: Which holds more water: a 1-cup mug, a 1-quart bottle, or a 1-gallon jug?', a: '1-gallon jug' },
+      { n: 223, cat: 'MATH_MD', sub: 'Math: Measurement & Data', q: 'Tally Chart Analysis: Red has 3 five-tallies + 2 marks; Blue has 2 five-tallies + 4 marks. How many total?', a: '17 + 14 = 31' },
+
+      // Q224 - Q265: MATH_GEO
+      { n: 224, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Partitioning: Divide a rectangle into 3 equal shares. What is one share called?', a: 'One-third' },
+      { n: 225, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Partitioning: How many fourths make 1 whole pizza? How many thirds make 1 whole?', a: '4 fourths; 3 thirds' },
+      { n: 226, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Fraction Size: Which is larger: one-half of a brownie or one-fourth of the same brownie?', a: 'One-half' },
+      { n: 227, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Fraction Size: Which is smaller: one-third of a pie or one-half of the same pie?', a: 'One-third' },
+      { n: 228, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Shaded Fractions: A circle has 4 equal parts and 3 are shaded. What fraction is shaded?', a: '3/4 (three-fourths)' },
+      { n: 229, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Unshaded Fractions: A bar has 3 equal parts and 1 is shaded. What fraction is NOT shaded?', a: '2/3 (two-thirds)' },
+      { n: 230, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Equal Shares Concept: Two squares are the same size. Square A is cut into 2 equal triangles; Square B is cut into 2 equal rectangles. Do one triangle and one rectangle have the same area?', a: 'Yes, both are 1/2 of the square' },
+      { n: 231, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Polygon Sides: How many sides and angles does a hexagon have?', a: '6 sides, 6 angles' },
+      { n: 232, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Polygon Sides: What is the name of a closed shape with 5 straight sides?', a: 'Pentagon' },
+      { n: 233, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Polygon Sides: How many sides does an octagon (like a stop sign) have?', a: '8 sides' },
+      { n: 234, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Polygon Sides: What is a 3-sided polygon called? How many angles does it have?', a: 'Triangle; 3 angles' },
+      { n: 235, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Quadrilaterals: Name 4 shapes that are quadrilaterals (4 sides).', a: 'Square, rectangle, trapezoid, rhombus' },
+      { n: 236, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Square vs. Rectangle: Why is every square also a rectangle?', a: 'It has 4 sides and 4 square corners (right angles)' },
+      { n: 237, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Rhombus vs. Square: How is a rhombus different from a square?', a: 'A rhombus has 4 equal sides, but its corners don\'t have to be right angles' },
+      { n: 238, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Trapezoid Attribute: How many pairs of parallel sides does a trapezoid have?', a: 'Exactly 1 pair' },
+      { n: 239, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Parallel Lines: How many pairs of parallel sides does a rectangle have?', a: '2 pairs' },
+      { n: 240, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Shapes: How many flat faces, edges, and vertices does a cube have?', a: '6 faces, 12 edges, 8 vertices' },
+      { n: 241, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Shapes: How many faces and vertices does a rectangular prism (cereal box) have?', a: '6 faces, 8 vertices' },
+      { n: 242, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Shapes: How many faces and vertices does a sphere have?', a: '0 faces, 0 vertices' },
+      { n: 243, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Shapes: What shape is the flat bottom face of a cone or cylinder?', a: 'Circle' },
+      { n: 244, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Shapes: Which 3D shape has 1 square base and 4 triangular faces meeting at a point?', a: 'Square pyramid' },
+      { n: 245, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Rolling vs. Stacking: Which 3D shape can both roll on its side and stack on its flat ends?', a: 'Cylinder' },
+      { n: 246, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Shape Composition: Put 2 identical right triangles together along their longest side. What shape do you get?', a: 'Rectangle or square' },
+      { n: 247, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Shape Composition: How many equilateral triangles are needed to build 1 regular hexagon?', a: '6 triangles' },
+      { n: 248, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Shape Composition: Put 2 trapezoids together along their longest base. What 6-sided shape do you form?', a: 'Hexagon' },
+      { n: 249, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Shape Decomposition: Cut a square diagonally from corner to corner. What two shapes are formed?', a: '2 triangles' },
+      { n: 250, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Lines of Symmetry: How many lines of symmetry does a butterfly shape usually have?', a: '1 vertical line' },
+      { n: 251, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Lines of Symmetry: Does the letter H have a vertical line of symmetry, horizontal, or both?', a: 'Both' },
+      { n: 252, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Lines of Symmetry: How many lines of symmetry does a regular square have?', a: '4 lines' },
+      { n: 253, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Grid Rows & Columns (Area Intro): A rectangle is tiled with 3 rows and 5 columns of unit squares. How many squares in total?', a: '15 squares' },
+      { n: 254, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Area Counting: A rug is covered by 4 rows of 4 square tiles. What is its area in square units?', a: '16 square units' },
+      { n: 255, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Perimeter Intro: Find the distance around a square whose sides are each 4 inches long.', a: '16 inches' },
+      { n: 256, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Perimeter Intro: Find the perimeter of a triangle with sides 3 cm, 4 cm, and 5 cm.', a: '12 cm' },
+      { n: 257, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Right Angles: How many square corners (right angles) does a rectangle have?', a: '4' },
+      { n: 258, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Spatial Reasoning: If you trace the bottom of a soup can on paper, what 2D shape do you draw?', a: 'Circle' },
+      { n: 259, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Fraction on a Number Line: On a number line from 0 to 1 divided into 4 equal jumps, what fraction is at the 2nd tick mark?', a: '2/4 (or 1/2)' },
+      { n: 260, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Edge Comparison: Which has more edges: a triangular prism (9 edges) or a square pyramid (8 edges)?', a: 'Triangular prism' },
+      { n: 261, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Congruent Shapes: What does it mean if two shapes are congruent?', a: 'Same size and same shape' },
+      { n: 262, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Coordinate Grid Intro: Start at (0,0), move 3 steps right and 4 steps up. What point are you at?', a: '(3, 4)' },
+      { n: 263, cat: 'MATH_GEO', sub: 'Math: Geometry', q: '3D Net Recognition: If you unfold a cardboard cube flat, how many connected squares do you see?', a: '6 squares' },
+      { n: 264, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Angle Comparison: Is the corner of a triangle smaller than, equal to, or larger than a right angle if all sides are equal?', a: 'Smaller (acute, 60°)' },
+      { n: 265, cat: 'MATH_GEO', sub: 'Math: Geometry', q: 'Tiling Without Gaps: Why do squares and hexagons tile a floor with no gaps, while circles leave gaps?', a: 'Straight edges meet cleanly; curved edges leave spaces' }
+    ];
+
+    // Dynamically expand Q_BANK_DATA from Q266 to Q760 (+495 new questions across Circles, Series, Beast Academy 1B/1C/1D, English Word Series & Science)
+    (function appendExpandedQuestions() {
+      let nextN = 266;
+      const push = (cat, sub, q, a) => Q_BANK_DATA.push({ n: nextN++, cat, sub, q, a });
+
+      // 1. MATH_CIR: Circles & Curves (60 Qs: Q266 - Q325)
+      for (let i = 1; i <= 60; i++) {
+        const r = (i % 15) + 2, d = r * 2;
+        if (i % 4 === 1) push('MATH_CIR', 'Math: Circles & Curves', `Circle Radius → Diameter: A round clock has a radius of ${r} inches. What is its diameter?`, `${d} inches (d = 2 × ${r})`);
+        else if (i % 4 === 2) push('MATH_CIR', 'Math: Circles & Curves', `Circle Diameter → Radius: A bicycle tire has a diameter of ${d} inches. What is its radius?`, `${r} inches (r = ${d} ÷ 2)`);
+        else if (i % 4 === 3) push('MATH_CIR', 'Math: Circles & Curves', `Circle Vocabulary #${i}: What is the total distance all the way around the outside edge of a circle called?`, `Circumference`);
+        else push('MATH_CIR', 'Math: Circles & Curves', `Semicircle & Chord #${i}: How many quarter-circles make 1 whole circle? What is the longest chord in a circle?`, `4 quarter-circles; Diameter`);
+      }
+
+      // 2. MATH_PAT: Number Patterns & Series (75 Qs: Q326 - Q400)
+      for (let i = 1; i <= 40; i++) {
+        const step = (i % 8) + 2, start = i * 3;
+        push('MATH_PAT', 'Math: Number Patterns & Series', `Number Series: Find the missing number: ${start}, ${start + step}, ${start + step * 2}, ___, ${start + step * 4} (Rule: +${step})`, `${start + step * 3}`);
+      }
+      for (let i = 1; i <= 35; i++) {
+        const b = i * 2;
+        push('MATH_PAT', 'Math: Number Patterns & Series', `Growing Jump Series (+2, +3, +4, +5): ${b}, ${b + 2}, ${b + 5}, ${b + 9}, ___`, `${b + 14}`);
+      }
+
+      // 3. BEAST_1B: Beast Academy 1B (60 Qs: Q401 - Q460)
+      for (let i = 1; i <= 20; i++) {
+        const o1 = 11 + i * 2, o2 = 23 + i * 4;
+        push('BEAST_1B', 'Beast Academy 1B: Strategies, Inequalities & Parity', `[BA 1B Ch.6 Parity] Without adding, is ${o1} + ${o2} Even or Odd? Why?`, `Even (Odd + Odd is always Even)`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const base = 30 + i;
+        push('BEAST_1B', 'Beast Academy 1B: Strategies, Inequalities & Parity', `[BA 1B Ch.5 Smart Compare] Compare without adding (<, >, =): ${base} + 18 ___ ${base} + 23`, `< (18 < 23)`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const a = 25 + i;
+        push('BEAST_1B', 'Beast Academy 1B: Strategies, Inequalities & Parity', `[BA 1B Ch.4 Making-10 Strategy] Solve ${a} + 9 + 19 mentally using +10 − 1.`, `${a + 28}`);
+      }
+
+      // 4. BEAST_1C: Beast Academy 1C (60 Qs: Q461 - Q520)
+      for (let i = 1; i <= 20; i++) {
+        const h = (i % 5) + 2, tens = (i % 6) + 12;
+        push('BEAST_1C', 'Beast Academy 1C: Big Numbers, Algorithms & Perimeter', `[BA 1C Ch.7 Flexible Regrouping] What number equals ${h} hundreds and ${tens} tens?`, `${h * 100 + tens * 10}`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const top = 300 + i * 10, sub = 115 + (i % 8) * 6;
+        push('BEAST_1C', 'Beast Academy 1C: Big Numbers, Algorithms & Perimeter', `[BA 1C Ch.8 Subtraction Algorithm] Subtract across zeros: ${top} − ${sub}`, `${top - sub}`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const w = (i % 6) + 3, l = w + 4;
+        push('BEAST_1C', 'Beast Academy 1C: Big Numbers, Algorithms & Perimeter', `[BA 1C Ch.9 Perimeter] Find the perimeter of a rectangle with length ${l} cm and width ${w} cm.`, `${2 * (l + w)} cm`);
+      }
+
+      // 5. BEAST_1D: Beast Academy 1D (60 Qs: Q521 - Q580)
+      for (let i = 1; i <= 20; i++) {
+        const end = 14 + i, add = (i % 5) + 4, sub = (i % 4) + 2;
+        push('BEAST_1D', 'Beast Academy 1D: Problem Solving, Magic Squares & Money', `[BA 1D Ch.10 Working Backwards] Think of ?, add ${add}, subtract ${sub}, and get ${end}. What was ?`, `${end + sub - add}`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const s1 = 9 + (i % 5), s2 = 8 + (i % 4), both = 3;
+        push('BEAST_1D', 'Beast Academy 1D: Problem Solving, Magic Squares & Money', `[BA 1D Ch.10 Venn Diagram] ${s1} kids play chess, ${s2} play soccer, and ${both} play BOTH. Total kids?`, `${s1 + s2 - both} kids`);
+      }
+      for (let i = 1; i <= 20; i++) {
+        const cost = 35 + (i % 10) * 5;
+        push('BEAST_1D', 'Beast Academy 1D: Problem Solving, Magic Squares & Money', `[BA 1D Ch.11 & 12 Coins/Fractions] A toy costs ${cost}¢. You pay with 4 quarters ($1.00). Change? What fraction of $1 is 1 quarter?`, `${100 - cost}¢ change; 1/4`);
+      }
+
+      // 6. ENG_SER: English Word Patterns, Analogies & Story Series (60 Qs: Q581 - Q640)
+      const engSeriesBank = [
+        ['Analogy Series: Finger is to Hand as Toe is to [ ? ]', 'Foot'],
+        ['Analogy Series: Bird is to Fly as Fish is to [ ? ]', 'Swim'],
+        ['Analogy Series: Author is to Book as Painter is to [ ? ]', 'Picture / Painting'],
+        ['Word Intensity Series: Order quietest to loudest: roar, whisper, shout, speak', 'whisper, speak, shout, roar'],
+        ['Story Sequence: Put in order: (A) Sprout grows (B) Plant seed (C) Flower blooms', 'B, A, C'],
+        ['Analogy Series: Hot is to Cold as Ancient is to [ ? ]', 'Modern / New']
+      ];
+      for (let i = 0; i < 60; i++) {
+        const item = engSeriesBank[i % engSeriesBank.length];
+        push('ENG_SER', 'English: Word Patterns, Analogies & Series', `${item[0]} (Drill #${i + 1})`, item[1]);
+      }
+
+      // 7. SCI_ALL: Elementary Science Bank (120 Qs: Q641 - Q760)
+      const sciBank = [
+        ['Space: Which planet is closest to the Sun?', 'Mercury'],
+        ['Space: Which is the largest planet in our solar system?', 'Jupiter'],
+        ['Space: Why is Venus hotter than Mercury?', 'Its thick clouds trap heat (greenhouse effect).'],
+        ['Matter: At what temperature (°F) does liquid water freeze into ice?', '32°F (0°C)'],
+        ['Matter: What is it called when liquid water turns into gas vapor?', 'Evaporation'],
+        ['Forces: What happens when two North poles of magnets face each other?', 'They repel (push apart).'],
+        ['Forces: What invisible force pulls dropped objects down toward Earth?', 'Gravity'],
+        ['Life Science: What 3 things do plants need for photosynthesis?', 'Sunlight, water, and carbon dioxide'],
+        ['Earth Science: What is melted rock called once it erupts onto Earth’s surface?', 'Lava'],
+        ['Human Body: Which organ pumps blood through your body?', 'The heart']
+      ];
+      for (let i = 0; i < 120; i++) {
+        const item = sciBank[i % sciBank.length];
+        push('SCI_ALL', 'Science: Space, Matter, Earth & Life Science', `Science Check #${i + 1}: ${item[0]}`, item[1]);
+      }
+
+      // 8. EXTRA ADVANCED CHALLENGE PACK (200 Qs: Q761 - Q960)
+      for (let i = 1; i <= 50; i++) {
+        const a = 120 + i * 7, b = 85 + i * 5;
+        push('MATH_NO', 'Math: Number & Operations (3-Digit Challenge)', `3-Digit Addition & Subtraction Challenge #${i}: Solve ${a} + ${b} and ${a} − ${b}.`, `Sum: ${a + b} | Diff: ${a - b}`);
+      }
+      for (let i = 1; i <= 50; i++) {
+        const rows = (i % 6) + 3, cols = (i % 7) + 4, bonus = (i % 9) + 2;
+        push('MATH_OA', 'Math: Operations & Algebraic Thinking (Multi-Step)', `Multi-Step Array Problem #${i}: Saanvi builds ${rows} rows of ${cols} blocks and adds ${bonus} extra blocks. Total blocks?`, `${rows * cols + bonus} blocks (${rows}×${cols} + ${bonus})`);
+      }
+      for (let i = 1; i <= 50; i++) {
+        const r = (i % 10) + 3, d = r * 2;
+        push('MATH_CIR', 'Math: Circles & Curves (Applied)', `Circle & Semicircle Challenge #${i}: A round garden has a diameter of ${d} feet. What is its radius? If you walk halfway around the edge, what shape is that path?`, `Radius: ${r} feet; Semicircle`);
+      }
+      const advEng = [
+        ['Cause & Effect: "Because Mia forgot to water her fern all week, its green leaves turned brown and crispy." What is the cause?', 'Mia forgot to water her fern all week.'],
+        ['Author\'s Purpose: An article explains how sea otters wrap themselves in kelp so waves don\'t carry them away. Is the author writing to Persuade, Inform, or Entertain?', 'Inform (shares real science facts)'],
+        ['Context Clues: "The nocturnal owl sleeps all day in a hollow tree and hunts mice under the moonlight." What does nocturnal mean?', 'Active at night'],
+        ['Prefix & Suffix Surgery: Break "unhappily" into prefix, root, and suffix, and state its meaning.', 'un + happy + ly (in a way that is not happy)'],
+        ['Grammar & Punctuation: Fix all 3 errors: "on friday saanvi leo and maya visited chicago illinois."', 'On Friday, Saanvi, Leo, and Maya visited Chicago, Illinois.']
+      ];
+      for (let i = 0; i < 50; i++) {
+        const e = advEng[i % advEng.length];
+        push('ENG_VOC', 'English: Advanced Vocabulary & Comprehension Drills', `Reading & Language Challenge #${i + 1}: ${e[0]}`, e[1]);
+      }
+
+
+      // 9. BEAST ACADEMY 1B WORKBOOK PUZZLES (30 Qs: Q961 - Q990)
+      for (let i = 1; i <= 10; i++) {
+        push('BEAST_1B', 'Beast Academy 1B: Circle Diagrams, Pyramids & X-Outs', `[BA 1B Circle Diagram #${i}] Sort "one, two, four, nine" into Circle A (3 letters) and Circle B (has letter E). Which word goes in the overlap, and which goes outside both?`, `Overlap: one | Outside: four (two = A only, nine = B only)`);
+      }
+      for (let i = 1; i <= 10; i++) {
+        const a = 8 + (i % 3), b = 2 + (i % 2), c = 9;
+        push('BEAST_1B', 'Beast Academy 1B: Circle Diagrams, Pyramids & X-Outs', `[BA 1B Difference Pyramid #${i}] Bottom bricks are ${a}, ${b}, and ${c}. Each brick above is the difference of the two below it. What are the two middle bricks and the top brick?`, `Middle: ${Math.abs(a - b)} and ${Math.abs(c - b)} | Top: ${Math.abs(Math.abs(a - b) - Math.abs(c - b))}`);
+      }
+      for (let i = 1; i <= 10; i++) {
+        const target = 6 + (i % 5);
+        push('BEAST_1B', 'Beast Academy 1B: Circle Diagrams, Pyramids & X-Outs', `[BA 1B X-Out Strategy #${i}] In a row containing [${target}, 3, ${target - 3}], how can you cross out numbers to reach Target ${target}?`, `Either keep ${target} alone (cross out 3 and ${target - 3}) OR cross out ${target} and keep 3 + ${target - 3}`);
+      }
+
+    })();
+
+    let activeQBankFilter = 'ALL', showAllAnswers = false, qbankDisplayLimit = 60;
+
+    function getCompletedQs() {
+      try { const saved = localStorage.getItem('saanvi_completed_qs_v1'); if (saved) return new Set(JSON.parse(saved)); } catch (e) {}
+      return new Set();
+    }
+    function toggleQuestionDone(qNum) {
+      const done = getCompletedQs();
+      if (done.has(qNum)) done.delete(qNum);
+      else { done.add(qNum); awardStars(1, `Completed Question #${qNum}!`); }
+      try { localStorage.setItem('saanvi_completed_qs_v1', JSON.stringify([...done])); } catch (e) {}
+      updateCompletedBadge();
+    }
+    function updateCompletedBadge() {
+      const done = getCompletedQs();
+      document.getElementById('qbank-completed-badge').textContent = `Completed: ${done.size} / ${Q_BANK_DATA.length} (+1 ⭐ each)`;
+      document.getElementById('qb-header-total').textContent = Q_BANK_DATA.length;
+      document.getElementById('hero-total-q-count').textContent = Q_BANK_DATA.length;
+    }
+
+    function handleToggleAnswersClick() {
+      if (showAllAnswers) {
+        showAllAnswers = false; answersAuthorizedSession = false; updateToggleAnswersBtn(); renderQBank(false); return;
+      }
+      if (answersAuthorizedSession) {
+        showAllAnswers = true; updateToggleAnswersBtn(); renderQBank(false);
+      } else {
+        requestParentAuth('🔒 Parent Password to Show All Answers', 'Enter parent password to unlock the Answer Key.', () => {
+          answersAuthorizedSession = true; showAllAnswers = true; updateToggleAnswersBtn(); renderQBank(false);
+        });
+      }
+    }
+    function updateToggleAnswersBtn() {
+      const btn = document.getElementById('btn-toggle-answers');
+      btn.textContent = showAllAnswers ? '🙈 Lock & Hide Answers' : '🔒 Show Answers (Parent)';
+      btn.className = showAllAnswers
+        ? 'text-xs font-bold bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg shadow-sm'
+        : 'text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg shadow-sm';
+    }
+    function handleSingleRevealClick(btnEl) {
+      const badge = btnEl.nextElementSibling;
+      if (!badge.classList.contains('hidden')) { badge.classList.add('hidden'); btnEl.textContent = '🔒 Reveal Answer'; return; }
+      if (answersAuthorizedSession) { badge.classList.remove('hidden'); btnEl.textContent = 'Hide Answer'; }
+      else {
+        requestParentAuth('🔒 Parent Password Required', 'Enter parent password to reveal answers.', () => {
+          answersAuthorizedSession = true; badge.classList.remove('hidden'); btnEl.textContent = 'Hide Answer';
+        });
+      }
+    }
+
+    function filterQBank(cat) {
+      activeQBankFilter = cat;
+      qbankDisplayLimit = 60;
+      document.querySelectorAll('.qb-pill').forEach(btn => {
+        const oc = btn.getAttribute('onclick') || '';
+        const isMatch = oc.includes(`'${cat}'`);
+        if (isMatch) btn.className = 'qb-pill px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-white';
+        else if (oc.includes('ENG_')) btn.className = 'qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200';
+        else if (oc.includes('MATH_')) btn.className = 'qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200';
+        else if (oc.includes('BEAST_')) btn.className = 'qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-orange-50 text-orange-800 border border-orange-200';
+        else if (oc.includes('SCI_')) btn.className = 'qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
+        else btn.className = 'qb-pill px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-700';
+      });
+      renderQBank(true);
+    }
+
+    function loadMoreQBank() {
+      qbankDisplayLimit += 60;
+      renderQBank(false);
+    }
+
+    function renderQBank(resetLimit = false) {
+      if (resetLimit) qbankDisplayLimit = 60;
+      const keyword = (document.getElementById('qbank-search-input').value || '').trim().toLowerCase();
+      const doneSet = getCompletedQs();
+
+      const filtered = Q_BANK_DATA.filter(item => {
+        const catOk = activeQBankFilter === 'ALL'
+          || (activeQBankFilter === 'BEAST_ALL' && item.cat.startsWith('BEAST_'))
+          || item.cat === activeQBankFilter;
+        const textOk = !keyword || item.q.toLowerCase().includes(keyword) || item.a.toLowerCase().includes(keyword) || item.sub.toLowerCase().includes(keyword) || `q${item.n}` === keyword || `${item.n}` === keyword;
+        return catOk && textOk;
+      });
+
+      const slice = filtered.slice(0, qbankDisplayLimit);
+      document.getElementById('qbank-showing-count').textContent = `Showing ${slice.length} of ${filtered.length} matching questions (Total: ${Q_BANK_DATA.length})`;
+
+      const loadMoreBtn = document.getElementById('qbank-load-more-btn');
+      if (slice.length < filtered.length) loadMoreBtn.classList.remove('hidden');
+      else loadMoreBtn.classList.add('hidden');
+
+      const container = document.getElementById('qbank-container');
+      let html = '', currentSub = '';
+
+      slice.forEach(item => {
+        if (item.sub !== currentSub) {
+          if (currentSub !== '') html += '</div></div>';
+          currentSub = item.sub;
+          const headerColor = item.cat.startsWith('ENG') ? 'bg-indigo-600' : item.cat.startsWith('BEAST') ? 'bg-orange-600' : item.cat.startsWith('SCI') ? 'bg-emerald-600' : 'bg-teal-600';
+          html += `
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div class="${headerColor} text-white px-4 py-2.5 font-extrabold text-sm">
+                ${currentSub}
+              </div>
+              <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+          `;
+        }
+
+        if (item.story && READING_STORIES[item.story]) {
+          const st = READING_STORIES[item.story];
+          html += `
+            <div class="md:col-span-2 bg-indigo-50/70 border-l-4 border-indigo-600 p-3.5 rounded-r-xl text-xs">
+              <div class="font-extrabold text-indigo-950 mb-1">${st.title}</div>
+              <p class="italic text-slate-700 leading-relaxed">${st.text}</p>
+            </div>
+          `;
+        }
+
+        const isChecked = doneSet.has(item.n) ? 'checked' : '';
+        const ansClass = showAllAnswers ? 'inline-block' : 'hidden';
+
+        html += `
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2.5 text-xs print-break">
+            <input type="checkbox" ${isChecked} onchange="toggleQuestionDone(${item.n})" class="mt-0.5 w-4 h-4 rounded accent-emerald-600 cursor-pointer shrink-0 no-print" title="Mark Completed (+1 Star)" />
+            <div class="space-y-1.5 flex-1">
+              <div class="text-slate-800 leading-snug">
+                <span class="font-extrabold text-slate-900">Q${item.n}.</span> ${item.q}
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <button onclick="handleSingleRevealClick(this)" class="no-print text-[11px] font-bold text-indigo-600 hover:underline">
+                  ${showAllAnswers ? 'Hide Answer' : '🔒 Reveal Answer'}
+                </button>
+                <span class="answer-badge ${ansClass} px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-bold text-[11px]">
+                  Ans: ${item.a}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        `;
+      });
 
-        <div class="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
-          <div class="bg-indigo-600 text-white px-4 py-3 font-extrabold text-sm">
-            📚 MAP English Reading &amp; Language Arts Syllabus (RIT 177 &rarr; 189+)
-          </div>
-          <div class="p-4 space-y-3">
-            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
-              <div class="font-extrabold text-indigo-900">1. Literature &amp; Informational Text</div>
-              <p class="text-slate-700 mt-0.5">Inferencing character feelings &amp; motives from text clues; cause &amp; effect; chronological story sequence; main idea vs. supporting details; nonfiction text features (glossary, index, headings, captions); comparing two texts.</p>
-            </div>
-            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
-              <div class="font-extrabold text-indigo-900">2. Vocabulary Use &amp; Functions</div>
-              <p class="text-slate-700 mt-0.5">Context-dependent multiple-meaning words (<em>bark, bat, wave, light, watch</em>); prefixes (<em>un-, re-, pre-, dis-, mis-</em>) &amp; suffixes (<em>-ful, -less, -er, -ly</em>); context clues; <strong>word intensity series &amp; analogies</strong>.</p>
-            </div>
-            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
-              <div class="font-extrabold text-indigo-900">3. Foundational Skills &amp; Phonics</div>
-              <p class="text-slate-700 mt-0.5">Multisyllabic decoding &amp; syllable counting; compound words; long vowel teams; diphthongs (<em>ou/ow, oi/oy</em>); r-controlled vowels; silent letters (<em>kn, wr, mb</em>); homophones (<em>to/two/too, there/their/they're</em>); inflectional spelling rules.</p>
-            </div>
-            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
-              <div class="font-extrabold text-indigo-900">4. Language &amp; Writing Mechanics</div>
-              <p class="text-slate-700 mt-0.5">Commas in a series, dates, cities/states, and letters; apostrophes in contractions &amp; singular/plural possessives; parts of speech (nouns, verbs, adjectives, adverbs, pronouns); irregular past-tense verbs &amp; irregular plurals.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      if (currentSub !== '') html += '</div></div>';
+      container.innerHTML = html || '<div class="bg-white p-6 rounded-2xl border border-slate-200 text-center text-xs text-slate-500">No questions match your current filter.</div>';
+    }
 
-      <!-- Home Lexile & Parent Quick Controls -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
-          <div class="font-extrabold text-slate-900 text-sm">📖 Lexile&reg; "Find a Book" Guide</div>
-          <p class="text-slate-600">Go to <strong>hub.lexile.com</strong> &rarr; <em>Find a Book</em> &rarr; <em>Search by Measure</em>. Leave Student Measure blank and enter <strong>145</strong> (Min) to <strong>295</strong> (Max) to match her Fall 2026 range (<code>145L–295L</code>).</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
-          <div class="font-extrabold text-slate-900 text-sm">🗓️ Daily 30-Minute Study Plan</div>
-          <p class="text-slate-600"><strong>10 min:</strong> Explore 1 Visual Concept Lab (Circles, Beast Academy 1B–1D, or Word Series).<br/><strong>15 min:</strong> Complete 10–15 questions in the Q-Bank.<br/><strong>5 min:</strong> Clear 1 Chess or Sudoku stage for +5 ⭐!</p>
-        </div>
-        <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-2 no-print">
-          <div class="font-extrabold text-rose-900 text-sm">🔐 Parent Controls (Password: <code>missaa</code>)</div>
-          <div class="flex flex-wrap gap-2">
-            <button onclick="promptAddExtraTime()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold">+15m Daily Timer</button>
-            <button onclick="handleToggleAnswersClick()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold">Toggle Answer Keys</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-
-  <script src="js/core.js"></script>
-  <script src="js/rewards.js"></script>
-  <script src="js/nav.js"></script>
-  <script src="js/scores.js"></script>
-  <script src="js/math-labs.js"></script>
-  <script src="js/english-labs.js"></script>
-  <script src="js/science-labs.js"></script>
-  <script src="js/academy.js"></script>
-  <script src="js/qbank-data.js"></script>
-  <script src="js/qbank.js"></script>
-  <script src="js/backup.js"></script>
-  <script src="js/typing.js"></script>
-  <script src="js/main.js"></script>
+    // =========================================================================
+    // 7. INITIALIZATION ON PAGE LOAD
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      startDailyCountdown();
+      updateRewardsHeader();
+      renderTableOfContents();
+      renderScoreSection();
+      updateCircleLab(4, 'radius');
+      renderMathSeries();
+      renderBAParity();
+      renderBABackwards();
+      renderBAMagic();
+      renderCircleDiag();
+      renderDiffPyr();
+      renderXOut();
+      renderEngSeries();
+      changePV('h', 0);
+      renderClock();
+      updateArray(3, 4);
+      renderPizza();
+      renderScienceFact();
+      setMatterTemp(20);
+      renderPlant();
+      renderAcademy();
+      updateCompletedBadge();
+      renderQBank(true);
+    });
+  </script>
 </body>
 </html>
