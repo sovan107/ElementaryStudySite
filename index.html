@@ -5,164 +5,811 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Saanvi's Interactive Learning Studio</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      scroll-behavior: smooth;
-    }
-    .highlight-pulse {
-      animation: pulseBorder 1.8s ease-out;
-    }
-    @keyframes pulseBorder {
-      0% { box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.5); }
-      100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-    }
-    @media print {
-      .no-print { display: none !important; }
-      .print-break { break-inside: avoid; }
-      body { background: white !important; }
-      .tab-panel.hidden { display: block !important; }
-      #view-home, #view-quiz { display: none !important; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-100 selection:text-indigo-900">
 
   <!-- ===================================================================== -->
-  <!-- STICKY NAVIGATION BAR (Compact for Google Sites Full-Page Embed)      -->
+  <!-- 1. DAILY TIME LIMIT LOCKOUT OVERLAY (Triggers at 00:00)               -->
   <!-- ===================================================================== -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
-    <div class="max-w-6xl mx-auto px-3 sm:px-4 py-2.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5">
-      <!-- Brand / Title -->
-      <div class="flex items-center justify-between gap-3">
+  <div id="time-lock-overlay" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 text-center shadow-2xl border-4 border-amber-400 space-y-4 pop-in">
+      <div class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+        ⏰
+      </div>
+      <div>
+        <span class="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold uppercase tracking-wider">
+          Daily 30-Minute Limit Reached
+        </span>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">
+          Great Job Studying Today, Saanvi!
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-600 mt-1">
+          You have completed your daily learning session! Ask a parent to enter the parent password to add <strong>+15 extra minutes</strong>, or come back tomorrow for a fresh 30 minutes.
+        </p>
+      </div>
+
+      <form onsubmit="submitTimeUnlock(event)" class="space-y-3 pt-2 text-left">
+        <div>
+          <label class="block text-xs font-extrabold text-slate-700 mb-1">Parent Password to Add +15 Minutes:</label>
+          <input type="password" id="lockout-pwd-input" placeholder="Enter parent password..." autocomplete="off" class="w-full px-3.5 py-2.5 rounded-xl border-2 border-slate-300 focus:border-indigo-500 focus:outline-none text-sm font-bold" />
+        </div>
+        <div id="lockout-pwd-error" class="hidden text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-2 rounded-lg">
+          ❌ Incorrect password. Please ask a parent!
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white font-extrabold text-sm shadow-md transition">
+          🔓 Unlock +15 Minutes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. REUSABLE PARENT PASSWORD MODAL (For +15m, Answers & Admin Unlocks) -->
+  <!-- ===================================================================== -->
+  <div id="parent-pwd-modal" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm hidden flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-3.5 pop-in">
+      <div class="flex items-center justify-between">
+        <h3 id="pwd-modal-title" class="text-base font-extrabold text-slate-900">🔒 Parent Verification Required</h3>
+        <button onclick="closePwdModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg leading-none">&times;</button>
+      </div>
+      <p id="pwd-modal-desc" class="text-xs text-slate-600">
+        Enter the parent password to continue.
+      </p>
+      <form onsubmit="handlePwdModalSubmit(event)" class="space-y-3">
+        <input type="password" id="pwd-modal-input" placeholder="Enter password..." autocomplete="off" class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:border-indigo-500 focus:outline-none text-sm font-bold" />
+        <div id="pwd-modal-error" class="hidden text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1.5 rounded-lg">
+          ❌ Wrong password! Try again.
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button type="button" onclick="closePwdModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-sm">
+            Confirm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. REWARDS & TROPHY CASE MODAL                                        -->
+  <!-- ===================================================================== -->
+  <div id="rewards-modal" class="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 shadow-2xl border-2 border-amber-300 space-y-5 pop-in">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-3">
+          <div id="reward-modal-avatar" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 flex items-center justify-center text-2xl shadow-sm">
+            🦄
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">🏆 Saanvi's Star Trophy Case &amp; Sticker Shop</h3>
+            <p class="text-xs text-slate-600">Earn stars by solving questions, unlocking Chess/Sudoku stages, and exploring Science!</p>
+          </div>
+        </div>
+        <button onclick="closeRewardsModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-base">&times;</button>
+      </div>
+
+      <!-- Star Balance & Streak Summary -->
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3">
+          <div class="text-2xl font-black text-amber-600" id="reward-stars-balance">0 ⭐</div>
+          <div class="text-[11px] font-bold text-amber-900 uppercase">Available Stars</div>
+        </div>
+        <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-3">
+          <div class="text-2xl font-black text-indigo-600" id="reward-stars-total">0 ⭐</div>
+          <div class="text-[11px] font-bold text-indigo-900 uppercase">Lifetime Earned</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3">
+          <div class="text-2xl font-black text-emerald-600" id="reward-streak-days">1 Day 🔥</div>
+          <div class="text-[11px] font-bold text-emerald-900 uppercase">Study Streak</div>
+        </div>
+      </div>
+
+      <!-- Avatar Picker -->
+      <div>
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Choose Your Study Buddy Avatar:</h4>
+        <div class="flex flex-wrap gap-2" id="avatar-picker-list"></div>
+      </div>
+
+      <!-- Collectible Badges -->
+      <div>
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">Achievement Trophy Badges (Auto-Unlock as You Learn!):</h4>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5" id="trophy-badges-grid"></div>
+      </div>
+
+      <!-- Parent-Approved Star Coupon Shop -->
+      <div>
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">🎁 Redeem Stars for Fun Reward Coupons:</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="reward-coupons-grid"></div>
+      </div>
+
+      <!-- Parent Data Backup & Restore -->
+      <div class="border-t border-slate-200 pt-3">
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2">💾 Parent Data Backup (Stars, Progress &amp; Timer):</h4>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportAllData()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-extrabold transition">
+            ⬇ Export Backup
+          </button>
+          <button onclick="document.getElementById('backup-file-input').click()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition">
+            ⬆ Restore Backup
+          </button>
+          <input type="file" id="backup-file-input" accept="application/json,.json" class="hidden" onchange="importAllData(event)" />
+        </div>
+        <p id="backup-status" class="text-[11px] text-slate-500 mt-1.5">Progress auto-saves on this device. Export a backup file before switching devices or domains, then restore it here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Reward Toast Container -->
+  <div id="reward-toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+  <!-- ===================================================================== -->
+  <!-- STICKY NAVIGATION BAR (With Live Timer, Stars & Compact Tabs)         -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex flex-col gap-2">
+      <!-- Top Row: Brand + Live 30m Timer + Stars Button -->
+      <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('home')">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-teal-500 to-emerald-500 flex items-center justify-center text-white font-extrabold text-base shadow-sm shrink-0">
-            S
+          <div id="header-avatar-badge" class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-teal-500 to-emerald-500 flex items-center justify-center text-white font-black text-lg shadow-sm shrink-0">
+            🦄
           </div>
           <div>
             <h1 class="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
               Saanvi's Interactive Learning Studio
             </h1>
-            <p class="text-[11px] text-slate-500">
-              1st/2nd Grade Enrichment &bull; MAP Math RIT 191 &bull; Reading RIT 177
+            <p class="text-[11px] text-slate-500 hidden sm:block">
+              Ivy Hill Elementary &bull; 1st Grade &bull; Math RIT 191 (99th) &bull; Reading RIT 177 (96th)
             </p>
           </div>
         </div>
-        <button onclick="window.print()" class="lg:hidden no-print px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
-          Print
-        </button>
+
+        <!-- Timer Pill + Rewards Pill -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Daily 30m Countdown Timer -->
+          <div id="timer-pill-box" class="flex items-center gap-1.5 bg-slate-900 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-sm">
+            <span>⏱️</span>
+            <span class="hidden md:inline text-slate-300 font-medium">Time Left:</span>
+            <span id="daily-timer-display" class="font-mono text-sm font-extrabold text-amber-300">30:00</span>
+            <button onclick="promptAddExtraTime()" class="ml-1 px-2 py-0.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold transition" title="Parent Password Required">
+              +15m
+            </button>
+          </div>
+
+          <!-- Star Rewards Button -->
+          <button onclick="openRewardsModal()" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-500 hover:to-orange-500 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-extrabold shadow-sm transition">
+            <span>🏆</span>
+            <span id="header-star-count">0 ⭐</span>
+          </button>
+
+          <button onclick="window.print()" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            🖨️
+          </button>
+        </div>
       </div>
 
-      <!-- Navigation Tabs + Quick Search -->
-      <div class="flex flex-wrap items-center gap-1.5 no-print">
+      <!-- Second Row: Subject Navigation Tabs + Search -->
+      <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100">
         <button onclick="switchTab('home')" id="tab-home" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white transition">
-          🏠 Home (Contents)
+          🏠 Home
+        </button>
+        <button onclick="switchTab('scores')" id="tab-scores" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200 hover:bg-sky-100 transition">
+          📈 Score Trends
         </button>
         <button onclick="switchTab('math')" id="tab-math" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100 transition">
-          🔢 Math (8)
+          🔢 Math (11 + BA 1B–1D)
         </button>
         <button onclick="switchTab('english')" id="tab-english" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200 hover:bg-indigo-100 transition">
-          📚 English (6)
+          📚 English (7)
         </button>
         <button onclick="switchTab('science')" id="tab-science" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition">
-          🔬 Science (4)
+          🔬 Science (7 + Facts)
         </button>
-        <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">
-          🎯 Quick Quiz
+        <button onclick="switchTab('academy')" id="tab-academy" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 transition">
+          ♟️ Chess &amp; Sudoku (20)
+        </button>
+        <button onclick="switchTab('qbank')" id="tab-qbank" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">
+          📝 990 Q-Bank
+        </button>
+        <button onclick="switchTab('parent')" id="tab-parent" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition">
+          👨‍👩‍👧 Parent Syllabus
         </button>
 
         <!-- Search Input -->
-        <div class="relative ml-auto sm:ml-1">
-          <input type="text" id="concept-search" oninput="handleSearch(this.value)" placeholder="Search concept..." class="w-36 sm:w-44 pl-7 pr-2 py-1 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+        <div class="relative ml-auto">
+          <input type="text" id="global-search" oninput="handleGlobalSearch(this.value)" placeholder="Search topic or Q#..." class="w-36 sm:w-44 pl-7 pr-2 py-1 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400" />
           <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         </div>
-
-        <button onclick="window.print()" class="hidden lg:inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
-          🖨️ Print Subject
-        </button>
       </div>
     </div>
 
-    <!-- Instant Search Results Dropdown -->
-    <div id="search-results-bar" class="hidden bg-indigo-50 border-t border-indigo-100 px-4 py-2 no-print">
-      <div class="max-w-6xl mx-auto flex flex-wrap items-center gap-2 text-xs">
-        <span class="font-bold text-indigo-900">Matching Concepts:</span>
+    <!-- Instant Search Results Bar -->
+    <div id="search-results-bar" class="hidden bg-indigo-50 border-t border-indigo-100 px-4 py-2">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center gap-2 text-xs">
+        <span class="font-bold text-indigo-900">Quick Jump:</span>
         <div id="search-results-list" class="flex flex-wrap gap-1.5"></div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-3 sm:px-4 py-5">
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5">
 
     <!-- =================================================================== -->
     <!-- VIEW 1: LANDING PAGE (HOME / TABLE OF CONTENTS)                     -->
     <!-- =================================================================== -->
     <section id="view-home" class="tab-panel space-y-6">
       <!-- Hero Banner -->
-      <div class="bg-gradient-to-r from-indigo-600 via-teal-600 to-emerald-600 rounded-2xl p-5 sm:p-6 text-white shadow-md">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="bg-gradient-to-r from-indigo-700 via-teal-600 to-emerald-600 rounded-2xl p-5 sm:p-6 text-white shadow-md">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div class="space-y-1.5">
             <span class="inline-block px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-bold tracking-wide">
-              Ivy Hill Elementary &bull; Personal Study Hub
+              Ivy Hill Elementary (Arlington Heights SD 25) &bull; Grade 1 Enrichment
             </span>
             <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight">
-              Welcome to Saanvi's Learning Studio!
+              Welcome to Saanvi's Interactive Learning Studio!
             </h2>
             <p class="text-xs sm:text-sm text-indigo-50 max-w-2xl">
-              Click any topic below to explore visual diagrams, hands-on interactive simulators, and practice challenges built to grow from 1st grade into 2nd &amp; 3rd grade mastery.
+              Explore visual diagrams, Circles &amp; Beast Academy 1B–1D labs, interactive Science &amp; English series labs, 20-stage Chess &amp; Sudoku puzzles, NWEA MAP score trend graphs, and 990 MAP practice questions!
             </p>
           </div>
-          <div class="grid grid-cols-3 gap-2 text-center shrink-0">
-            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20">
-              <div class="text-lg sm:text-xl font-extrabold" id="stat-total-concepts">18</div>
-              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Concepts</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center shrink-0">
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('scores')">
+              <div class="text-lg font-extrabold">191 / 177</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Math / Read RIT</div>
             </div>
-            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20">
-              <div class="text-lg sm:text-xl font-extrabold">14</div>
-              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Interactive Labs</div>
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('math')">
+              <div class="text-lg font-extrabold">25</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Visual Labs</div>
             </div>
-            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20">
-              <div class="text-lg sm:text-xl font-extrabold">3</div>
-              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Subjects</div>
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('academy')">
+              <div class="text-lg font-extrabold">40</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">Logic Stages</div>
             </div>
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('qbank')">
+              <div class="text-lg font-extrabold" id="hero-total-q-count">990</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">MAP Questions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Quick-Access Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div onclick="switchTab('math')" class="cursor-pointer bg-white rounded-2xl border border-teal-200 hover:border-teal-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0">⭕</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-teal-700">New Math Modules</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Circles &amp; Beast 1B–1D</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Radius, diameter, patterns, parity &amp; magic squares.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('academy')" class="cursor-pointer bg-white rounded-2xl border border-purple-200 hover:border-purple-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl shrink-0">♟️</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-purple-700">20-Stage Strategy</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Chess &amp; Sudoku</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Unlock 20 stages per game &amp; earn +5 ⭐ each!</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('qbank')" class="cursor-pointer bg-white rounded-2xl border border-amber-200 hover:border-amber-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">📝</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-amber-700">Expanded Exam Bank</div>
+            <h3 class="text-sm font-extrabold text-slate-900">990 MAP Questions</h3>
+            <p class="text-xs text-slate-600 mt-0.5">English, Math, Circles, Beast 1B–1D &amp; Science.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('parent')" class="cursor-pointer bg-gradient-to-br from-rose-50 to-amber-50 rounded-2xl border border-rose-200 hover:border-rose-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl shrink-0">👨‍👩‍👧</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-rose-800">Parent Guide</div>
+            <h3 class="text-sm font-extrabold text-slate-900">MAP Test Syllabus</h3>
+            <p class="text-xs text-slate-700 mt-0.5">RIT goals, Lexile guide &amp; Beast Academy alignment.</p>
           </div>
         </div>
       </div>
 
       <!-- Auto-Generated Table of Contents Directory Cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5" id="toc-directory-grid">
-        <!-- Populated cleanly from CONCEPT_INDEX in JS so adding new concepts automatically updates the Landing Page! -->
-      </div>
-
-      <!-- Tutor Quick-Tip Footer -->
-      <div class="bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600">
-        <div>
-          <strong class="text-slate-900">Tutor Note:</strong> This hub is modular—any new concept card added to the HTML and registered in <code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-700 font-mono">CONCEPT_INDEX</code> automatically appears in this Table of Contents and Search bar.
-        </div>
-        <button onclick="switchTab('quiz')" class="px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold shrink-0 transition shadow-sm">
-          🎯 Launch Quick Practice Quiz &rarr;
-        </button>
+      <div>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-500 mb-3">Subject Concept Directory (Click Any Topic to Jump)</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5" id="toc-directory-grid"></div>
       </div>
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 2: MATHEMATICS SUBJECT TAB                                     -->
+    <!-- VIEW 2: SCORE TRENDS & INTERACTIVE PROGRESS TRACKER                 -->
+    <!-- =================================================================== -->
+    <section id="view-scores" class="tab-panel hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-sky-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">📈 Saanvi's MAP Growth &amp; Assessment Score Trends</h2>
+        </div>
+        <span class="text-xs font-bold text-sky-800 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">ID: 1734509 (MAP) &bull; Lexile: 145L–295L</span>
+      </div>
+
+      <!-- Amira Learning Banner -->
+      <div class="bg-white rounded-2xl border border-indigo-200 p-4 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[11px] font-extrabold">ABOVE BENCHMARK</span>
+            <span class="text-xs font-bold text-slate-500">Amira Learning BOY Report (Assessed 9/18/2026)</span>
+          </div>
+          <h3 class="text-base font-extrabold text-slate-900 mt-1">
+            Overall Amira Reading Mastery (ARM): <span class="text-indigo-700">2.64</span> <span class="text-xs font-semibold text-slate-600">(93rd Percentile — Mid-2nd Grade Reading Level)</span>
+          </h3>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center text-[11px]">
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">95%</div><div class="text-slate-600">Decoding</div></div>
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">95%</div><div class="text-slate-600">Vocabulary</div></div>
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">94%</div><div class="text-slate-600">High Freq.</div></div>
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">94%</div><div class="text-slate-600">Background</div></div>
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">93%</div><div class="text-slate-600">Reasoning</div></div>
+          <div class="bg-slate-50 px-2 py-1.5 rounded-lg border border-slate-200"><div class="font-extrabold text-indigo-700">91%</div><div class="text-slate-600">Phonology</div></div>
+        </div>
+      </div>
+
+      <!-- TWO SEPARATE CHARTS: MATHEMATICS & ENGLISH READING -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+          <div class="bg-teal-50 border-b border-teal-100 px-4 py-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-extrabold text-teal-950">🔢 Mathematics K–12 RIT Trend</h3>
+              <p class="text-[11px] text-teal-800">Fall-to-Fall Growth: <strong>+26 RIT</strong> (vs. +14 projected) &bull; 99th Percentile</p>
+            </div>
+            <span class="text-xs font-extrabold bg-white text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">FA27 Goal: 203</span>
+          </div>
+          <div class="p-4">
+            <svg id="math-trend-svg" viewBox="0 0 480 230" class="w-full h-auto bg-slate-50 rounded-xl border border-slate-200"></svg>
+            <div class="flex flex-wrap items-center justify-center gap-4 mt-2.5 text-[11px] font-semibold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-teal-600 inline-block"></span> Saanvi RIT</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> District Mean</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span> National Norm</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full border-2 border-dashed border-teal-600 inline-block"></span> FA27 Target (203)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
+          <div class="bg-indigo-50 border-b border-indigo-100 px-4 py-3 flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-extrabold text-indigo-950">📚 English Reading RIT Trend</h3>
+              <p class="text-[11px] text-indigo-800">Fall-to-Fall Growth: <strong>+20 RIT</strong> (vs. +15 projected) &bull; 96th Percentile</p>
+            </div>
+            <span class="text-xs font-extrabold bg-white text-indigo-800 px-2.5 py-1 rounded-full border border-indigo-200">FA27 Goal: 189</span>
+          </div>
+          <div class="p-4">
+            <svg id="reading-trend-svg" viewBox="0 0 480 230" class="w-full h-auto bg-slate-50 rounded-xl border border-slate-200"></svg>
+            <div class="flex flex-wrap items-center justify-center gap-4 mt-2.5 text-[11px] font-semibold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-indigo-600 inline-block"></span> Saanvi RIT</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> District Mean</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-slate-400 inline-block"></span> National Norm</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full border-2 border-dashed border-indigo-600 inline-block"></span> FA27 Target (189)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score History Data Tables -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm overflow-x-auto">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-teal-800 mb-2">Mathematics Score Table</h4>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-800 text-white">
+                <th class="p-2 rounded-tl-lg">Term</th>
+                <th class="p-2">Gr</th>
+                <th class="p-2">Saanvi RIT</th>
+                <th class="p-2">Dist / Norm</th>
+                <th class="p-2 rounded-tr-lg">Percentile</th>
+              </tr>
+            </thead>
+            <tbody id="math-score-tbody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm overflow-x-auto">
+          <h4 class="text-xs font-extrabold uppercase tracking-wider text-indigo-800 mb-2">English Reading Score Table</h4>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-800 text-white">
+                <th class="p-2 rounded-tl-lg">Term</th>
+                <th class="p-2">Gr</th>
+                <th class="p-2">Saanvi RIT</th>
+                <th class="p-2">Dist / Norm</th>
+                <th class="p-2">Percentile</th>
+                <th class="p-2 rounded-tr-lg">Lexile&reg;</th>
+              </tr>
+            </thead>
+            <tbody id="reading-score-tbody" class="divide-y divide-slate-200"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Interactive Add New Test Score Form -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm no-print">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-900">➕ Log a New MAP Test Score (Saves in Browser)</h3>
+            <p class="text-xs text-slate-500">Add Saanvi's upcoming Winter (WI27) or Spring (SP27) test results to update both charts immediately.</p>
+          </div>
+          <button onclick="resetCustomScores()" class="text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg">
+            Reset to Official FA26 Baseline
+          </button>
+        </div>
+        <form onsubmit="addNewScoreEntry(event)" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Term Code</label>
+            <input type="text" id="inp-term" placeholder="e.g. WI27" required class="w-full p-2 rounded-lg border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Grade</label>
+            <input type="text" id="inp-grade" value="1" required class="w-full p-2 rounded-lg border border-slate-300" />
+          </div>
+          <div>
+            <label class="block font-bold text-teal-800 mb-1">Math RIT</label>
+            <input type="number" id="inp-math-rit" placeholder="196" required class="w-full p-2 rounded-lg border border-teal-300 bg-teal-50/40" />
+          </div>
+          <div>
+            <label class="block font-bold text-teal-800 mb-1">Math %ile</label>
+            <input type="text" id="inp-math-pct" placeholder="99th" required class="w-full p-2 rounded-lg border border-teal-300 bg-teal-50/40" />
+          </div>
+          <div>
+            <label class="block font-bold text-indigo-800 mb-1">Read RIT</label>
+            <input type="number" id="inp-read-rit" placeholder="183" required class="w-full p-2 rounded-lg border border-indigo-300 bg-indigo-50/40" />
+          </div>
+          <div>
+            <label class="block font-bold text-indigo-800 mb-1">Read %ile</label>
+            <input type="text" id="inp-read-pct" placeholder="97th" required class="w-full p-2 rounded-lg border border-indigo-300 bg-indigo-50/40" />
+          </div>
+          <div>
+            <label class="block font-bold text-indigo-800 mb-1">Lexile Range</label>
+            <input type="text" id="inp-lexile" placeholder="210L-360L" class="w-full p-2 rounded-lg border border-indigo-300 bg-indigo-50/40" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full py-2 px-3 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold shadow-sm">
+              Save Score
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 3: MATHEMATICS SUBJECT TAB (M1-M10 + BEAST ACADEMY 1B, 1C, 1D) -->
     <!-- =================================================================== -->
     <section id="view-math" class="tab-panel hidden space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-teal-500 pb-2">
         <div class="flex items-center gap-2.5">
-          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Contents</button>
-          <h2 class="text-xl font-extrabold text-slate-900">🔢 Mathematics Concepts &amp; Interactive Labs</h2>
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">🔢 Mathematics Concepts, Circles &amp; Beast Academy 1B–1D</h2>
         </div>
-        <span class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">Target: RIT 203+ (2nd/3rd Grade)</span>
+        <span class="text-xs font-bold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">Target: RIT 203+ &bull; Beast Academy 1B, 1C &amp; 1D</span>
       </div>
 
-      <!-- M1: Coins & Money -->
-      <article id="concept-m1" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+      <!-- NEW: M9 (Circles & Curves Explorer) & M10 (Number Patterns & Series Lab) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- M9: Circles & Curves Explorer -->
+        <article id="concept-m9" class="concept-card bg-white rounded-2xl border-2 border-teal-300 shadow-sm overflow-hidden print-break">
+          <div class="bg-teal-600 text-white px-5 py-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-teal-100">M9 &bull; Geometry &amp; Curves (New)</span>
+              <h3 class="text-base font-bold">⭕ Circles: Center, Radius, Diameter &amp; Chord</h3>
+            </div>
+            <span class="text-xs font-extrabold bg-white/20 px-2.5 py-1 rounded-full">d = 2 &times; r</span>
+          </div>
+          <div class="p-4 space-y-3 text-xs">
+            <p class="text-slate-600">
+              A <strong>circle</strong> is a closed curved shape with <strong>0 straight sides</strong> and <strong>0 corners</strong>. Every point on the edge is the exact same distance from the <strong>Center</strong>!
+            </p>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-rose-50 p-2 rounded-lg border border-rose-200"><strong class="text-rose-800">Radius (r):</strong> Center to the edge (half of diameter).</div>
+              <div class="bg-indigo-50 p-2 rounded-lg border border-indigo-200"><strong class="text-indigo-800">Diameter (d):</strong> Straight across through Center (<strong>2 &times; r</strong>).</div>
+              <div class="bg-amber-50 p-2 rounded-lg border border-amber-200"><strong class="text-amber-800">Chord:</strong> Connects 2 edge points (Diameter is the longest chord!).</div>
+              <div class="bg-teal-50 p-2 rounded-lg border border-teal-200"><strong class="text-teal-800">Circumference:</strong> Total distance around the outside edge.</div>
+            </div>
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
+              <svg id="circle-lab-svg" viewBox="0 0 160 160" class="w-36 h-36 shrink-0 bg-white rounded-xl border border-slate-200"></svg>
+              <div class="space-y-2 w-full">
+                <label class="block font-bold text-slate-800 no-print">Radius (r): <span id="circle-r-label" class="text-rose-600 font-extrabold">4 in</span>
+                  <input type="range" min="1" max="10" value="4" oninput="updateCircleLab(this.value, null)" class="w-full accent-teal-600 mt-1"/>
+                </label>
+                <div class="flex flex-wrap gap-1 no-print">
+                  <button onclick="updateCircleLab(null, 'radius')" class="px-2 py-1 rounded bg-rose-100 text-rose-900 font-bold">Radius</button>
+                  <button onclick="updateCircleLab(null, 'diameter')" class="px-2 py-1 rounded bg-indigo-100 text-indigo-900 font-bold">Diameter</button>
+                  <button onclick="updateCircleLab(null, 'chord')" class="px-2 py-1 rounded bg-amber-100 text-amber-900 font-bold">Chord</button>
+                  <button onclick="updateCircleLab(null, 'semi')" class="px-2 py-1 rounded bg-teal-100 text-teal-900 font-bold">Semicircle</button>
+                </div>
+                <div id="circle-lab-readout" class="bg-white p-2 rounded-lg border border-slate-200 font-bold text-teal-900">
+                  Radius (r) = 4 in | Diameter (d) = 8 in
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- M10: Number Patterns, Series & Function Machines -->
+        <article id="concept-m10" class="concept-card bg-white rounded-2xl border-2 border-indigo-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-indigo-600 text-white px-5 py-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-100">M10 &bull; Algebraic Thinking (New)</span>
+              <h3 class="text-base font-bold">🔢 Number Patterns, Series &amp; Function Machines</h3>
+            </div>
+            <span class="text-xs font-extrabold bg-white/20 px-2.5 py-1 rounded-full">+2 ⭐ per solve</span>
+          </div>
+          <div class="p-4 space-y-3 text-xs">
+            <p class="text-slate-600">
+              Find the <strong>jump rule</strong> between neighbor numbers! Watch for skip-counting series (<em>+3, +5, &minus;6</em>), growing jumps (<em>+2, +3, +4</em>), and <strong>In &rarr; Out</strong> machines.
+            </p>
+            <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span id="math-series-title" class="font-extrabold text-indigo-900">Series #1: Skip-Counting Jump</span>
+                <button onclick="nextMathSeries()" class="no-print px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700">Next Series &rarr;</button>
+              </div>
+              <div id="math-series-tiles" class="flex flex-wrap items-center justify-center gap-1.5 py-1"></div>
+              <div class="flex items-center justify-center gap-2 no-print">
+                <input type="number" id="math-series-input" placeholder="Missing #" onkeydown="if(event.key==='Enter') checkMathSeries()" class="w-28 px-3 py-1.5 rounded-lg border border-slate-300 text-center font-extrabold text-sm bg-white" />
+                <button onclick="checkMathSeries()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Check</button>
+              </div>
+              <div id="math-series-feedback" class="text-center font-bold text-slate-600 min-h-[18px]"></div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- NEW: BEAST ACADEMY 1B, 1C & 1D CURRICULUM & INTERACTIVE LABS -->
+      <div id="concept-ba" class="bg-gradient-to-br from-orange-50 via-amber-50 to-white rounded-2xl border-2 border-orange-300 p-5 shadow-sm space-y-4 print-break">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-orange-200 pb-3">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-orange-600 text-white text-[11px] font-extrabold uppercase tracking-wider">
+              Beast Academy Enrichment Hub (Art of Problem Solving)
+            </span>
+            <h3 class="text-lg font-black text-slate-900 mt-1">👹 Beast Academy Level 1B, 1C &amp; 1D Concept Guide &amp; Labs</h3>
+          </div>
+          <button onclick="filterQBank('BEAST_ALL'); switchTab('qbank');" class="no-print px-3.5 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-extrabold shadow-sm">
+            Practice 180 Beast Academy Qs &rarr;
+          </button>
+        </div>
+
+        <!-- 3 Book Cards: 1B, 1C, 1D -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
+          <div class="bg-white rounded-xl border border-orange-200 p-4 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-orange-800 text-sm">📘 Beast Academy 1B (Current)</span>
+              <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-900 font-bold text-[10px]">Ch. 4–6</span>
+            </div>
+            <ul class="space-y-1.5 text-slate-700">
+              <li><strong>Ch. 4 — Addition &amp; Subtraction Strategies:</strong> Making 10s (<code>8 + 5 = 8 + 2 + 3 = 13</code>), adding/subtracting 9 using 10 (<code>+10 &minus; 1</code>), doubles, and number bonds.</li>
+              <li><strong>Ch. 5 — Comparing &amp; Ordering:</strong> Inequalities (<code>&lt;</code>, <code>&gt;</code>, <code>=</code>), comparing expressions without adding (<code>48 + 19 &lt; 48 + 22</code>), and number-line distance.</li>
+              <li><strong>Ch. 6 — Odds &amp; Evens (Parity):</strong> Pairing into 2s; <code>Even + Even = Even</code>, <code>Odd + Odd = Even</code>, <code>Even + Odd = Odd</code>, and parity logic puzzles.</li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-xl border border-orange-200 p-4 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-orange-800 text-sm">📙 Beast Academy 1C (Up Next!)</span>
+              <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-900 font-bold text-[10px]">Ch. 7–9</span>
+            </div>
+            <ul class="space-y-1.5 text-slate-700">
+              <li><strong>Ch. 7 — Big Numbers &amp; Place Value:</strong> Grouping into tens &amp; hundreds, flexible regrouping (<code>2 hundreds + 15 tens = 350</code>), and 10-more/10-less grids.</li>
+              <li><strong>Ch. 8 — Algorithms:</strong> Stacking multi-digit numbers vertically, carrying 10 ones into 1 ten, and borrowing across tens and zeros (<code>300 &minus; 146</code>).</li>
+              <li><strong>Ch. 9 — Measurement &amp; Perimeter:</strong> Indirect comparisons (if <code>A &gt; B</code> and <code>B &gt; C</code>, then <code>A &gt; C</code>), balance scales, rulers, and <strong>polygon perimeter</strong>.</li>
+            </ul>
+          </div>
+
+          <div class="bg-white rounded-xl border border-orange-200 p-4 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-orange-800 text-sm">📕 Beast Academy 1D (Next Level)</span>
+              <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-900 font-bold text-[10px]">Ch. 10–12</span>
+            </div>
+            <ul class="space-y-1.5 text-slate-700">
+              <li><strong>Ch. 10 — Problem Solving:</strong> <em>Working Backwards</em> (reversing steps from the end), <em>Guess &amp; Check</em>, <strong>Venn Diagrams</strong> (<code>A + B &minus; Both</code>), and <strong>3&times;3 Magic Squares</strong>.</li>
+              <li><strong>Ch. 11 — Money:</strong> Counting pennies, nickels, dimes, and quarters, trading coins, making amounts with fewest coins, and making change from $1.00.</li>
+              <li><strong>Ch. 12 — Fractions:</strong> Equal vs. unequal shares, halves (<code>1/2</code>), thirds (<code>1/3</code>), fourths (<code>1/4</code>), naming shaded regions, and fair sharing.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 3 Interactive Beast Academy Mini-Labs -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs no-print">
+          <!-- Lab 1: Odds & Evens Parity Predictor (BA 1B) -->
+          <div class="bg-white rounded-xl border border-orange-200 p-3.5 space-y-2">
+            <div class="font-extrabold text-orange-900">🧪 BA 1B: Odds &amp; Evens Parity Predictor (+2 ⭐)</div>
+            <p id="ba-parity-q" class="font-bold text-slate-800 bg-orange-50 p-2 rounded-lg border border-orange-100">
+              Odd Number + Odd Number (e.g., 17 + 25) = ?
+            </p>
+            <div class="flex gap-1.5">
+              <button onclick="checkBAParity('Even')" class="flex-1 py-1.5 rounded-lg bg-orange-600 text-white font-bold hover:bg-orange-700">Always Even</button>
+              <button onclick="checkBAParity('Odd')" class="flex-1 py-1.5 rounded-lg bg-slate-800 text-white font-bold hover:bg-slate-900">Always Odd</button>
+              <button onclick="nextBAParity()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-300 font-bold">Next</button>
+            </div>
+            <div id="ba-parity-fb" class="font-semibold text-slate-600 min-h-[18px]"></div>
+          </div>
+
+          <!-- Lab 2: Working Backwards Machine (BA 1D) -->
+          <div class="bg-white rounded-xl border border-orange-200 p-3.5 space-y-2">
+            <div class="font-extrabold text-orange-900">🧪 BA 1D: Working Backwards Machine (+2 ⭐)</div>
+            <p id="ba-bw-q" class="font-bold text-slate-800 bg-orange-50 p-2 rounded-lg border border-orange-100">
+              Start with ?, add 7, subtract 4, and end at 15. Start #?
+            </p>
+            <div class="flex gap-1.5">
+              <input type="number" id="ba-bw-inp" placeholder="Start #" class="w-20 px-2 py-1.5 rounded-lg border border-slate-300 text-center font-extrabold"/>
+              <button onclick="checkBABackwards()" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white font-bold hover:bg-emerald-700">Check</button>
+              <button onclick="nextBABackwards()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 border border-slate-300 font-bold">Next</button>
+            </div>
+            <div id="ba-bw-fb" class="font-semibold text-slate-600 min-h-[18px]"></div>
+          </div>
+
+          <!-- Lab 3: 3x3 Magic Square (BA 1D) -->
+          <div class="bg-white rounded-xl border border-orange-200 p-3.5 space-y-2">
+            <div class="font-extrabold text-orange-900">🧪 BA 1D: 3&times;3 Magic Square (Every Line = 15) (+3 ⭐)</div>
+            <div class="flex items-center justify-between gap-2">
+              <div id="ba-magic-grid" class="grid grid-cols-3 gap-1"></div>
+              <div class="space-y-1.5 flex-1">
+                <p class="text-[11px] text-slate-600">Fill missing digits (1–9) so every row, column &amp; diagonal adds to <strong>15</strong>!</p>
+                <button onclick="checkBAMagic()" class="w-full py-1.5 rounded-lg bg-orange-600 text-white font-bold hover:bg-orange-700">Verify Square</button>
+              </div>
+            </div>
+            <div id="ba-magic-fb" class="font-semibold text-slate-600 min-h-[18px]"></div>
+          </div>
+        </div>
+
+        <!-- NEW: 3 Beast Academy 1B Interactive Visual Puzzle Labs (Circle Diagrams, Difference Pyramids, X-Outs) -->
+        <div class="pt-3 border-t border-orange-200 space-y-2 no-print">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-orange-800">✨ New Beast Academy 1B Interactive Puzzle Labs (From Saanvi's Workbook!)</span>
+            <span class="text-[11px] font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full">+3 ⭐ per puzzle solved!</span>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
+
+            <!-- Puzzle Lab A: Circle Diagrams (Categories / Venn) -->
+            <div class="bg-white rounded-xl border-2 border-emerald-200 p-3.5 space-y-2.5 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-emerald-900">⭕ Circle Diagrams (Categories)</span>
+                  <button onclick="nextCircleDiag()" class="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold hover:bg-emerald-700">Next &rarr;</button>
+                </div>
+                <p id="ba-cd-prompt" class="text-[11px] text-slate-600 font-semibold"></p>
+                <div id="ba-cd-items" class="space-y-1.5 max-h-44 overflow-y-auto pr-1"></div>
+              </div>
+              <div class="space-y-1.5 pt-1">
+                <button onclick="checkCircleDiag()" class="w-full py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold">Check Circle Diagram</button>
+                <div id="ba-cd-fb" class="font-bold text-slate-600 min-h-[16px]"></div>
+              </div>
+            </div>
+
+            <!-- Puzzle Lab B: Difference Pyramids (Use 1-9 / 1-10) -->
+            <div class="bg-white rounded-xl border-2 border-indigo-200 p-3.5 space-y-2.5 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-indigo-900">🔺 Difference Pyramids</span>
+                  <button onclick="nextDiffPyr()" class="px-2 py-0.5 rounded bg-indigo-600 text-white font-bold hover:bg-indigo-700">Next &rarr;</button>
+                </div>
+                <p id="ba-pyr-rule" class="text-[11px] text-slate-600 font-semibold"></p>
+                <div id="ba-pyr-board" class="flex flex-col items-center gap-1 py-1"></div>
+              </div>
+              <div class="space-y-1.5 pt-1">
+                <button onclick="checkDiffPyr()" class="w-full py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold">Check Pyramid</button>
+                <div id="ba-pyr-fb" class="font-bold text-slate-600 min-h-[16px]"></div>
+              </div>
+            </div>
+
+            <!-- Puzzle Lab C: X-Outs Grid (Target Row & Col Sums) -->
+            <div class="bg-white rounded-xl border-2 border-rose-200 p-3.5 space-y-2.5 flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-rose-900">❌ X-Outs Grid</span>
+                  <button onclick="nextXOut()" class="px-2 py-0.5 rounded bg-rose-600 text-white font-bold hover:bg-rose-700">Next &rarr;</button>
+                </div>
+                <div class="flex items-center justify-between bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  <span class="text-[11px] font-semibold text-rose-900">Tap numbers to cross out (❌)</span>
+                  <span id="ba-xout-target" class="font-extrabold text-rose-700 text-xs">Target: 7</span>
+                </div>
+                <div id="ba-xout-grid" class="flex flex-col items-center py-1"></div>
+              </div>
+              <div class="space-y-1.5 pt-1">
+                <button onclick="checkXOut()" class="w-full py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-extrabold">Check X-Out Grid</button>
+                <div id="ba-xout-fb" class="font-bold text-slate-600 min-h-[16px]"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Original M1 & M2 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <article id="concept-m1" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M1 &bull; Number &amp; Operations</span>
+            <h3 class="text-base font-bold text-slate-900">Place Value &amp; Base-10 Blocks (Up to 999)</h3>
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-extrabold text-slate-900">🧱 Interactive 3-Digit Builder</span>
+                <span id="pv-expanded" class="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">300 + 40 + 8 = 348</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-white p-2 rounded-lg border border-indigo-200">
+                  <div class="font-bold text-indigo-700">Hundreds</div>
+                  <div id="pv-h" class="text-xl font-extrabold my-1">3</div>
+                  <div class="flex justify-center gap-1 no-print">
+                    <button onclick="changePV('h', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
+                    <button onclick="changePV('h', 1)" class="w-6 h-6 rounded bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold">+</button>
+                  </div>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-teal-200">
+                  <div class="font-bold text-teal-700">Tens</div>
+                  <div id="pv-t" class="text-xl font-extrabold my-1">4</div>
+                  <div class="flex justify-center gap-1 no-print">
+                    <button onclick="changePV('t', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
+                    <button onclick="changePV('t', 1)" class="w-6 h-6 rounded bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold">+</button>
+                  </div>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-amber-200">
+                  <div class="font-bold text-amber-700">Ones</div>
+                  <div id="pv-o" class="text-xl font-extrabold my-1">8</div>
+                  <div class="flex justify-center gap-1 no-print">
+                    <button onclick="changePV('o', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
+                    <button onclick="changePV('o', 1)" class="w-6 h-6 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold">+</button>
+                  </div>
+                </div>
+              </div>
+              <div id="pv-blocks-visual" class="mt-2.5 flex flex-wrap items-end justify-center gap-2 bg-white p-2 rounded-lg border border-slate-200 min-h-[46px]"></div>
+            </div>
+          </div>
+        </article>
+
+        <article id="concept-m2" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M2 &bull; Number &amp; Operations</span>
+            <h3 class="text-base font-bold text-slate-900">2-Digit Regrouping / Borrowing (52 &minus; 18)</h3>
+          </div>
+          <div class="p-4 space-y-3 text-xs">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <div class="font-extrabold text-slate-800 mb-1">Step 1: Check Ones</div>
+                <div class="font-mono text-sm bg-white py-1.5 rounded border border-slate-200">
+                  5<span class="text-rose-600 font-bold">2</span><br/>
+                  &minus; 1<span class="text-rose-600 font-bold">8</span>
+                </div>
+                <p class="text-[11px] text-slate-600 mt-1">2 is smaller than 8! We must borrow 1 Ten.</p>
+              </div>
+              <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+                <div class="font-extrabold text-amber-900 mb-1">Step 2: Regroup</div>
+                <div class="font-mono text-sm bg-white py-1.5 rounded border border-amber-200">
+                  <span class="line-through text-slate-400">5</span><span class="text-indigo-700 font-bold">4</span> <span class="text-teal-700 font-bold">12</span><br/>
+                  &minus; 1 &nbsp;8
+                </div>
+                <p class="text-[11px] text-slate-700 mt-1">5 Tens become 4 Tens; 2 Ones become 12 Ones.</p>
+              </div>
+              <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                <div class="font-extrabold text-emerald-900 mb-1">Step 3: Subtract!</div>
+                <div class="font-mono text-sm bg-white py-1.5 rounded border border-emerald-200">
+                  4 &nbsp;12<br/>
+                  &minus; 1 &nbsp;&nbsp;8<br/>
+                  <strong class="text-emerald-700 border-t border-slate-400 px-2">3 &nbsp;&nbsp;4</strong>
+                </div>
+                <p class="text-[11px] text-slate-700 mt-1">12 &minus; 8 = 4 Ones;<br/>4 &minus; 1 = 3 Tens &rarr; <strong>34</strong></p>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Original M3: Coins & Dollar Equivalence -->
+      <article id="concept-m3" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
         <div class="bg-teal-50 border-b border-teal-100 px-5 py-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M1 &bull; Measurement &amp; Data</span>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M3 &bull; Measurement &amp; Data</span>
             <h3 class="text-base sm:text-lg font-bold text-slate-900">U.S. Coins &amp; $1.00 Equivalence</h3>
           </div>
           <span class="text-xs font-semibold bg-white text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">$1.00 = 100 Cents (100&cent;)</span>
@@ -170,7 +817,7 @@
         <div class="p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div>
             <p class="text-xs text-slate-600 mb-3">
-              Coin size does <strong>not</strong> equal value! A dime is the smallest coin, yet it is worth 10&cent; (double a nickel).
+              Coin physical size does <strong>not</strong> equal value! A dime is the smallest coin, yet it is worth 10&cent; (double a nickel).
             </p>
             <svg viewBox="0 0 460 125" class="w-full h-auto bg-slate-50 rounded-xl border border-slate-200 p-2">
               <g transform="translate(55, 50)">
@@ -204,15 +851,14 @@
             </svg>
           </div>
 
-          <!-- Interactive Coin Jar -->
           <div class="bg-teal-50/60 rounded-xl p-4 border border-teal-200 flex flex-col justify-between no-print">
             <div>
               <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-                <span class="text-xs font-extrabold text-teal-900">🪙 Interactive Coin Jar Challenge</span>
-                <button onclick="newCoinChallenge()" class="text-[11px] font-bold bg-teal-600 text-white px-2.5 py-1 rounded-md hover:bg-teal-700">New Target</button>
+                <span class="text-xs font-extrabold text-teal-900">🪙 Interactive Coin Jar Counter (+2 ⭐ on match!)</span>
+                <button onclick="newCoinChallenge()" class="text-[11px] font-bold bg-teal-600 text-white px-2.5 py-1 rounded-md hover:bg-teal-700">New Goal</button>
               </div>
               <div class="bg-white rounded-lg p-2.5 border border-teal-200 mb-2.5 flex items-center justify-between">
-                <span class="text-xs text-slate-600">Goal: <strong id="coin-goal-label" class="text-indigo-700 text-sm">Make 63&cent;</strong></span>
+                <span class="text-xs text-slate-600">Target: <strong id="coin-goal-label" class="text-indigo-700 text-sm">Make 63&cent; ($0.63)</strong></span>
                 <span id="coin-status-badge" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Jar: 0&cent; ($0.00)</span>
               </div>
               <div id="coin-tray" class="min-h-[36px] bg-white/80 rounded-lg border border-dashed border-teal-300 p-1.5 flex flex-wrap gap-1 mb-2.5 text-[11px] items-center">
@@ -230,12 +876,12 @@
         </div>
       </article>
 
-      <!-- M2: Length & Distance Scale (Inches, Feet, Yards, Miles) -->
-      <article id="concept-m2" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+      <!-- Original M4: Distance & Length Ladder -->
+      <article id="concept-m4" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
         <div class="bg-teal-50 border-b border-teal-100 px-5 py-3 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M2 &bull; Measurement &amp; Data</span>
-            <h3 class="text-base sm:text-lg font-bold text-slate-900">Length &amp; Distance: Inches, Feet, Yards &amp; Miles</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M4 &bull; Measurement &amp; Data</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Distance &amp; Length Ladder: Inches, Feet, Yards &amp; Miles</h3>
           </div>
           <span class="text-xs font-semibold bg-white text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">1 Mile = 5,280 Feet</span>
         </div>
@@ -264,11 +910,10 @@
             </svg>
           </div>
 
-          <!-- Interactive Unit Picker Mini-Game -->
           <div class="bg-sky-50/70 rounded-xl p-4 border border-sky-200 flex flex-col justify-between no-print">
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-extrabold text-sky-900">📏 Interactive Unit Picker</span>
+                <span class="text-xs font-extrabold text-sky-900">📏 Interactive Unit Picker (+1 ⭐)</span>
                 <button onclick="nextUnitQuestion()" class="text-[11px] font-bold bg-sky-600 text-white px-2.5 py-1 rounded-md hover:bg-sky-700">Next Item</button>
               </div>
               <div class="bg-white rounded-lg p-3 border border-sky-200 mb-3">
@@ -286,17 +931,16 @@
         </div>
       </article>
 
-      <!-- M3 & M4: Telling Time + Data & Bar Graphs -->
+      <!-- Original M5, M6, M7, M8 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- M3: Interactive Analog Clock -->
-        <article id="concept-m3" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+        <article id="concept-m5" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M3 &bull; Measurement &amp; Data</span>
-            <h3 class="text-base font-bold text-slate-900">Telling Time &amp; Elapsed Time (5-Min Intervals)</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M5 &bull; Measurement &amp; Data</span>
+            <h3 class="text-base font-bold text-slate-900">Analog Clock to 5 Minutes &amp; Elapsed Time</h3>
           </div>
           <div class="p-4 space-y-3">
             <p class="text-xs text-slate-600">
-              Short hand = <strong>Hour</strong>. Long hand = <strong>Minutes</strong> (multiply the number by 5!).
+              Short hand = <strong>Hour</strong>. Long hand = <strong>Minutes</strong> (skip-count by 5s around the clock!).
             </p>
             <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
               <svg id="interactive-clock-svg" viewBox="0 0 180 180" class="w-40 h-40 shrink-0 bg-white rounded-full shadow-inner">
@@ -337,16 +981,13 @@
           </div>
         </article>
 
-        <!-- M4: Data & Bar Graphs -->
-        <article id="concept-m4" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+        <article id="concept-m6" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M4 &bull; Measurement &amp; Data</span>
-            <h3 class="text-base font-bold text-slate-900">Bar Graphs &amp; Data Comparisons</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M6 &bull; Measurement &amp; Data</span>
+            <h3 class="text-base font-bold text-slate-900">Bar Graphs &amp; "How Many More" Comparisons</h3>
           </div>
           <div class="p-4 space-y-3">
-            <p class="text-xs text-slate-600">
-              Tap any bar below to inspect its count, or test adding/subtracting categories!
-            </p>
+            <p class="text-xs text-slate-600">Tap any bar below to inspect its vote count and compare categories!</p>
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
               <div class="grid grid-cols-3 gap-3 items-end h-32 bg-white p-3 rounded-lg border border-slate-200">
                 <button onclick="selectBar('Dogs', 11)" class="flex flex-col items-center justify-end h-full group focus:outline-none">
@@ -373,66 +1014,15 @@
         </article>
       </div>
 
-      <!-- M5 & M6: Place Value Builder + Array Maker -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- M5: Interactive Place Value & Regrouping -->
-        <article id="concept-m5" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+        <article id="concept-m7" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M5 &bull; Number &amp; Operations</span>
-            <h3 class="text-base font-bold text-slate-900">Place Value (Hundreds, Tens, Ones) &amp; Regrouping</h3>
-          </div>
-          <div class="p-4 space-y-3">
-            <!-- Interactive 3-Digit Builder -->
-            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-extrabold text-slate-900">🧱 Interactive 3-Digit Number Builder</span>
-                <span id="pv-expanded" class="text-xs font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">300 + 40 + 8 = 348</span>
-              </div>
-              <div class="grid grid-cols-3 gap-2 text-center text-xs">
-                <div class="bg-white p-2 rounded-lg border border-indigo-200">
-                  <div class="font-bold text-indigo-700">Hundreds</div>
-                  <div id="pv-h" class="text-xl font-extrabold my-1">3</div>
-                  <div class="flex justify-center gap-1 no-print">
-                    <button onclick="changePV('h', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
-                    <button onclick="changePV('h', 1)" class="w-6 h-6 rounded bg-indigo-100 hover:bg-indigo-200 text-indigo-900 font-bold">+</button>
-                  </div>
-                </div>
-                <div class="bg-white p-2 rounded-lg border border-teal-200">
-                  <div class="font-bold text-teal-700">Tens</div>
-                  <div id="pv-t" class="text-xl font-extrabold my-1">4</div>
-                  <div class="flex justify-center gap-1 no-print">
-                    <button onclick="changePV('t', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
-                    <button onclick="changePV('t', 1)" class="w-6 h-6 rounded bg-teal-100 hover:bg-teal-200 text-teal-900 font-bold">+</button>
-                  </div>
-                </div>
-                <div class="bg-white p-2 rounded-lg border border-amber-200">
-                  <div class="font-bold text-amber-700">Ones</div>
-                  <div id="pv-o" class="text-xl font-extrabold my-1">8</div>
-                  <div class="flex justify-center gap-1 no-print">
-                    <button onclick="changePV('o', -1)" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 font-bold">-</button>
-                    <button onclick="changePV('o', 1)" class="w-6 h-6 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold">+</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Regrouping Diagram -->
-            <div class="bg-amber-50/70 rounded-xl p-3 border border-amber-200 text-xs">
-              <div class="font-bold text-amber-950 mb-1">Borrowing / Regrouping Example: 52 &minus; 18 = 34</div>
-              <p class="text-slate-700">Since 2 &lt; 8, borrow 1 Ten from 50 (leaving 40) and turn 2 Ones into <strong>12 Ones</strong>. Then <span class="font-mono">12 &minus; 8 = 4</span> and <span class="font-mono">4 &minus; 1 = 3</span>!</p>
-            </div>
-          </div>
-        </article>
-
-        <!-- M6: Interactive Array Maker -->
-        <article id="concept-m6" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
-          <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M6 &bull; Operations &amp; Algebraic Thinking</span>
-            <h3 class="text-base font-bold text-slate-900">Arrays &amp; Early Multiplication</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M7 &bull; Operations &amp; Algebraic Thinking</span>
+            <h3 class="text-base font-bold text-slate-900">Early Multiplication Arrays (Rows &times; Columns)</h3>
           </div>
           <div class="p-4 space-y-3">
             <p class="text-xs text-slate-600">
-              <strong>Rows</strong> go across (&harr;) and <strong>Columns</strong> go down (&#8597;). Build your own array below!
+              <strong>Rows</strong> go across (&harr;) and <strong>Columns</strong> go down (&#8597;). Slide to build an array!
             </p>
             <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
               <div class="flex flex-wrap items-center gap-3 mb-2.5 text-xs no-print">
@@ -443,107 +1033,94 @@
                   <input type="range" min="1" max="6" value="4" oninput="updateArray(null, this.value)" class="w-20 align-middle ml-1 accent-indigo-600"/>
                 </label>
               </div>
-              <div id="array-visual-grid" class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col items-center justify-center gap-1.5 min-h-[104px]">
-                <!-- Populated by JS -->
-              </div>
+              <div id="array-visual-grid" class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col items-center justify-center gap-1.5 min-h-[104px]"></div>
               <div id="array-equation" class="mt-2 text-xs font-mono font-bold text-center text-slate-800 bg-white py-1.5 rounded border border-slate-200">
                 Repeated Addition: 4 + 4 + 4 = 12 &nbsp;|&nbsp; Multiplication: 3 &times; 4 = 12
               </div>
             </div>
           </div>
         </article>
-      </div>
 
-      <!-- M7 & M8: Fractions + 2D/3D Geometry -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- M7: Interactive Pizza Fraction Slicer -->
-        <article id="concept-m7" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+        <article id="concept-m8" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M7 &bull; Geometry</span>
-            <h3 class="text-base font-bold text-slate-900">Fractions: Halves, Thirds &amp; Fourths</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M8 &bull; Geometry</span>
+            <h3 class="text-base font-bold text-slate-900">Fractions (1/2, 1/3, 1/4) &amp; 3D Shape Attributes</h3>
           </div>
           <div class="p-4 space-y-3">
-            <p class="text-xs text-slate-600">
-              Choose how many equal slices to cut the pizza, then <strong>tap slices</strong> to eat/shade them! Notice <strong>1/2 &gt; 1/3 &gt; 1/4</strong>.
-            </p>
-            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
-              <svg id="pizza-svg" viewBox="0 0 120 120" class="w-28 h-28 shrink-0 cursor-pointer">
-                <!-- Populated by JS -->
-              </svg>
-              <div class="space-y-2 text-xs w-full">
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+              <svg id="pizza-svg" viewBox="0 0 120 120" class="w-24 h-24 shrink-0 cursor-pointer"></svg>
+              <div class="space-y-1.5 text-xs w-full">
                 <div class="flex gap-1.5 no-print">
-                  <button onclick="setPizzaSlices(2)" class="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Halves (2)</button>
-                  <button onclick="setPizzaSlices(3)" class="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Thirds (3)</button>
-                  <button onclick="setPizzaSlices(4)" class="px-2.5 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Fourths (4)</button>
+                  <button onclick="setPizzaSlices(2)" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Halves (2)</button>
+                  <button onclick="setPizzaSlices(3)" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Thirds (3)</button>
+                  <button onclick="setPizzaSlices(4)" class="px-2 py-1 rounded bg-white border border-slate-300 hover:bg-teal-50 font-bold">Fourths (4)</button>
                 </div>
-                <div id="pizza-readout" class="bg-white p-2.5 rounded-lg border border-slate-200 font-bold text-teal-800">
+                <div id="pizza-readout" class="bg-white p-2 rounded-lg border border-slate-200 font-bold text-teal-800">
                   Shaded: 1/4 (One-fourth)
                 </div>
               </div>
             </div>
-          </div>
-        </article>
-
-        <!-- M8: 2D Polygons & 3D Shapes -->
-        <article id="concept-m8" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
-          <div class="bg-teal-50 border-b border-teal-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700">M8 &bull; Geometry</span>
-            <h3 class="text-base font-bold text-slate-900">2D Polygons &amp; 3D Shape Attributes</h3>
-          </div>
-          <div class="p-4">
-            <svg viewBox="0 0 420 120" class="w-full h-auto bg-slate-50 rounded-xl border border-slate-200 p-2">
-              <!-- Pentagon -->
-              <g transform="translate(45, 42)">
-                <polygon points="0,-24 23,-7 14,20 -14,20 -23,-7" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-                <text y="38" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e293b">Pentagon</text>
-                <text y="50" text-anchor="middle" font-size="8.5" fill="#64748b">5 Sides / Angles</text>
-              </g>
-              <!-- Hexagon -->
-              <g transform="translate(145, 42)">
-                <polygon points="0,-24 21,-12 21,12 0,24 -21,12 -21,-12" fill="#e0e7ff" stroke="#4338ca" stroke-width="2"/>
-                <text y="38" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e293b">Hexagon</text>
-                <text y="50" text-anchor="middle" font-size="8.5" fill="#64748b">6 Sides / Angles</text>
-              </g>
-              <!-- Cube -->
-              <g transform="translate(230, 18)">
-                <rect x="12" y="0" width="34" height="34" fill="#ccfbf1" stroke="#0f766e" stroke-width="1.8"/>
-                <rect x="0" y="12" width="34" height="34" fill="#99f6e4" fill-opacity="0.85" stroke="#0f766e" stroke-width="1.8"/>
-                <line x1="0" y1="12" x2="12" y2="0" stroke="#0f766e" stroke-width="1.8"/>
-                <line x1="34" y1="12" x2="46" y2="0" stroke="#0f766e" stroke-width="1.8"/>
-                <line x1="34" y1="46" x2="46" y2="34" stroke="#0f766e" stroke-width="1.8"/>
-                <text x="23" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e293b">Cube (3D)</text>
-                <text x="23" y="74" text-anchor="middle" font-size="8.5" fill="#64748b">6 Faces &bull; 8 Vertices</text>
-              </g>
-              <!-- Cylinder -->
-              <g transform="translate(335, 18)">
-                <ellipse cx="24" cy="8" rx="20" ry="7" fill="#bae6fd" stroke="#0284c7" stroke-width="1.8"/>
-                <path d="M 4 8 L 4 40 A 20 7 0 0 0 44 40 L 44 8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
-                <text x="24" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#1e293b">Cylinder (3D)</text>
-                <text x="24" y="74" text-anchor="middle" font-size="8.5" fill="#64748b">2 Faces &bull; 0 Vertices</text>
-              </g>
-            </svg>
+            <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+              <div class="bg-teal-50 p-2 rounded-lg border border-teal-200"><strong>Cube:</strong> 6 Faces, 12 Edges, 8 Vertices</div>
+              <div class="bg-sky-50 p-2 rounded-lg border border-sky-200"><strong>Cylinder:</strong> 2 Flat Circle Faces, 0 Vertices</div>
+              <div class="bg-amber-50 p-2 rounded-lg border border-amber-200"><strong>Sphere:</strong> 0 Flat Faces, 0 Edges, 0 Vertices</div>
+            </div>
           </div>
         </article>
       </div>
-
-      <!-- === ADD NEW MATH CONCEPT HERE === -->
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 3: ENGLISH & READING SUBJECT TAB                               -->
+    <!-- VIEW 4: ENGLISH & READING SUBJECT TAB (E1-E7)                       -->
     <!-- =================================================================== -->
     <section id="view-english" class="tab-panel hidden space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-indigo-500 pb-2">
         <div class="flex items-center gap-2.5">
-          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Contents</button>
-          <h2 class="text-xl font-extrabold text-slate-900">📚 English Reading &amp; Language Concepts</h2>
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">📚 English Reading, Word Series &amp; Language Concepts</h2>
         </div>
         <span class="text-xs font-bold text-indigo-800 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Target: RIT 189+ (Lexile 145L–350L+)</span>
       </div>
 
-      <!-- E1 & E2: Inferencing + Main Idea -->
+      <!-- NEW: E7 Word Patterns, Analogy Series & Story Event Sequencing -->
+      <article id="concept-e7" class="concept-card bg-white rounded-2xl border-2 border-indigo-300 shadow-sm overflow-hidden print-break">
+        <div class="bg-indigo-600 text-white px-5 py-3 flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-100">E7 &bull; Vocabulary &amp; Comprehension (New)</span>
+            <h3 class="text-base font-bold">🔗 Word Patterns, Analogy Series &amp; Story Order Lab</h3>
+          </div>
+          <span class="text-xs font-extrabold bg-white/20 px-2.5 py-1 rounded-full">+2 ⭐ per solve</span>
+        </div>
+        <div class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
+          <div class="space-y-2">
+            <p class="text-slate-600">
+              MAP Reading tests how words relate in <strong>series</strong> (<em>whisper &rarr; speak &rarr; shout &rarr; roar</em>), <strong>analogies</strong> (<em>Puppy is to Dog as Kitten is to Cat</em>), and <strong>chronological story order</strong> (First &rarr; Next &rarr; Last).
+            </p>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="bg-indigo-50 p-2.5 rounded-xl border border-indigo-200">
+                <div class="font-extrabold text-indigo-900">1. Shades of Meaning Series</div>
+                <p class="text-slate-700 mt-0.5">Order words by strength: <em>freezing &rarr; cool &rarr; warm &rarr; hot</em>.</p>
+              </div>
+              <div class="bg-teal-50 p-2.5 rounded-xl border border-teal-200">
+                <div class="font-extrabold text-teal-900">2. Word Analogies</div>
+                <p class="text-slate-700 mt-0.5">Find the matching pair rule: <em>Bird : Fly :: Fish : Swim</em>.</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200 space-y-2.5 no-print">
+            <div class="flex items-center justify-between">
+              <span id="eng-series-title" class="font-extrabold text-indigo-900">Word Series #1</span>
+              <button onclick="nextEngSeries()" class="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold hover:bg-indigo-700">Next Series &rarr;</button>
+            </div>
+            <div id="eng-series-prompt" class="bg-white p-2.5 rounded-lg border border-slate-200 font-extrabold text-slate-900 text-sm"></div>
+            <div id="eng-series-opts" class="flex flex-wrap gap-1.5"></div>
+            <div id="eng-series-fb" class="font-bold text-slate-600 min-h-[18px]"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Original E1 & E2 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- E1: Reading Detective (Inferencing) -->
         <article id="concept-e1" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E1 &bull; Literature &amp; Informational Text</span>
@@ -564,10 +1141,8 @@
                 <p class="text-indigo-100 mt-0.5">Smart hidden guess!</p>
               </div>
             </div>
-
-            <!-- Interactive Clue Matcher -->
             <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 no-print">
-              <div class="font-bold text-slate-900 mb-1">🕵️ Clue Detective Challenge:</div>
+              <div class="font-bold text-slate-900 mb-1">🕵️ Clue Detective Challenge (+1 ⭐):</div>
               <p class="italic text-slate-700 bg-white p-2 rounded border border-slate-200 mb-2">
                 "Maya held her umbrella tight as dark clouds rolled in. She looked at her soggy shoes and sighed."
               </p>
@@ -581,7 +1156,6 @@
           </div>
         </article>
 
-        <!-- E2: Main Idea Tabletop -->
         <article id="concept-e2" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E2 &bull; Literature &amp; Informational Text</span>
@@ -612,18 +1186,15 @@
         </article>
       </div>
 
-      <!-- E3 & E4: Interactive Word Surgery + Multiple-Meaning Words -->
+      <!-- Original E3 & E4 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- E3: Interactive Word Surgery Lab -->
         <article id="concept-e3" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E3 &bull; Vocabulary Use &amp; Functions</span>
             <h3 class="text-base font-bold text-slate-900">Word Surgery: Interactive Prefix &amp; Suffix Lab</h3>
           </div>
           <div class="p-4 space-y-3 text-xs">
-            <p class="text-slate-600">
-              Mix and match a <strong>Prefix</strong> + <strong>Root Word</strong> + <strong>Suffix</strong> to build new words!
-            </p>
+            <p class="text-slate-600">Mix and match a <strong>Prefix</strong> + <strong>Root Word</strong> + <strong>Suffix</strong> to build new words!</p>
             <div class="grid grid-cols-3 gap-2 no-print">
               <div>
                 <label class="block font-bold text-rose-700 mb-1">Prefix (Front)</label>
@@ -660,7 +1231,6 @@
           </div>
         </article>
 
-        <!-- E4: Multiple-Meaning Words -->
         <article id="concept-e4" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E4 &bull; Vocabulary Use &amp; Functions</span>
@@ -691,18 +1261,15 @@
         </article>
       </div>
 
-      <!-- E5 & E6: Syllable Tapper + Grammar Mechanics -->
+      <!-- Original E5 & E6 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- E5: Interactive Syllable Tapper -->
         <article id="concept-e5" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E5 &bull; Foundational Skills</span>
             <h3 class="text-base font-bold text-slate-900">Syllable Chunking &amp; Vowel Teams</h3>
           </div>
           <div class="p-4 space-y-3 text-xs">
-            <p class="text-slate-600">
-              Every syllable has <strong>one vowel sound</strong>. Tap a big word to clap out its chunks!
-            </p>
+            <p class="text-slate-600">Every syllable has <strong>one vowel sound</strong>. Tap a big word to clap out its chunks!</p>
             <div class="flex flex-wrap gap-1.5 no-print">
               <button onclick="showSyllables('un-be-liev-a-ble', 5)" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-bold border border-indigo-200">unbelievable</button>
               <button onclick="showSyllables('wa-ter-mel-on', 4)" class="px-2.5 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-900 font-bold border border-teal-200">watermelon</button>
@@ -716,7 +1283,6 @@
           </div>
         </article>
 
-        <!-- E6: Grammar & Punctuation -->
         <article id="concept-e6" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-indigo-50 border-b border-indigo-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-700">E6 &bull; Language &amp; Writing</span>
@@ -736,34 +1302,72 @@
           </div>
         </article>
       </div>
-
-      <!-- === ADD NEW ENGLISH CONCEPT HERE === -->
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 4: SCIENCE SUBJECT TAB                                         -->
+    <!-- VIEW 5: EXPANDED SCIENCE TAB (7 LABS + AMAZING SCIENCE FACTS DECK)  -->
     <!-- =================================================================== -->
     <section id="view-science" class="tab-panel hidden space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-emerald-500 pb-2">
         <div class="flex items-center gap-2.5">
-          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Contents</button>
-          <h2 class="text-xl font-extrabold text-slate-900">🔬 Elementary Science Visual Explorers</h2>
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">🔬 Science Visual Labs &amp; Amazing Facts Explorer</h2>
         </div>
-        <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">Hands-On Discovery Labs</span>
+        <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">7 Interactive Labs + 24 Mind-Blowing Facts</span>
       </div>
 
-      <!-- S1 & S2: States of Matter + Plant Life Cycle -->
+      <!-- INTERACTIVE "DID YOU KNOW?" AMAZING SCIENCE FACTS DECK -->
+      <div class="bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-5 text-white shadow-md space-y-4 print-break">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 text-[11px] font-extrabold uppercase tracking-wider">
+              Did You Know? Science Fact Deck (+1 ⭐ every 3 facts!)
+            </span>
+            <h3 class="text-lg font-black mt-1">🌟 Amazing Science Facts Explorer</h3>
+          </div>
+          <span id="fact-counter-badge" class="text-xs font-bold bg-white/15 px-3 py-1 rounded-full">
+            Fact 1 of 24
+          </span>
+        </div>
+
+        <div class="flex flex-wrap gap-1.5 text-xs no-print" id="fact-cat-pills">
+          <button onclick="filterScienceFacts('ALL')" class="sf-pill px-3 py-1 rounded-lg font-extrabold bg-amber-400 text-slate-950">All Topics (24)</button>
+          <button onclick="filterScienceFacts('Space')" class="sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white">🪐 Space &amp; Planets</button>
+          <button onclick="filterScienceFacts('Animals')" class="sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white">🐾 Animals &amp; Nature</button>
+          <button onclick="filterScienceFacts('Body')" class="sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white">🧠 Human Body</button>
+          <button onclick="filterScienceFacts('Earth')" class="sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white">🌋 Earth &amp; Weather</button>
+          <button onclick="filterScienceFacts('Physics')" class="sf-pill px-2.5 py-1 rounded-lg font-semibold bg-white/10 hover:bg-white/20 text-white">⚡ Forces &amp; Matter</button>
+        </div>
+
+        <div class="bg-white/10 backdrop-blur border border-white/20 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <span id="science-fact-tag" class="inline-block px-2 py-0.5 rounded bg-teal-400/25 text-teal-200 text-[11px] font-bold">
+              🪐 Space &amp; Planets
+            </span>
+            <p id="science-fact-text" class="text-sm sm:text-base font-bold text-white leading-relaxed">
+              One day on Venus is longer than one whole year on Venus! Venus spins so slowly that it takes 243 Earth days to rotate once, while orbiting the Sun in 225 Earth days.
+            </p>
+          </div>
+          <div class="flex sm:flex-col gap-2 shrink-0 no-print">
+            <button onclick="nextScienceFact()" class="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md transition">
+              Next Fact &rarr;
+            </button>
+            <button onclick="randomScienceFact()" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-semibold text-xs transition">
+              🎲 Random
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- S1 & S2 -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- S1: Interactive States of Matter Simulator -->
         <article id="concept-s1" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3">
             <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S1 &bull; Physical Science</span>
             <h3 class="text-base font-bold text-slate-900">States of Matter: Solid, Liquid &amp; Gas</h3>
           </div>
           <div class="p-4 space-y-3 text-xs">
-            <p class="text-slate-600">
-              Slide the temperature to heat up or cool down water and watch how the tiny molecules behave!
-            </p>
+            <p class="text-slate-600">Slide the temperature to heat up or cool down water and watch how the tiny molecules behave!</p>
             <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
               <div class="flex items-center justify-between no-print">
                 <label class="font-bold text-slate-800">🌡️ Temperature: <span id="temp-readout" class="text-indigo-700 font-extrabold">20&deg;F (Freezing)</span></label>
@@ -775,9 +1379,7 @@
               </div>
               <input type="range" id="matter-slider" min="0" max="220" value="20" oninput="setMatterTemp(this.value)" class="w-full accent-emerald-600 no-print"/>
               <div class="flex items-center gap-4 bg-white p-3 rounded-lg border border-slate-200">
-                <svg id="matter-svg" viewBox="0 0 110 90" class="w-28 h-24 shrink-0 bg-sky-50 rounded border border-sky-200">
-                  <!-- Populated by JS -->
-                </svg>
+                <svg id="matter-svg" viewBox="0 0 110 90" class="w-28 h-24 shrink-0 bg-sky-50 rounded border border-sky-200"></svg>
                 <div>
                   <div id="matter-state-title" class="text-sm font-extrabold text-sky-800">🧊 SOLID (Ice Cube)</div>
                   <p id="matter-state-desc" class="text-slate-600 mt-1">Particles are packed tightly together in neat rows and keep their own shape.</p>
@@ -787,21 +1389,50 @@
           </div>
         </article>
 
-        <!-- S2: Plant Parts & Interactive Growth Lab -->
         <article id="concept-s2" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S2 &bull; Life Science</span>
-            <h3 class="text-base font-bold text-slate-900">Plant Parts &amp; Growth Needs</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S2 &bull; Space Science</span>
+            <h3 class="text-base font-bold text-slate-900">Solar System &amp; 8 Planets Explorer</h3>
+          </div>
+          <div class="p-4 space-y-3 text-xs">
+            <p class="text-slate-600">
+              Mnemonic: <strong>M</strong>y <strong>V</strong>ery <strong>E</strong>ducated <strong>M</strong>other <strong>J</strong>ust <strong>S</strong>erved <strong>U</strong>s <strong>N</strong>oodles! Tap any planet:
+            </p>
+            <div class="grid grid-cols-4 gap-1.5 no-print">
+              <button onclick="selectPlanet('Mercury')" class="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">1. Mercury</button>
+              <button onclick="selectPlanet('Venus')" class="py-1.5 px-2 rounded-lg bg-amber-100 hover:bg-amber-200 font-bold">2. Venus</button>
+              <button onclick="selectPlanet('Earth')" class="py-1.5 px-2 rounded-lg bg-sky-100 hover:bg-sky-200 font-bold">3. Earth</button>
+              <button onclick="selectPlanet('Mars')" class="py-1.5 px-2 rounded-lg bg-rose-100 hover:bg-rose-200 font-bold">4. Mars</button>
+              <button onclick="selectPlanet('Jupiter')" class="py-1.5 px-2 rounded-lg bg-orange-100 hover:bg-orange-200 font-bold">5. Jupiter</button>
+              <button onclick="selectPlanet('Saturn')" class="py-1.5 px-2 rounded-lg bg-yellow-100 hover:bg-yellow-200 font-bold">6. Saturn</button>
+              <button onclick="selectPlanet('Uranus')" class="py-1.5 px-2 rounded-lg bg-cyan-100 hover:bg-cyan-200 font-bold">7. Uranus</button>
+              <button onclick="selectPlanet('Neptune')" class="py-1.5 px-2 rounded-lg bg-indigo-100 hover:bg-indigo-200 font-bold">8. Neptune</button>
+            </div>
+            <div id="planet-info-card" class="bg-slate-900 text-white p-3.5 rounded-xl space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-amber-300 text-sm">🪐 Saturn — The Ringed Gas Giant</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-white/15">Outer Gas Giant</span>
+              </div>
+              <p class="text-slate-200">Famous for its dazzling rings made of billions of chunks of ice and rock! Saturn is so light it could float in a giant bathtub of water.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- S3 & S4 -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <article id="concept-s3" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S3 &bull; Life Science</span>
+            <h3 class="text-base font-bold text-slate-900">Plant Life Cycle &amp; Parts</h3>
           </div>
           <div class="p-4 space-y-3 text-xs">
             <div class="flex flex-col sm:flex-row items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200">
-              <svg id="plant-svg" viewBox="0 0 130 145" class="w-32 h-36 shrink-0 bg-sky-50 rounded-lg border border-emerald-200">
-                <!-- Populated by JS -->
-              </svg>
+              <svg id="plant-svg" viewBox="0 0 130 145" class="w-32 h-36 shrink-0 bg-sky-50 rounded-lg border border-emerald-200"></svg>
               <div class="space-y-2 w-full">
                 <div class="space-y-1 text-slate-700">
                   <div><strong>🌸 Flower:</strong> Makes seeds for new plants.</div>
-                  <div><strong>🍃 Leaves:</strong> Catch sunlight to make food.</div>
+                  <div><strong>🍃 Leaves:</strong> Catch sunlight to make food (photosynthesis).</div>
                   <div><strong>🌱 Stem:</strong> Carries water up like a straw.</div>
                   <div><strong>🥕 Roots:</strong> Drink water &amp; hold plant in soil.</div>
                 </div>
@@ -813,595 +1444,295 @@
             </div>
           </div>
         </article>
-      </div>
 
-      <!-- S3 & S4: Animal Adaptations + Force & Magnets -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <!-- S3: Animal Habitats & Adaptations -->
-        <article id="concept-s3" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
-          <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S3 &bull; Life Science</span>
-            <h3 class="text-base font-bold text-slate-900">Animal &amp; Plant Habitat Adaptations</h3>
-          </div>
-          <div class="p-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-            <div class="bg-sky-50 p-3 rounded-xl border border-sky-200">
-              <div class="font-extrabold text-sky-900 mb-1">🦦 Ocean Kelp Forest</div>
-              <p class="text-slate-700"><strong>Sea Otters</strong> have super-thick fur (1 million hairs/sq in) to stay warm and wrap in kelp like an anchor while sleeping.</p>
-            </div>
-            <div class="bg-amber-50 p-3 rounded-xl border border-amber-200">
-              <div class="font-extrabold text-amber-900 mb-1">🌵 Arid Desert</div>
-              <p class="text-slate-700"><strong>Cactus Plants</strong> have thick waxy stems to store water and sharp spines to protect against thirsty animals.</p>
-            </div>
-            <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-200">
-              <div class="font-extrabold text-indigo-900 mb-1">🐻‍❄️ Arctic Tundra</div>
-              <p class="text-slate-700"><strong>Polar Bears &amp; Seals</strong> have thick fat layers (blubber) and white fur for warmth and snow camouflage.</p>
-            </div>
-          </div>
-        </article>
-
-        <!-- S4: Force, Motion & Interactive Magnet Lab -->
         <article id="concept-s4" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
           <div class="bg-emerald-50 border-b border-emerald-100 px-5 py-3">
-            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S4 &bull; Physical Science</span>
-            <h3 class="text-base font-bold text-slate-900">Forces (Push/Pull) &amp; Magnetic Poles</h3>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S4 &bull; Earth Science</span>
+            <h3 class="text-base font-bold text-slate-900">The Water Cycle Interactive Explorer</h3>
           </div>
           <div class="p-4 space-y-3 text-xs">
-            <p class="text-slate-600">
-              <strong>Opposite poles attract</strong> (N &harr; S pull together). <strong>Same poles repel</strong> (N &larr; &rarr; N push apart).
-            </p>
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2.5">
-              <div class="flex items-center justify-center gap-3 py-2" id="magnet-stage">
-                <!-- Magnet 1 -->
-                <div class="flex rounded-lg overflow-hidden border border-slate-400 font-extrabold text-white shadow-sm">
-                  <span class="bg-rose-600 px-3 py-2">N</span>
-                  <span class="bg-blue-600 px-3 py-2">S</span>
-                </div>
-                <span id="magnet-arrow" class="text-base font-extrabold text-emerald-700">&rarr; ATTRACT &larr;</span>
-                <!-- Magnet 2 -->
-                <div id="magnet-2" class="flex rounded-lg overflow-hidden border border-slate-400 font-extrabold text-white shadow-sm">
-                  <span class="bg-rose-600 px-3 py-2">N</span>
-                  <span class="bg-blue-600 px-3 py-2">S</span>
-                </div>
-              </div>
-              <div class="flex justify-center no-print">
-                <button onclick="flipMagnet()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm">
-                  🔄 Flip Right Magnet Poles
-                </button>
-              </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 no-print">
+              <button onclick="selectWaterStage('Evaporation', '☀️ 1. Evaporation', 'The Sun warms ocean and lake water, turning liquid water into invisible water vapor gas that rises into the sky.')" class="py-1.5 px-2 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 font-bold text-amber-900">1. Evaporation</button>
+              <button onclick="selectWaterStage('Condensation', '☁️ 2. Condensation', 'High in the cold sky, water vapor cools down and turns back into tiny liquid droplets that group together to form clouds!')" class="py-1.5 px-2 rounded-lg bg-sky-50 border border-sky-200 hover:bg-sky-100 font-bold text-sky-900">2. Condensation</button>
+              <button onclick="selectWaterStage('Precipitation', '🌧️ 3. Precipitation', 'When cloud droplets get too heavy to float, gravity pulls them down as rain, snow, sleet, or hail.')" class="py-1.5 px-2 rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 font-bold text-indigo-900">3. Precipitation</button>
+              <button onclick="selectWaterStage('Collection', '🌊 4. Collection', 'Fallen rain flows into rivers, lakes, underground aquifers, and oceans—ready for the cycle to repeat!')" class="py-1.5 px-2 rounded-lg bg-teal-50 border border-teal-200 hover:bg-teal-100 font-bold text-teal-900">4. Collection</button>
+            </div>
+            <div id="water-stage-box" class="bg-sky-50 border border-sky-200 rounded-xl p-3.5">
+              <div class="font-extrabold text-sky-900 text-sm mb-1">☀️ 1. Evaporation</div>
+              <p class="text-slate-700">The Sun warms ocean and lake water, turning liquid water into invisible water vapor gas that rises into the sky.</p>
             </div>
           </div>
         </article>
       </div>
 
-      <!-- === ADD NEW SCIENCE CONCEPT HERE === -->
+      <!-- S5, S6 & S7 -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <article id="concept-s5" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-emerald-50 border-b border-emerald-100 px-4 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S5 &bull; Physical Science</span>
+            <h3 class="text-base font-bold text-slate-900">Forces &amp; Magnetic Poles</h3>
+          </div>
+          <div class="p-4 space-y-2.5 text-xs">
+            <p class="text-slate-600"><strong>Opposite poles attract</strong> (N &harr; S). <strong>Same poles repel</strong> (N &larr; &rarr; N).</p>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+              <div class="flex items-center justify-center gap-2 py-1">
+                <div class="flex rounded-lg overflow-hidden border border-slate-400 font-extrabold text-white">
+                  <span class="bg-rose-600 px-2.5 py-1.5">N</span>
+                  <span class="bg-blue-600 px-2.5 py-1.5">S</span>
+                </div>
+                <span id="magnet-arrow" class="text-xs font-extrabold text-emerald-700">&rarr; ATTRACT &larr;</span>
+                <div id="magnet-2" class="flex rounded-lg overflow-hidden border border-slate-400 font-extrabold text-white">
+                  <span class="bg-rose-600 px-2.5 py-1.5">N</span>
+                  <span class="bg-blue-600 px-2.5 py-1.5">S</span>
+                </div>
+              </div>
+              <button onclick="flipMagnet()" class="w-full py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold no-print">
+                🔄 Flip Right Magnet Poles
+              </button>
+            </div>
+          </div>
+        </article>
+
+        <article id="concept-s6" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-emerald-50 border-b border-emerald-100 px-4 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S6 &bull; Life Science</span>
+            <h3 class="text-base font-bold text-slate-900">Ecosystem Food Chains</h3>
+          </div>
+          <div class="p-4 space-y-2 text-xs">
+            <div class="bg-amber-50 p-2 rounded-lg border border-amber-200"><strong>1. Sun &rarr; Producer:</strong> Plants make food from sunlight (grass, kelp).</div>
+            <div class="bg-teal-50 p-2 rounded-lg border border-teal-200"><strong>2. Consumer:</strong> Animals eat plants or other animals (rabbits, sea otters).</div>
+            <div class="bg-indigo-50 p-2 rounded-lg border border-indigo-200"><strong>3. Decomposer:</strong> Worms &amp; mushrooms recycle dead leaves into rich soil!</div>
+          </div>
+        </article>
+
+        <article id="concept-s7" class="concept-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden print-break">
+          <div class="bg-emerald-50 border-b border-emerald-100 px-4 py-3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">S7 &bull; Earth &amp; Space</span>
+            <h3 class="text-base font-bold text-slate-900">Earth Rotation &amp; Moon Phases</h3>
+          </div>
+          <div class="p-4 space-y-2.5 text-xs">
+            <p class="text-slate-600">Earth spins every <strong>24 hrs</strong> (Day/Night) &amp; orbits Sun in <strong>365 days</strong>.</p>
+            <div class="bg-slate-900 text-white p-2.5 rounded-xl space-y-2">
+              <div class="flex gap-1.5 justify-center no-print">
+                <button onclick="setMoonPhase('New Moon', '🌑', 'Dark side faces Earth.')" class="px-2 py-1 rounded bg-slate-800 border border-slate-600 font-bold">🌑 New</button>
+                <button onclick="setMoonPhase('First Quarter', '🌓', 'Right half is lit by Sun.')" class="px-2 py-1 rounded bg-slate-800 border border-slate-600 font-bold">🌓 Half</button>
+                <button onclick="setMoonPhase('Full Moon', '🌕', 'Whole face shines brightly!')" class="px-2 py-1 rounded bg-slate-800 border border-slate-600 font-bold">🌕 Full</button>
+              </div>
+              <div id="moon-readout" class="text-center">
+                <div class="font-extrabold text-amber-300">🌕 Full Moon</div>
+                <div class="text-[11px] text-slate-300">Whole face shines brightly!</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 5: INTERACTIVE QUICK PRACTICE QUIZ                             -->
+    <!-- VIEW 6: CHESS & SUDOKU LOGIC ACADEMY (20 PROGRESSIVE LOCKED STAGES) -->
     <!-- =================================================================== -->
-    <section id="view-quiz" class="tab-panel hidden space-y-5">
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-amber-500 pb-2">
+    <section id="view-academy" class="tab-panel hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-purple-500 pb-2">
         <div class="flex items-center gap-2.5">
-          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Contents</button>
-          <h2 class="text-xl font-extrabold text-slate-900">🎯 Mixed Subject Quick Practice Quiz</h2>
+          <button onclick="switchTab('home')" class="text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">♟️ Chess &amp; Sudoku Logic Academy (20 Progressive Stages)</h2>
         </div>
-        <div class="text-xs font-extrabold bg-amber-100 text-amber-900 px-3 py-1 rounded-full">
-          Score: <span id="quiz-score">0</span> / <span id="quiz-total">0</span>
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <button onclick="promptParentUnlockAllStages()" class="text-[11px] font-bold bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-200 px-2.5 py-1 rounded-lg">
+            🔓 Parent: Unlock All 20
+          </button>
+          <button onclick="resetAcademyProgress()" class="text-[11px] font-bold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 px-2.5 py-1 rounded-lg">
+            Reset Lock Progress
+          </button>
         </div>
       </div>
 
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 max-w-2xl mx-auto space-y-4">
-        <div class="flex items-center justify-between">
-          <span id="quiz-subject-badge" class="px-2.5 py-1 rounded-md bg-teal-100 text-teal-800 text-xs font-bold">Mathematics</span>
-          <button onclick="nextQuizQuestion()" class="text-xs font-bold text-indigo-600 hover:underline">Skip Question &rarr;</button>
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex gap-2">
+          <button onclick="switchAcademyGame('chess')" id="btn-game-chess" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-purple-600 text-white shadow-sm transition">
+            ♟️ Chess Academy (Stages 1–20)
+          </button>
+          <button onclick="switchAcademyGame('sudoku')" id="btn-game-sudoku" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+            🔢 Sudoku Academy (Stages 1–20)
+          </button>
         </div>
-        <h3 id="quiz-question-text" class="text-base sm:text-lg font-extrabold text-slate-900">
-          Loading question...
-        </h3>
-        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <!-- Populated by JS -->
+        <div id="academy-progress-summary" class="text-xs font-extrabold text-purple-800 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-200">
+          Unlocked: Stage 1 / 20 (+5 ⭐ per stage!)
         </div>
-        <div id="quiz-feedback" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5">
+          Select an Unlocked Stage (Complete each puzzle to unlock the next lock 🔒):
+        </div>
+        <div id="academy-stage-pills" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-10 gap-2"></div>
+      </div>
+
+      <div id="academy-active-stage" class="bg-white rounded-2xl border-2 border-purple-200 shadow-md overflow-hidden"></div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 7: EXPANDED 760-QUESTION PRACTICE BANK (Password Protected)    -->
+    <!-- =================================================================== -->
+    <section id="view-qbank" class="tab-panel hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-amber-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">📝 Expanded MAP &amp; Beast Academy Practice Bank (<span id="qb-header-total">990</span> Qs)</h2>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <span id="qbank-completed-badge" class="text-xs font-extrabold bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full">
+            Completed: 0 / 990 (+1 ⭐ each)
+          </span>
+          <button onclick="handleToggleAnswersClick()" id="btn-toggle-answers" class="text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg shadow-sm">
+            🔒 Show Answers (Parent)
+          </button>
+          <button onclick="window.print()" class="text-xs font-bold bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 px-3 py-1.5 rounded-lg">
+            🖨️ Print
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills + Local Search -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-3.5 shadow-sm space-y-3 no-print">
+        <div class="flex flex-wrap items-center gap-1.5 text-xs" id="qbank-filter-pills">
+          <button onclick="filterQBank('ALL')" class="qb-pill px-3 py-1.5 rounded-lg font-bold bg-slate-900 text-white">All (990)</button>
+          <button onclick="filterQBank('ENG_LIT')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">📖 Stories (Q1–25)</button>
+          <button onclick="filterQBank('ENG_VOC')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">🔤 Vocab (75)</button>
+          <button onclick="filterQBank('ENG_PHO')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">🗣️ Phonics (Q51–75)</button>
+          <button onclick="filterQBank('ENG_GRA')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">✍️ Grammar (Q76–100)</button>
+          <button onclick="filterQBank('ENG_SER')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-indigo-50 text-indigo-800 border border-indigo-200">🔗 Word Series (60)</button>
+          <button onclick="filterQBank('MATH_OA')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">➕ Algebraic (91)</button>
+          <button onclick="filterQBank('MATH_NO')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">🔢 Place Value (91)</button>
+          <button onclick="filterQBank('MATH_MD')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">🪙 Coins/Time (Q183–223)</button>
+          <button onclick="filterQBank('MATH_GEO')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">📐 Geometry (Q224–265)</button>
+          <button onclick="filterQBank('MATH_CIR')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">⭕ Circles (110)</button>
+          <button onclick="filterQBank('MATH_PAT')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-teal-50 text-teal-800 border border-teal-200">🔢 Series &amp; Patterns (75)</button>
+          <button onclick="filterQBank('BEAST_1B')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-orange-50 text-orange-800 border border-orange-200">📘 Beast 1B (90)</button>
+          <button onclick="filterQBank('BEAST_1C')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-orange-50 text-orange-800 border border-orange-200">📙 Beast 1C (60)</button>
+          <button onclick="filterQBank('BEAST_1D')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-orange-50 text-orange-800 border border-orange-200">📕 Beast 1D (60)</button>
+          <button onclick="filterQBank('SCI_ALL')" class="qb-pill px-2.5 py-1.5 rounded-lg font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">🔬 Science (120)</button>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <input type="text" id="qbank-search-input" oninput="renderQBank(true)" placeholder="Filter questions by keyword (e.g., 'circle', 'radius', 'Beast', 'parity', 'series')..." class="w-full sm:w-96 px-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400" />
+          <span id="qbank-showing-count" class="text-xs font-semibold text-slate-500">Showing questions</span>
+        </div>
+      </div>
+
+      <!-- Questions Container -->
+      <div id="qbank-container" class="space-y-4"></div>
+      <div class="text-center pt-2 no-print">
+        <button id="qbank-load-more-btn" onclick="loadMoreQBank()" class="hidden px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-extrabold shadow-sm">
+          Load Next 60 Questions &darr;
+        </button>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 8: PARENT MAP SYLLABUS & BEAST ACADEMY GUIDE                   -->
+    <!-- =================================================================== -->
+    <section id="view-parent" class="tab-panel hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-rose-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">👨‍👩‍👧 Parent Guide: NWEA MAP Growth Syllabus &amp; Beast Academy Roadmap</h2>
+        </div>
+        <span class="text-xs font-bold text-rose-800 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">Ivy Hill Elementary &bull; Arlington Heights SD 25</span>
+      </div>
+
+      <!-- Overview Card -->
+      <div class="bg-white rounded-2xl border border-rose-200 p-5 shadow-sm space-y-2 text-xs sm:text-sm">
+        <h3 class="text-base font-extrabold text-slate-900">🎯 How NWEA MAP Adaptive Testing Works for Saanvi</h3>
+        <p class="text-slate-700 leading-relaxed">
+          NWEA MAP Growth is <strong>computer-adaptive</strong>: every correct answer makes the next question harder, pinpointing her true instructional level (RIT score). Because Saanvi is already testing at the <strong>96th percentile in Reading (RIT 177)</strong> and <strong>99th percentile in Math (RIT 191)</strong> in 1st grade, the exam evaluates her on <strong>late 2nd-grade and early 3rd-grade concepts</strong> on the path to her Fall 2027 projections (<strong>189 Reading</strong>, <strong>203 Math</strong>).
+        </p>
+      </div>
+
+      <!-- Two-Column Syllabus Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+        <div class="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+          <div class="bg-teal-600 text-white px-4 py-3 font-extrabold text-sm">
+            🔢 MAP Mathematics Syllabus &amp; Beast Academy 1B–1D Alignment
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">1. Operations &amp; Algebraic Thinking</div>
+              <p class="text-slate-700 mt-0.5">Two-step word problems; missing addends; <strong>BA 1B Making-10 &amp; Compensation strategies</strong>; <strong>BA 1B Odds &amp; Evens parity</strong>; number patterns &amp; skip-counting series; arrays &amp; <strong>BA 1D Working Backwards / Magic Squares</strong>.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">2. Number &amp; Operations</div>
+              <p class="text-slate-700 mt-0.5">Place value up to 1,000; <strong>BA 1C flexible regrouping</strong> &amp; vertical addition/subtraction algorithms with carrying/borrowing across zeros; <strong>BA 1B inequalities (&lt;, &gt;, =)</strong>; rounding to nearest 10 &amp; 100.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">3. Measurement &amp; Data</div>
+              <p class="text-slate-700 mt-0.5"><strong>BA 1D Money &amp; Coins</strong> (making change over $1.00); analog clocks to 5-minute intervals &amp; elapsed time; <strong>BA 1C Measurement &amp; Perimeter</strong>; inches, feet, yards, miles, cm, meters; bar/picture graphs &amp; <strong>BA 1D Venn Diagrams</strong>.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">4. Geometry &amp; Circles</div>
+              <p class="text-slate-700 mt-0.5"><strong>Circles &amp; Curves</strong> (center, radius, diameter, chord, circumference, semicircle); <strong>BA 1D Fractions</strong> (halves, thirds, fourths); polygons (pentagon, hexagon, octagon); 3D faces/edges/vertices; symmetry &amp; area tiling.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
+          <div class="bg-indigo-600 text-white px-4 py-3 font-extrabold text-sm">
+            📚 MAP English Reading &amp; Language Arts Syllabus (RIT 177 &rarr; 189+)
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">1. Literature &amp; Informational Text</div>
+              <p class="text-slate-700 mt-0.5">Inferencing character feelings &amp; motives from text clues; cause &amp; effect; chronological story sequence; main idea vs. supporting details; nonfiction text features (glossary, index, headings, captions); comparing two texts.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">2. Vocabulary Use &amp; Functions</div>
+              <p class="text-slate-700 mt-0.5">Context-dependent multiple-meaning words (<em>bark, bat, wave, light, watch</em>); prefixes (<em>un-, re-, pre-, dis-, mis-</em>) &amp; suffixes (<em>-ful, -less, -er, -ly</em>); context clues; <strong>word intensity series &amp; analogies</strong>.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">3. Foundational Skills &amp; Phonics</div>
+              <p class="text-slate-700 mt-0.5">Multisyllabic decoding &amp; syllable counting; compound words; long vowel teams; diphthongs (<em>ou/ow, oi/oy</em>); r-controlled vowels; silent letters (<em>kn, wr, mb</em>); homophones (<em>to/two/too, there/their/they're</em>); inflectional spelling rules.</p>
+            </div>
+            <div class="bg-indigo-50/70 p-3 rounded-xl border border-indigo-100">
+              <div class="font-extrabold text-indigo-900">4. Language &amp; Writing Mechanics</div>
+              <p class="text-slate-700 mt-0.5">Commas in a series, dates, cities/states, and letters; apostrophes in contractions &amp; singular/plural possessives; parts of speech (nouns, verbs, adjectives, adverbs, pronouns); irregular past-tense verbs &amp; irregular plurals.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Lexile & Parent Quick Controls -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
+          <div class="font-extrabold text-slate-900 text-sm">📖 Lexile&reg; "Find a Book" Guide</div>
+          <p class="text-slate-600">Go to <strong>hub.lexile.com</strong> &rarr; <em>Find a Book</em> &rarr; <em>Search by Measure</em>. Leave Student Measure blank and enter <strong>145</strong> (Min) to <strong>295</strong> (Max) to match her Fall 2026 range (<code>145L–295L</code>).</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-1.5">
+          <div class="font-extrabold text-slate-900 text-sm">🗓️ Daily 30-Minute Study Plan</div>
+          <p class="text-slate-600"><strong>10 min:</strong> Explore 1 Visual Concept Lab (Circles, Beast Academy 1B–1D, or Word Series).<br/><strong>15 min:</strong> Complete 10–15 questions in the Q-Bank.<br/><strong>5 min:</strong> Clear 1 Chess or Sudoku stage for +5 ⭐!</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-rose-200 p-4 shadow-sm space-y-2 no-print">
+          <div class="font-extrabold text-rose-900 text-sm">🔐 Parent Controls (Password: <code>missaa</code>)</div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="promptAddExtraTime()" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold">+15m Daily Timer</button>
+            <button onclick="handleToggleAnswersClick()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold">Toggle Answer Keys</button>
+          </div>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <script>
-    // =========================================================================
-    // 1. MODULAR CONCEPT DIRECTORY INDEX (ADD NEW CONCEPTS HERE!)
-    // =========================================================================
-    const CONCEPT_INDEX = [
-      // Mathematics
-      { id: 'concept-m1', subject: 'math', code: 'M1', title: 'Coins & $1.00 Equivalence', tag: 'Interactive Jar' },
-      { id: 'concept-m2', subject: 'math', code: 'M2', title: 'Inches, Feet, Yards & Miles', tag: 'Unit Game' },
-      { id: 'concept-m3', subject: 'math', code: 'M3', title: '5-Minute Analog Clocks', tag: 'Live Clock' },
-      { id: 'concept-m4', subject: 'math', code: 'M4', title: 'Bar Graphs & Data', tag: 'Interactive Graph' },
-      { id: 'concept-m5', subject: 'math', code: 'M5', title: 'Place Value & Regrouping', tag: '3-Digit Builder' },
-      { id: 'concept-m6', subject: 'math', code: 'M6', title: 'Arrays & Multiplication', tag: 'Array Maker' },
-      { id: 'concept-m7', subject: 'math', code: 'M7', title: 'Fractions (1/2, 1/3, 1/4)', tag: 'Pizza Slicer' },
-      { id: 'concept-m8', subject: 'math', code: 'M8', title: '2D Polygons & 3D Shapes', tag: 'Visual Diagram' },
 
-      // English & Reading
-      { id: 'concept-e1', subject: 'english', code: 'E1', title: 'Inferencing (Reading Detective)', tag: 'Clue Matcher' },
-      { id: 'concept-e2', subject: 'english', code: 'E2', title: 'Main Idea Tabletop & Details', tag: 'Visual Diagram' },
-      { id: 'concept-e3', subject: 'english', code: 'E3', title: 'Word Surgery (Prefixes/Suffixes)', tag: 'Word Lab' },
-      { id: 'concept-e4', subject: 'english', code: 'E4', title: 'Multiple-Meaning Words', tag: 'Context Cards' },
-      { id: 'concept-e5', subject: 'english', code: 'E5', title: 'Syllable Chunking & Vowel Teams', tag: 'Syllable Clapper' },
-      { id: 'concept-e6', subject: 'english', code: 'E6', title: 'Grammar, Commas & Homophones', tag: 'Sentence Map' },
-
-      // Science
-      { id: 'concept-s1', subject: 'science', code: 'S1', title: 'States of Matter (Solid/Liquid/Gas)', tag: 'Temp Simulator' },
-      { id: 'concept-s2', subject: 'science', code: 'S2', title: 'Plant Parts & Growth Needs', tag: 'Growth Lab' },
-      { id: 'concept-s3', subject: 'science', code: 'S3', title: 'Animal & Plant Adaptations', tag: 'Habitat Cards' },
-      { id: 'concept-s4', subject: 'science', code: 'S4', title: 'Forces & Magnetic Poles', tag: 'Magnet Tester' }
-    ];
-
-    // =========================================================================
-    // 2. NAVIGATION, TABLE OF CONTENTS BUILDER & SEARCH
-    // =========================================================================
-    function renderTableOfContents() {
-      const grid = document.getElementById('toc-directory-grid');
-      const subjects = [
-        { key: 'math', title: '🔢 Mathematics', subtitle: 'MAP Goal Areas & Interactive Labs', color: 'teal', headerBg: 'bg-teal-600' },
-        { key: 'english', title: '📚 English & Reading', subtitle: 'Comprehension, Word Lab & Grammar', color: 'indigo', headerBg: 'bg-indigo-600' },
-        { key: 'science', title: '🔬 Science Discovery', subtitle: 'Physical & Life Science Simulators', color: 'emerald', headerBg: 'bg-emerald-600' }
-      ];
-
-      grid.innerHTML = subjects.map(sub => {
-        const items = CONCEPT_INDEX.filter(c => c.subject === sub.key);
-        const listHtml = items.map(item => `
-          <button onclick="jumpToConcept('${item.subject}', '${item.id}')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-${sub.color}-50 border border-slate-200 hover:border-${sub.color}-300 transition flex items-center justify-between gap-2 group">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-[10px] font-extrabold text-${sub.color}-700 shrink-0">${item.code}</span>
-              <span class="text-xs font-bold text-slate-800 group-hover:text-${sub.color}-900 truncate">${item.title}</span>
-            </div>
-            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shrink-0">${item.tag}</span>
-          </button>
-        `).join('');
-
-        return `
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-            <div class="${sub.headerBg} px-4 py-3 text-white flex items-center justify-between">
-              <div>
-                <h3 class="font-extrabold text-base">${sub.title}</h3>
-                <p class="text-[11px] text-white/85">${sub.subtitle}</p>
-              </div>
-              <button onclick="switchTab('${sub.key}')" class="text-xs font-bold bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg transition">Open All</button>
-            </div>
-            <div class="p-3.5 space-y-2 flex-1">
-              ${listHtml}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('stat-total-concepts').textContent = CONCEPT_INDEX.length;
-    }
-
-    function switchTab(tabName) {
-      document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
-      const targetPanel = document.getElementById(`view-${tabName}`);
-      if (targetPanel) targetPanel.classList.remove('hidden');
-
-      const styles = {
-        home: 'bg-slate-900 text-white',
-        math: 'bg-teal-600 text-white',
-        english: 'bg-indigo-600 text-white',
-        science: 'bg-emerald-600 text-white',
-        quiz: 'bg-amber-500 text-white'
-      };
-      const defaultStyles = {
-        home: 'bg-slate-100 text-slate-700 hover:bg-slate-200',
-        math: 'bg-teal-50 text-teal-800 border border-teal-200 hover:bg-teal-100',
-        english: 'bg-indigo-50 text-indigo-800 border border-indigo-200 hover:bg-indigo-100',
-        science: 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100',
-        quiz: 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'
-      };
-
-      Object.keys(defaultStyles).forEach(key => {
-        const btn = document.getElementById(`tab-${key}`);
-        if (btn) {
-          btn.className = `nav-tab px-2.5 py-1.5 rounded-lg text-xs font-bold transition ${key === tabName ? styles[key] : defaultStyles[key]}`;
-        }
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function jumpToConcept(subject, conceptId) {
-      switchTab(subject);
-      setTimeout(() => {
-        const card = document.getElementById(conceptId);
-        if (card) {
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          card.classList.remove('highlight-pulse');
-          void card.offsetWidth;
-          card.classList.add('highlight-pulse');
-        }
-      }, 60);
-    }
-
-    function handleSearch(query) {
-      const bar = document.getElementById('search-results-bar');
-      const list = document.getElementById('search-results-list');
-      const q = query.trim().toLowerCase();
-      if (!q) {
-        bar.classList.add('hidden');
-        return;
-      }
-      const matches = CONCEPT_INDEX.filter(c =>
-        c.title.toLowerCase().includes(q) || c.tag.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)
-      );
-      bar.classList.remove('hidden');
-      if (matches.length === 0) {
-        list.innerHTML = '<span class="text-slate-500">No matching concepts found.</span>';
-      } else {
-        list.innerHTML = matches.map(m => `
-          <button onclick="jumpToConcept('${m.subject}', '${m.id}')" class="px-2.5 py-1 rounded-md bg-white border border-indigo-200 hover:bg-indigo-600 hover:text-white font-semibold transition">
-            ${m.code}: ${m.title}
-          </button>
-        `).join('');
-      }
-    }
-
-    // =========================================================================
-    // 3. MATHEMATICS INTERACTIVE WIDGETS
-    // =========================================================================
-    // M1: Coin Jar
-    let coinCents = 0;
-    let coinGoal = 63;
-    let coinList = [];
-    const coinGoals = [41, 63, 78, 85, 92, 115];
-
-    function addCoin(val, label) {
-      coinCents += val;
-      coinList.push(label);
-      updateCoinUI();
-    }
-    function resetCoins() {
-      coinCents = 0;
-      coinList = [];
-      updateCoinUI();
-    }
-    function newCoinChallenge() {
-      coinGoal = coinGoals[Math.floor(Math.random() * coinGoals.length)];
-      document.getElementById('coin-goal-label').textContent = `Make ${coinGoal}¢ ($${(coinGoal / 100).toFixed(2)})`;
-      resetCoins();
-    }
-    function updateCoinUI() {
-      const badge = document.getElementById('coin-status-badge');
-      const tray = document.getElementById('coin-tray');
-      const dollars = (coinCents / 100).toFixed(2);
-      if (coinCents === coinGoal) {
-        badge.className = 'text-xs font-extrabold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
-        badge.textContent = `🎉 Exact Match! ${coinCents}¢ ($${dollars})`;
-      } else if (coinCents > coinGoal) {
-        badge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800';
-        badge.textContent = `Too high: ${coinCents}¢ ($${dollars})`;
-      } else {
-        badge.className = 'text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700';
-        badge.textContent = `Jar: ${coinCents}¢ ($${dollars})`;
-      }
-      tray.innerHTML = coinList.length
-        ? coinList.map(c => `<span class="px-1.5 py-0.5 rounded-full bg-amber-100 border border-amber-300 font-bold text-amber-900">${c}</span>`).join('')
-        : '<span class="text-slate-400 italic">Tap coins below to drop into jar...</span>';
-    }
-
-    // M2: Unit Picker
-    const unitItems = [
-      { text: '🚗 The drive from Arlington Heights to Brookfield Zoo', ans: 'miles', why: 'Long road trips between towns are measured in miles!' },
-      { text: '✏️ The length of a brand new pencil', ans: 'inches', why: 'Small objects shorter than a ruler are measured in inches!' },
-      { text: '🏫 The width of Saanvi’s classroom', ans: 'feet', why: 'Room sizes are best measured in feet (or yards)!' },
-      { text: '✈️ How far an airplane flies on vacation', ans: 'miles', why: 'Hundreds of miles!' }
-    ];
-    let unitIdx = 0;
-    function nextUnitQuestion() {
-      unitIdx = (unitIdx + 1) % unitItems.length;
-      document.getElementById('unit-prompt').textContent = unitItems[unitIdx].text;
-      document.getElementById('unit-feedback').textContent = 'Tap a unit above to test your answer!';
-      document.getElementById('unit-feedback').className = 'mt-2.5 text-xs font-semibold text-slate-600';
-    }
-    function checkUnit(choice) {
-      const item = unitItems[unitIdx];
-      const fb = document.getElementById('unit-feedback');
-      if (choice === item.ans) {
-        fb.className = 'mt-2.5 text-xs font-bold text-emerald-700';
-        fb.textContent = `✅ Correct! ${item.why}`;
-      } else {
-        fb.className = 'mt-2.5 text-xs font-bold text-rose-700';
-        fb.textContent = `❌ Not quite—think about how big that is! Try again.`;
-      }
-    }
-
-    // M3: Interactive Analog Clock
-    let clockMinutesTotal = 4 * 60 + 45; // Start at 4:45
-    function renderClock() {
-      const hrs24 = Math.floor(clockMinutesTotal / 60) % 12;
-      const displayHr = hrs24 === 0 ? 12 : hrs24;
-      const mins = clockMinutesTotal % 60;
-      document.getElementById('clock-digital-readout').textContent = `${displayHr}:${mins.toString().padStart(2, '0')}`;
-
-      const minAngle = (mins / 60) * 360 - 90;
-      const hrAngle = ((hrs24 + mins / 60) / 12) * 360 - 90;
-
-      const minRad = (minAngle * Math.PI) / 180;
-      const hrRad = (hrAngle * Math.PI) / 180;
-
-      document.getElementById('clock-min-hand').setAttribute('x2', 90 + 54 * Math.cos(minRad));
-      document.getElementById('clock-min-hand').setAttribute('y2', 90 + 54 * Math.sin(minRad));
-      document.getElementById('clock-hour-hand').setAttribute('x2', 90 + 36 * Math.cos(hrRad));
-      document.getElementById('clock-hour-hand').setAttribute('y2', 90 + 36 * Math.sin(hrRad));
-    }
-    function stepClock(delta) {
-      clockMinutesTotal = (clockMinutesTotal + delta) % 720;
-      renderClock();
-    }
-    function randomClock() {
-      const randHr = Math.floor(Math.random() * 12);
-      const randMin = Math.floor(Math.random() * 12) * 5;
-      clockMinutesTotal = randHr * 60 + randMin;
-      renderClock();
-    }
-
-    // M4: Bar Graph Click
-    function selectBar(pet, count) {
-      document.getElementById('graph-readout').innerHTML =
-        `<strong>Selected ${pet}:</strong> <span class="text-indigo-700 font-bold">${count} votes</span> &bull; Dogs (11) has <strong>${11 - count}</strong> more votes than ${pet}.`;
-    }
-
-    // M5: Place Value Builder
-    const pvState = { h: 3, t: 4, o: 8 };
-    function changePV(place, delta) {
-      pvState[place] = Math.max(0, Math.min(9, pvState[place] + delta));
-      document.getElementById('pv-h').textContent = pvState.h;
-      document.getElementById('pv-t').textContent = pvState.t;
-      document.getElementById('pv-o').textContent = pvState.o;
-      const total = pvState.h * 100 + pvState.t * 10 + pvState.o;
-      document.getElementById('pv-expanded').textContent = `${pvState.h * 100} + ${pvState.t * 10} + ${pvState.o} = ${total}`;
-    }
-
-    // M6: Array Maker
-    let arrRows = 3, arrCols = 4;
-    function updateArray(r, c) {
-      if (r !== null) arrRows = parseInt(r, 10);
-      if (c !== null) arrCols = parseInt(c, 10);
-      document.getElementById('arr-r-val').textContent = arrRows;
-      document.getElementById('arr-c-val').textContent = arrCols;
-
-      const container = document.getElementById('array-visual-grid');
-      let html = '';
-      for (let i = 0; i < arrRows; i++) {
-        html += '<div class="flex gap-1.5">';
-        for (let j = 0; j < arrCols; j++) {
-          html += '<span class="w-4 h-4 rounded-full bg-teal-500 border border-teal-700 inline-block"></span>';
-        }
-        html += '</div>';
-      }
-      container.innerHTML = html;
-
-      const addParts = Array(arrRows).fill(arrCols).join(' + ');
-      const total = arrRows * arrCols;
-      document.getElementById('array-equation').innerHTML =
-        `Addition: ${addParts} = ${total} &nbsp;|&nbsp; Array: ${arrRows} &times; ${arrCols} = ${total}`;
-    }
-
-    // M7: Pizza Fraction Slicer
-    let pizzaTotal = 4;
-    let pizzaShaded = [true, false, false, false];
-    function setPizzaSlices(n) {
-      pizzaTotal = n;
-      pizzaShaded = Array(n).fill(false);
-      pizzaShaded[0] = true;
-      renderPizza();
-    }
-    function toggleSlice(idx) {
-      pizzaShaded[idx] = !pizzaShaded[idx];
-      renderPizza();
-    }
-    function renderPizza() {
-      const svg = document.getElementById('pizza-svg');
-      const cx = 60, cy = 60, r = 50;
-      let paths = '';
-      for (let i = 0; i < pizzaTotal; i++) {
-        const a1 = (i / pizzaTotal) * 2 * Math.PI - Math.PI / 2;
-        const a2 = ((i + 1) / pizzaTotal) * 2 * Math.PI - Math.PI / 2;
-        const x1 = cx + r * Math.cos(a1);
-        const y1 = cy + r * Math.sin(a1);
-        const x2 = cx + r * Math.cos(a2);
-        const y2 = cy + r * Math.sin(a2);
-        const fill = pizzaShaded[i] ? '#f59e0b' : '#fef3c7';
-        paths += `<path onclick="toggleSlice(${i})" d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2} Z" fill="${fill}" stroke="#92400e" stroke-width="2"/>`;
-      }
-      svg.innerHTML = paths;
-      const count = pizzaShaded.filter(Boolean).length;
-      const names = { 2: 'Halves', 3: 'Thirds', 4: 'Fourths' };
-      document.getElementById('pizza-readout').textContent = `Shaded: ${count}/${pizzaTotal} (${names[pizzaTotal]})`;
-    }
-
-    // =========================================================================
-    // 4. ENGLISH INTERACTIVE WIDGETS
-    // =========================================================================
-    function checkInference(choice) {
-      const fb = document.getElementById('inference-feedback');
-      if (choice === 'disappointed') {
-        fb.className = 'mt-2 font-bold text-emerald-700';
-        fb.textContent = '✅ Spot on! Soggy shoes + sighing are clues that she is disappointed by the rain.';
-      } else {
-        fb.className = 'mt-2 font-bold text-rose-700';
-        fb.textContent = '❌ Look at the clues: "soggy shoes" and "sighed". Try again!';
-      }
-    }
-
-    function buildWordSurgery() {
-      const [pre, preMean] = document.getElementById('ws-prefix').value.split('|');
-      const [root, rootMean] = document.getElementById('ws-root').value.split('|');
-      const [suf, sufMean] = document.getElementById('ws-suffix').value.split('|');
-
-      let combinedRoot = root;
-      if (root === 'care' && suf === 'ful') combinedRoot = 'care';
-      const word = `${pre}${combinedRoot}${suf}`;
-      const meaning = `${preMean}${sufMean}${rootMean}`.trim();
-
-      document.getElementById('ws-output').innerHTML = `
-        <div class="text-lg font-extrabold tracking-wide text-amber-300">${word}</div>
-        <div class="text-xs text-slate-300 mt-0.5">Meaning: <strong>${meaning}</strong></div>
-      `;
-    }
-
-    function showSyllables(chunks, count) {
-      document.getElementById('syllable-display').innerHTML = `
-        <span class="font-mono text-base font-extrabold text-indigo-700">${chunks.replace(/-/g, ' - ')}</span>
-        <span class="px-2.5 py-1 rounded-full bg-indigo-600 text-white font-bold">👏 ${count} Claps</span>
-      `;
-    }
-
-    // =========================================================================
-    // 5. SCIENCE INTERACTIVE SIMULATORS
-    // =========================================================================
-    function setMatterTemp(tempVal) {
-      const t = parseInt(tempVal, 10);
-      document.getElementById('matter-slider').value = t;
-      const svg = document.getElementById('matter-svg');
-      const title = document.getElementById('matter-state-title');
-      const desc = document.getElementById('matter-state-desc');
-      const readout = document.getElementById('temp-readout');
-
-      if (t <= 32) {
-        readout.textContent = `${t}°F (Freezing)`;
-        title.textContent = '🧊 SOLID (Ice Cube)';
-        title.className = 'text-sm font-extrabold text-sky-800';
-        desc.textContent = 'Particles are locked tightly together in neat rows and keep a fixed shape.';
-        let dots = '';
-        for (let r = 0; r < 3; r++) {
-          for (let c = 0; c < 4; c++) {
-            dots += `<circle cx="${32 + c * 15}" cy="${28 + r * 15}" r="5.5" fill="#0284c7"/>`;
-          }
-        }
-        svg.innerHTML = dots;
-      } else if (t < 212) {
-        readout.textContent = `${t}°F (Room / Warm)`;
-        title.textContent = '💧 LIQUID (Water)';
-        title.className = 'text-sm font-extrabold text-teal-800';
-        desc.textContent = 'Particles stay close together but slide past each other to take the container’s shape.';
-        const coords = [[22,68],[38,72],[54,66],[70,73],[86,68],[28,54],[46,56],[64,53],[80,57],[36,42],[58,41]];
-        svg.innerHTML = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#0d9488"/>`).join('');
-      } else {
-        readout.textContent = `${t}°F (Boiling!)`;
-        title.textContent = '☁️ GAS (Water Vapor / Steam)';
-        title.className = 'text-sm font-extrabold text-rose-700';
-        desc.textContent = 'Particles have lots of energy and bounce fast and far apart to fill all available space!';
-        const coords = [[18,20],[88,18],[52,32],[25,65],[82,68],[48,74],[72,44],[20,42]];
-        svg.innerHTML = coords.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5" fill="#e11d48"/>`).join('');
-      }
-    }
-
-    const plantNeeds = { sun: true, water: true };
-    function togglePlantNeed(type) {
-      plantNeeds[type] = !plantNeeds[type];
-      const btnSun = document.getElementById('btn-plant-sun');
-      const btnWater = document.getElementById('btn-plant-water');
-      btnSun.textContent = plantNeeds.sun ? '☀️ Sun: ON' : '☁️ Sun: OFF';
-      btnSun.className = plantNeeds.sun ? 'px-2.5 py-1 rounded bg-amber-400 text-amber-950 font-bold' : 'px-2.5 py-1 rounded bg-slate-200 text-slate-600 font-bold';
-      btnWater.textContent = plantNeeds.water ? '💧 Water: ON' : '🏜️ Water: OFF';
-      btnWater.className = plantNeeds.water ? 'px-2.5 py-1 rounded bg-sky-500 text-white font-bold' : 'px-2.5 py-1 rounded bg-slate-200 text-slate-600 font-bold';
-      renderPlant();
-    }
-    function renderPlant() {
-      const svg = document.getElementById('plant-svg');
-      const healthy = plantNeeds.sun && plantNeeds.water;
-      svg.innerHTML = `
-        <rect x="0" y="108" width="130" height="37" fill="#92400e"/>
-        ${plantNeeds.sun ? '<circle cx="105" cy="24" r="14" fill="#facc15"/>' : ''}
-        <!-- Roots -->
-        <path d="M65 108 L52 128 M65 108 L65 134 M65 108 L78 128" stroke="#fde68a" stroke-width="2.5" stroke-linecap="round"/>
-        <!-- Stem -->
-        <line x1="65" y1="108" x2="65" y2="${healthy ? 45 : 80}" stroke="${healthy ? '#16a34a' : '#ca8a04'}" stroke-width="5" stroke-linecap="round"/>
-        <!-- Leaves -->
-        <ellipse cx="50" cy="${healthy ? 78 : 92}" rx="12" ry="6" fill="${healthy ? '#22c55e' : '#eab308'}" transform="rotate(-20 50 78)"/>
-        <ellipse cx="80" cy="${healthy ? 72 : 90}" rx="12" ry="6" fill="${healthy ? '#22c55e' : '#eab308'}" transform="rotate(20 80 72)"/>
-        ${healthy ? `
-          <circle cx="65" cy="40" r="14" fill="#f43f5e"/>
-          <circle cx="65" cy="40" r="6" fill="#facc15"/>
-        ` : `<text x="65" y="30" text-anchor="middle" font-size="9" font-weight="bold" fill="#92400e">Needs Sun & Water!</text>`}
-      `;
-    }
-
-    let magnetFlipped = false;
-    function flipMagnet() {
-      magnetFlipped = !magnetFlipped;
-      const m2 = document.getElementById('magnet-2');
-      const arrow = document.getElementById('magnet-arrow');
-      if (magnetFlipped) {
-        m2.innerHTML = '<span class="bg-blue-600 px-3 py-2">S</span><span class="bg-rose-600 px-3 py-2">N</span>';
-        arrow.textContent = '← REPEL (Push Apart) →';
-        arrow.className = 'text-sm font-extrabold text-rose-600';
-      } else {
-        m2.innerHTML = '<span class="bg-rose-600 px-3 py-2">N</span><span class="bg-blue-600 px-3 py-2">S</span>';
-        arrow.textContent = '→ ATTRACT (Pull Together) ←';
-        arrow.className = 'text-sm font-extrabold text-emerald-700';
-      }
-    }
-
-    // =========================================================================
-    // 6. QUICK MIXED PRACTICE QUIZ
-    // =========================================================================
-    const QUIZ_BANK = [
-      { sub: 'Mathematics', q: 'How much money is 2 quarters, 1 dime, and 3 pennies?', opts: ['53¢', '63¢', '73¢', '43¢'], ans: 1 },
-      { sub: 'Mathematics', q: 'Which unit is best for measuring the distance from home to a zoo 15 miles away?', opts: ['Inches', 'Centimeters', 'Miles', 'Feet'], ans: 2 },
-      { sub: 'English & Reading', q: 'In the word "unhelpful", what does the prefix "un-" mean?', opts: ['Again', 'Before', 'Not', 'Full of'], ans: 2 },
-      { sub: 'English & Reading', q: 'How many syllables are in the word "unbelievable"?', opts: ['3', '4', '5', '6'], ans: 2 },
-      { sub: 'Science', q: 'What happens to liquid water when it is cooled to 32°F or below?', opts: ['It boils into gas', 'It freezes into a solid', 'It disappears', 'It turns into metal'], ans: 1 },
-      { sub: 'Science', q: 'Which plant part absorbs water from the soil and anchors the plant?', opts: ['Flower', 'Leaves', 'Roots', 'Petals'], ans: 2 }
-    ];
-    let quizIdx = 0, quizScore = 0, quizTotal = 0, quizAnswered = false;
-
-    function loadQuizQuestion() {
-      quizAnswered = false;
-      const item = QUIZ_BANK[quizIdx];
-      document.getElementById('quiz-subject-badge').textContent = item.sub;
-      document.getElementById('quiz-question-text').textContent = item.q;
-      const fb = document.getElementById('quiz-feedback');
-      fb.classList.add('hidden');
-
-      document.getElementById('quiz-options').innerHTML = item.opts.map((opt, idx) => `
-        <button onclick="answerQuiz(${idx})" class="text-left p-3 rounded-xl bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 font-bold text-xs sm:text-sm transition">
-          ${String.fromCharCode(65 + idx)}. ${opt}
-        </button>
-      `).join('');
-    }
-    function answerQuiz(idx) {
-      if (quizAnswered) return;
-      quizAnswered = true;
-      quizTotal++;
-      const item = QUIZ_BANK[quizIdx];
-      const fb = document.getElementById('quiz-feedback');
-      fb.classList.remove('hidden');
-      if (idx === item.ans) {
-        quizScore++;
-        fb.className = 'p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200';
-        fb.textContent = '🎉 Awesome job, Saanvi! That is correct!';
-      } else {
-        fb.className = 'p-3 rounded-xl text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200';
-        fb.textContent = `💡 Good try! The correct answer is: ${item.opts[item.ans]}.`;
-      }
-      document.getElementById('quiz-score').textContent = quizScore;
-      document.getElementById('quiz-total').textContent = quizTotal;
-    }
-    function nextQuizQuestion() {
-      quizIdx = (quizIdx + 1) % QUIZ_BANK.length;
-      loadQuizQuestion();
-    }
-
-    // Initialize all interactive views on page load
-    window.addEventListener('DOMContentLoaded', () => {
-      renderTableOfContents();
-      renderClock();
-      updateArray(3, 4);
-      renderPizza();
-      setMatterTemp(20);
-      renderPlant();
-      loadQuizQuestion();
-    });
-  </script>
+  <script src="js/core.js"></script>
+  <script src="js/rewards.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/scores.js"></script>
+  <script src="js/math-labs.js"></script>
+  <script src="js/english-labs.js"></script>
+  <script src="js/science-labs.js"></script>
+  <script src="js/academy.js"></script>
+  <script src="js/qbank-data.js"></script>
+  <script src="js/qbank.js"></script>
+  <script src="js/backup.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
