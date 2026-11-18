@@ -6,7 +6,9 @@
       'saanvi_map_scores_v1',
       'saanvi_completed_qs_v1',
       'saanvi_daily_timer_v1',
-      'saanvi_academy_progress_v1'
+      'saanvi_academy_progress_v1',
+      'saanvi_typing_lessons_v1',
+      'saanvi_typing_best_v1'
     ];
 
     function setBackupStatus(msg, isError = false) {

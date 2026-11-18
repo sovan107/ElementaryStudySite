@@ -25,4 +25,5 @@
       renderAcademy();
       updateCompletedBadge();
       renderQBank(true);
+      initTypingView();
     });

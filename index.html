@@ -214,8 +214,11 @@
         <button onclick="switchTab('qbank')" id="tab-qbank" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition">
           📝 990 Q-Bank
         </button>
+        <button onclick="switchTab('typing')" id="tab-typing" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100 transition">
+          ⌨️ Typing
+        </button>
         <button onclick="switchTab('parent')" id="tab-parent" class="nav-tab px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition">
-          👨‍👩‍👧 Parent Syllabus
+          🔒 Parent Syllabus
         </button>
 
         <!-- Search Input -->
@@ -1629,7 +1632,120 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- VIEW 8: PARENT MAP SYLLABUS & BEAST ACADEMY GUIDE                   -->
+    <!-- VIEW 8: TYPING PRACTICE (WPM, Accuracy & Timed Tests)               -->
+    <!-- =================================================================== -->
+    <section id="view-typing" class="tab-panel hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-cyan-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">⌨️ Typing Practice Studio</h2>
+        </div>
+        <span class="text-xs font-bold text-cyan-800 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200">Best: <span id="typing-best-wpm">0</span> WPM</span>
+      </div>
+
+      <!-- Learn Mode: Guided Typing Lessons -->
+      <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="text-sm font-extrabold text-violet-900">📖 Learn Mode — Typing Lessons (Start Here!)</h3>
+          <span id="typing-lessons-progress" class="text-[11px] font-bold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full border border-violet-200">0/7 Complete</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <select id="typing-lesson-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-400">
+            <option value="0">Lesson 1: Home Row Keys</option>
+            <option value="1">Lesson 2: Top Row Keys</option>
+            <option value="2">Lesson 3: Bottom Row Keys</option>
+            <option value="3">Lesson 4: Number Row</option>
+            <option value="4">Lesson 5: All Letters Mix</option>
+            <option value="5">Lesson 6: Capital Letters &amp; Shift</option>
+            <option value="6">Lesson 7: Story Sentences</option>
+          </select>
+          <button onclick="startTypingLesson()" id="typing-lesson-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white text-xs font-extrabold shadow-md transition">
+            ▶ Start Lesson
+          </button>
+        </div>
+        <div id="typing-lesson-instruction" class="text-xs text-slate-700 bg-violet-50 border border-violet-200 rounded-xl px-3.5 py-2.5 font-semibold leading-relaxed">
+          👆 Select a lesson above, then press <strong>Start Lesson</strong>. Each lesson teaches a new set of keys — finish with 80%+ accuracy to pass and earn ⭐ stars!
+        </div>
+        <div id="typing-keyboard" class="bg-slate-100 rounded-xl p-3 border border-slate-200 overflow-x-auto"></div>
+      </div>
+
+      <!-- Test Mode: Timed Speed Tests -->
+      <div class="bg-white rounded-2xl border border-cyan-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
+        <div class="text-[11px] font-extrabold uppercase text-cyan-800 mr-1">🏁 Test Mode:</div>
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Passage</label>
+          <select id="typing-passage-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+            <option value="0">Passage 1: Rainy Day</option>
+            <option value="1">Passage 2: Space Explorer</option>
+            <option value="2">Passage 3: Ocean Friends</option>
+            <option value="3">Passage 4: School Day</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Time Limit</label>
+          <select id="typing-time-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+            <option value="30">30 Seconds</option>
+            <option value="60" selected>60 Seconds</option>
+            <option value="120">2 Minutes</option>
+          </select>
+        </div>
+        <button onclick="startTypingTest()" id="typing-start-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white text-xs font-extrabold shadow-md transition">
+          ▶ Start Test
+        </button>
+        <button onclick="resetTypingTest()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+          ↺ Reset
+        </button>
+      </div>
+
+      <!-- Live Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="bg-slate-900 text-white rounded-2xl p-3">
+          <div id="typing-time-left" class="text-2xl font-black font-mono text-amber-300">1:00</div>
+          <div id="typing-time-label" class="text-[10px] uppercase tracking-wider text-slate-300 font-bold">Time Left</div>
+        </div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-2xl p-3">
+          <div id="typing-wpm" class="text-2xl font-black text-cyan-700">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-cyan-900 font-bold">Speed (WPM)</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3">
+          <div id="typing-accuracy" class="text-2xl font-black text-emerald-700">100%</div>
+          <div class="text-[10px] uppercase tracking-wider text-emerald-900 font-bold">Accuracy</div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3">
+          <div id="typing-errors" class="text-2xl font-black text-rose-600">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-rose-900 font-bold">Mistakes</div>
+        </div>
+      </div>
+
+      <!-- Passage Display -->
+      <div class="bg-white rounded-2xl border-2 border-cyan-200 shadow-sm p-5">
+        <div id="typing-passage" class="text-lg sm:text-xl font-mono leading-loose whitespace-pre-wrap break-words select-none"></div>
+        <div id="typing-progress-bar" class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div id="typing-progress-fill" class="h-full bg-gradient-to-r from-cyan-500 to-teal-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div id="typing-results" class="hidden bg-gradient-to-br from-cyan-50 to-teal-50 rounded-2xl border-2 border-cyan-300 p-5 text-center space-y-2 pop-in">
+        <div class="text-3xl">🎉</div>
+        <h3 class="text-lg font-black text-slate-900">Test Complete!</h3>
+        <div class="flex flex-wrap justify-center gap-4 text-sm font-bold">
+          <span class="text-cyan-800">⚡ <span id="typing-final-wpm">0</span> WPM</span>
+          <span class="text-emerald-700">🎯 <span id="typing-final-accuracy">0%</span> Accuracy</span>
+          <span class="text-rose-600">❌ <span id="typing-final-errors">0</span> Mistakes</span>
+          <span class="text-amber-600">⭐ <span id="typing-stars-earned">0</span> Stars Earned</span>
+        </div>
+        <p id="typing-result-message" class="text-xs text-slate-600 font-semibold"></p>
+      </div>
+
+      <!-- Keyboard Capture (also enables mobile keyboards) -->
+      <input type="text" id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        class="w-full px-4 py-3 rounded-xl border-2 border-cyan-300 bg-cyan-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-400 text-sm font-mono"
+        placeholder="Click here, then start typing the passage above…" />
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 9: PARENT MAP SYLLABUS & BEAST ACADEMY GUIDE                   -->
     <!-- =================================================================== -->
     <section id="view-parent" class="tab-panel hidden space-y-6">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-rose-500 pb-2">
@@ -1733,6 +1849,7 @@
   <script src="js/qbank-data.js"></script>
   <script src="js/qbank.js"></script>
   <script src="js/backup.js"></script>
+  <script src="js/typing.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

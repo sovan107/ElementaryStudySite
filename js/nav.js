@@ -65,7 +65,20 @@
       }).join('');
     }
 
+    let parentSectionUnlocked = false;
+
     function switchTab(tabName) {
+      if (tabName === 'parent' && !parentSectionUnlocked) {
+        requestParentAuth(
+          '🔒 Parent Area Locked',
+          'Enter the parent password to view the MAP Test Syllabus & Beast Academy guide.',
+          () => {
+            parentSectionUnlocked = true;
+            switchTab('parent');
+          }
+        );
+        return;
+      }
       document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
       const target = document.getElementById(`view-${tabName}`);
       if (target) target.classList.remove('hidden');
@@ -88,6 +101,7 @@
         science: 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100',
         academy: 'bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100',
         qbank: 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100',
+        typing: 'bg-cyan-50 text-cyan-800 border border-cyan-200 hover:bg-cyan-100',
         parent: 'bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100'
       };
 
@@ -98,6 +112,12 @@
         }
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (tabName === 'typing') {
+        setTimeout(() => {
+          const input = document.getElementById('typing-input');
+          if (input) input.focus();
+        }, 120);
+      }
     }
 
     function jumpToConcept(subject, conceptId) {
@@ -144,4 +164,5 @@
       filterQBank('ALL');
     }
 
+    // =========================================================================
     // =========================================================================
