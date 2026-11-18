@@ -137,7 +137,10 @@
       finished: false,
       startTime: null,
       mode: 'test',     // 'test' | 'lesson'
-      lessonIdx: -1
+      lessonIdx: -1,
+      paused: false,
+      pausedAt: null,
+      pausedTotal: 0
     };
 
     function getTypingBest() {
@@ -182,7 +185,7 @@
     }
 
     function updateTypingStats() {
-      const elapsedMin = typingState.startTime ? (Date.now() - typingState.startTime) / 60000 : 0;
+      const elapsedMin = typingState.startTime ? (Date.now() - typingState.startTime - typingState.pausedTotal) / 60000 : 0;
       const wpm = elapsedMin > 0 ? Math.round((typingState.correctChars / 5) / elapsedMin) : 0;
       const acc = typingState.keystrokes > 0 ? Math.round((typingState.correctChars / typingState.keystrokes) * 100) : 100;
       document.getElementById('typing-wpm').textContent = wpm;
@@ -205,21 +208,21 @@
       typingState.startTime = null;
       typingState.mode = 'test';
       typingState.lessonIdx = -1;
+      typingState.paused = false;
+      typingState.pausedAt = null;
+      typingState.pausedTotal = 0;
       document.getElementById('typing-time-label').textContent = 'Time Left';
       document.getElementById('typing-results').classList.add('hidden');
       setTypingBtn('typing-start-btn', '⏸ Running…', true);
       setTypingBtn('typing-lesson-btn', '⏸ Lesson Running…', true);
+      setTypingBtn('typing-pause-btn', '⏸ Pause', false);
       document.getElementById('typing-time-left').textContent = formatTypingTime(typingState.timeLeft);
       renderTypingPassage();
       updateTypingStats();
       const input = document.getElementById('typing-input');
       input.value = '';
       input.focus();
-      typingState.timerId = setInterval(() => {
-        typingState.timeLeft--;
-        document.getElementById('typing-time-left').textContent = formatTypingTime(Math.max(0, typingState.timeLeft));
-        if (typingState.timeLeft <= 0) finishTypingTest('time');
-      }, 1000);
+      startTypingTimer();
     }
 
     function startTypingLesson() {
@@ -239,10 +242,14 @@
       typingState.startTime = null;
       typingState.mode = 'lesson';
       typingState.lessonIdx = lessonIdx;
+      typingState.paused = false;
+      typingState.pausedAt = null;
+      typingState.pausedTotal = 0;
       document.getElementById('typing-time-label').textContent = 'Elapsed';
       document.getElementById('typing-results').classList.add('hidden');
       setTypingBtn('typing-lesson-btn', '⏸ Lesson Running…', true);
       setTypingBtn('typing-start-btn', '▶ Start Test', true);
+      setTypingBtn('typing-pause-btn', '⏸ Pause', false);
       document.getElementById('typing-time-left').textContent = '0:00';
       document.getElementById('typing-lesson-instruction').innerHTML =
         `<strong>${lesson.title}</strong><br>✋ ${lesson.fingers}<br>💡 ${lesson.tip}`;
@@ -252,12 +259,44 @@
       const input = document.getElementById('typing-input');
       input.value = '';
       input.focus();
-      typingState.timerId = setInterval(() => {
-        if (typingState.startTime) {
-          const el = Math.floor((Date.now() - typingState.startTime) / 1000);
-          document.getElementById('typing-time-left').textContent = formatTypingTime(el);
-        }
-      }, 1000);
+      startTypingTimer();
+    }
+
+    function startTypingTimer() {
+      clearInterval(typingState.timerId);
+      if (typingState.mode === 'lesson') {
+        typingState.timerId = setInterval(() => {
+          if (typingState.startTime) {
+            const el = Math.floor((Date.now() - typingState.startTime - typingState.pausedTotal) / 1000);
+            document.getElementById('typing-time-left').textContent = formatTypingTime(el);
+          }
+        }, 1000);
+      } else {
+        typingState.timerId = setInterval(() => {
+          typingState.timeLeft--;
+          document.getElementById('typing-time-left').textContent = formatTypingTime(Math.max(0, typingState.timeLeft));
+          if (typingState.timeLeft <= 0) finishTypingTest('time');
+        }, 1000);
+      }
+    }
+
+    function toggleTypingPause() {
+      if (!typingState.running || typingState.finished) return;
+      typingState.paused = !typingState.paused;
+      if (typingState.paused) {
+        typingState.pausedAt = Date.now();
+        clearInterval(typingState.timerId);
+        setTypingBtn('typing-pause-btn', '▶ Resume', false);
+        const input = document.getElementById('typing-input');
+        if (input) input.blur();
+      } else {
+        typingState.pausedTotal += Date.now() - typingState.pausedAt;
+        typingState.pausedAt = null;
+        startTypingTimer();
+        setTypingBtn('typing-pause-btn', '⏸ Pause', false);
+        const input = document.getElementById('typing-input');
+        if (input) input.focus();
+      }
     }
 
     function formatTypingTime(sec) {
@@ -267,7 +306,7 @@
     }
 
     function handleTypingKeydown(e) {
-      if (!typingState.running || typingState.finished) return;
+      if (!typingState.running || typingState.finished || typingState.paused) return;
       if (e.key === 'Backspace') {
         e.preventDefault();
         if (typingState.idx > 0) {
@@ -307,7 +346,7 @@
       typingState.finished = true;
       typingState.running = false;
       clearInterval(typingState.timerId);
-      const elapsedMin = typingState.startTime ? Math.max((Date.now() - typingState.startTime) / 60000, 1 / 60) : typingState.timeLimit / 60;
+      const elapsedMin = typingState.startTime ? Math.max((Date.now() - typingState.startTime - typingState.pausedTotal) / 60000, 1 / 60) : typingState.timeLimit / 60;
       const wpm = Math.round((typingState.correctChars / 5) / elapsedMin);
       const acc = typingState.keystrokes > 0 ? Math.round((typingState.correctChars / typingState.keystrokes) * 100) : 100;
 
@@ -355,6 +394,7 @@
       document.getElementById('typing-results').classList.remove('hidden');
       setTypingBtn('typing-start-btn', '▶ Start Test', false);
       setTypingBtn('typing-lesson-btn', '▶ Start Lesson', false);
+      setTypingBtn('typing-pause-btn', '⏸ Pause', true);
     }
 
     function resetTypingTest() {
@@ -363,6 +403,9 @@
       typingState.finished = false;
       typingState.mode = 'test';
       typingState.lessonIdx = -1;
+      typingState.paused = false;
+      typingState.pausedAt = null;
+      typingState.pausedTotal = 0;
       typingState.idx = 0;
       typingState.correctChars = 0;
       typingState.incorrectChars = 0;
@@ -375,6 +418,7 @@
       document.getElementById('typing-results').classList.add('hidden');
       setTypingBtn('typing-start-btn', '▶ Start Test', false);
       setTypingBtn('typing-lesson-btn', '▶ Start Lesson', false);
+      setTypingBtn('typing-pause-btn', '⏸ Pause', true);
       document.getElementById('typing-time-label').textContent = 'Time Left';
       document.getElementById('typing-time-left').textContent = formatTypingTime(typingState.timeLeft);
       document.getElementById('typing-input').value = '';

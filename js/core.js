@@ -4,6 +4,7 @@
     const PARENT_PASSWORD = 'missaa';
     let pendingPwdCallback = null;
     let answersAuthorizedSession = false;
+    let timerPaused = false;
 
     function requestParentAuth(title, desc, onSuccess) {
       pendingPwdCallback = onSuccess;
@@ -70,7 +71,7 @@
     function startDailyCountdown() {
       updateTimerDisplay();
       setInterval(() => {
-        if (document.hidden) return;
+        if (document.hidden || timerPaused) return;
         const st = getTimerState();
         if (st.secondsLeft > 0) {
           st.secondsLeft -= 1;
@@ -78,6 +79,18 @@
           updateTimerDisplay();
         }
       }, 1000);
+    }
+
+    function toggleTimerPause() {
+      timerPaused = !timerPaused;
+      const btn = document.getElementById('timer-pause-btn');
+      if (timerPaused) {
+        btn.textContent = '▶️';
+        btn.title = 'Resume Timer';
+      } else {
+        btn.textContent = '⏸️';
+        btn.title = 'Pause Timer';
+      }
     }
 
     function add15MinutesToTimer() {
