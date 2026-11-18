@@ -292,6 +292,49 @@
               <div class="text-lg font-extrabold" id="hero-total-q-count">990</div>
               <div class="text-[10px] uppercase tracking-wider text-indigo-100">MAP Questions</div>
             </div>
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2 border border-white/20 cursor-pointer hover:bg-white/25" onclick="switchTab('qbank')">
+              <div class="text-lg font-extrabold" id="hero-total-q-count">990</div>
+              <div class="text-[10px] uppercase tracking-wider text-indigo-100">MAP Questions</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Quick-Access Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div onclick="switchTab('math')" class="cursor-pointer bg-white rounded-2xl border border-teal-200 hover:border-teal-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-xl shrink-0">⭕</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-teal-700">New Math Modules</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Circles &amp; Beast 1B–1D</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Radius, diameter, patterns, parity &amp; magic squares.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('academy')" class="cursor-pointer bg-white rounded-2xl border border-purple-200 hover:border-purple-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl shrink-0">♟️</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-purple-700">20-Stage Strategy</div>
+            <h3 class="text-sm font-extrabold text-slate-900">Chess &amp; Sudoku</h3>
+            <p class="text-xs text-slate-600 mt-0.5">Unlock 20 stages per game &amp; earn +5 ⭐ each!</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('qbank')" class="cursor-pointer bg-white rounded-2xl border border-amber-200 hover:border-amber-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl shrink-0">📝</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-amber-700">Expanded Exam Bank</div>
+            <h3 class="text-sm font-extrabold text-slate-900">990 MAP Questions</h3>
+            <p class="text-xs text-slate-600 mt-0.5">English, Math, Circles, Beast 1B–1D &amp; Science.</p>
+          </div>
+        </div>
+
+        <div onclick="switchTab('parent')" class="cursor-pointer bg-gradient-to-br from-rose-50 to-amber-50 rounded-2xl border border-rose-200 hover:border-rose-400 p-4 shadow-sm hover:shadow transition flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-xl shrink-0">👨‍👩‍👧</div>
+          <div>
+            <div class="text-[10px] font-bold uppercase text-rose-800">Parent Guide</div>
+            <h3 class="text-sm font-extrabold text-slate-900">MAP Test Syllabus</h3>
+            <p class="text-xs text-slate-700 mt-0.5">RIT goals, Lexile guide &amp; Beast Academy alignment.</p>
           </div>
         </div>
       </div>
@@ -1739,7 +1782,17 @@
       </div>
     </section>
 
-  </main>
+    <!-- =================================================================== -->
+    <!-- VIEW 8: TYPING PRACTICE (WPM, Accuracy & Timed Tests)               -->
+    <!-- =================================================================== -->
+    <section id="view-typing" class="tab-panel hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-cyan-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">⌨️ Typing Practice Studio</h2>
+        </div>
+        <span class="text-xs font-bold text-cyan-800 bg-cyan-50 px-3 py-1 rounded-full border border-cyan-200">Best: <span id="typing-best-wpm">0</span> WPM</span>
+      </div>
 
   <script>
     // =========================================================================
@@ -2032,16 +2085,126 @@
             </div>
             <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200 shrink-0">${item.tag}</span>
           </button>
-        `).join('');
+        </div>
+        <div id="typing-lesson-instruction" class="text-xs text-slate-700 bg-violet-50 border border-violet-200 rounded-xl px-3.5 py-2.5 font-semibold leading-relaxed">
+          👆 Select a lesson above, then press <strong>Start Lesson</strong>. Each lesson teaches a new set of keys — finish with 80%+ accuracy to pass and earn ⭐ stars!
+        </div>
+        <div id="typing-keyboard" class="bg-slate-100 rounded-xl p-3 border border-slate-200 overflow-x-auto"></div>
+      </div>
 
-        return `
-          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-            <div class="${sub.headerBg} px-4 py-3 text-white flex items-center justify-between">
-              <div>
-                <h3 class="font-extrabold text-base">${sub.title}</h3>
-                <p class="text-[11px] text-white/85">${sub.subtitle}</p>
-              </div>
-              <button onclick="switchTab('${sub.key}')" class="text-xs font-bold bg-white/20 hover:bg-white/30 px-2.5 py-1 rounded-lg transition">Open All</button>
+      <!-- Test Mode: Timed Speed Tests -->
+      <div class="bg-white rounded-2xl border border-cyan-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
+        <div class="text-[11px] font-extrabold uppercase text-cyan-800 mr-1">🏁 Test Mode:</div>
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Passage</label>
+          <select id="typing-passage-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+            <option value="0">Passage 1: Rainy Day</option>
+            <option value="1">Passage 2: Space Explorer</option>
+            <option value="2">Passage 3: Ocean Friends</option>
+            <option value="3">Passage 4: School Day</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Time Limit</label>
+          <select id="typing-time-select" class="px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold bg-slate-50 focus:outline-none focus:ring-2 focus:ring-cyan-400">
+            <option value="30">30 Seconds</option>
+            <option value="60" selected>60 Seconds</option>
+            <option value="120">2 Minutes</option>
+          </select>
+        </div>
+        <button onclick="startTypingTest()" id="typing-start-btn" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white text-xs font-extrabold shadow-md transition">
+          ▶ Start Test
+        </button>
+        <button onclick="resetTypingTest()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+          ↺ Reset
+        </button>
+      </div>
+
+      <!-- Live Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="bg-slate-900 text-white rounded-2xl p-3">
+          <div id="typing-time-left" class="text-2xl font-black font-mono text-amber-300">1:00</div>
+          <div id="typing-time-label" class="text-[10px] uppercase tracking-wider text-slate-300 font-bold">Time Left</div>
+        </div>
+        <div class="bg-cyan-50 border border-cyan-200 rounded-2xl p-3">
+          <div id="typing-wpm" class="text-2xl font-black text-cyan-700">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-cyan-900 font-bold">Speed (WPM)</div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3">
+          <div id="typing-accuracy" class="text-2xl font-black text-emerald-700">100%</div>
+          <div class="text-[10px] uppercase tracking-wider text-emerald-900 font-bold">Accuracy</div>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-2xl p-3">
+          <div id="typing-errors" class="text-2xl font-black text-rose-600">0</div>
+          <div class="text-[10px] uppercase tracking-wider text-rose-900 font-bold">Mistakes</div>
+        </div>
+      </div>
+
+      <!-- Passage Display -->
+      <div class="bg-white rounded-2xl border-2 border-cyan-200 shadow-sm p-5">
+        <div id="typing-passage" class="text-lg sm:text-xl font-mono leading-loose whitespace-pre-wrap break-words select-none"></div>
+        <div id="typing-progress-bar" class="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div id="typing-progress-fill" class="h-full bg-gradient-to-r from-cyan-500 to-teal-500 rounded-full transition-all duration-200" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div id="typing-results" class="hidden bg-gradient-to-br from-cyan-50 to-teal-50 rounded-2xl border-2 border-cyan-300 p-5 text-center space-y-2 pop-in">
+        <div class="text-3xl">🎉</div>
+        <h3 class="text-lg font-black text-slate-900">Test Complete!</h3>
+        <div class="flex flex-wrap justify-center gap-4 text-sm font-bold">
+          <span class="text-cyan-800">⚡ <span id="typing-final-wpm">0</span> WPM</span>
+          <span class="text-emerald-700">🎯 <span id="typing-final-accuracy">0%</span> Accuracy</span>
+          <span class="text-rose-600">❌ <span id="typing-final-errors">0</span> Mistakes</span>
+          <span class="text-amber-600">⭐ <span id="typing-stars-earned">0</span> Stars Earned</span>
+        </div>
+        <p id="typing-result-message" class="text-xs text-slate-600 font-semibold"></p>
+      </div>
+
+      <!-- Keyboard Capture (also enables mobile keyboards) -->
+      <input type="text" id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        class="w-full px-4 py-3 rounded-xl border-2 border-cyan-300 bg-cyan-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-cyan-400 text-sm font-mono"
+        placeholder="Click here, then start typing the passage above…" />
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- VIEW 9: PARENT MAP SYLLABUS & BEAST ACADEMY GUIDE                   -->
+    <!-- =================================================================== -->
+    <section id="view-parent" class="tab-panel hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-rose-500 pb-2">
+        <div class="flex items-center gap-2.5">
+          <button onclick="switchTab('home')" class="no-print text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">&larr; Home</button>
+          <h2 class="text-xl font-extrabold text-slate-900">👨‍👩‍👧 Parent Guide: NWEA MAP Growth Syllabus &amp; Beast Academy Roadmap</h2>
+        </div>
+        <span class="text-xs font-bold text-rose-800 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">Ivy Hill Elementary &bull; Arlington Heights SD 25</span>
+      </div>
+
+      <!-- Overview Card -->
+      <div class="bg-white rounded-2xl border border-rose-200 p-5 shadow-sm space-y-2 text-xs sm:text-sm">
+        <h3 class="text-base font-extrabold text-slate-900">🎯 How NWEA MAP Adaptive Testing Works for Saanvi</h3>
+        <p class="text-slate-700 leading-relaxed">
+          NWEA MAP Growth is <strong>computer-adaptive</strong>: every correct answer makes the next question harder, pinpointing her true instructional level (RIT score). Because Saanvi is already testing at the <strong>96th percentile in Reading (RIT 177)</strong> and <strong>99th percentile in Math (RIT 191)</strong> in 1st grade, the exam evaluates her on <strong>late 2nd-grade and early 3rd-grade concepts</strong> on the path to her Fall 2027 projections (<strong>189 Reading</strong>, <strong>203 Math</strong>).
+        </p>
+      </div>
+
+      <!-- Two-Column Syllabus Breakdown -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+        <div class="bg-white rounded-2xl border border-teal-200 shadow-sm overflow-hidden">
+          <div class="bg-teal-600 text-white px-4 py-3 font-extrabold text-sm">
+            🔢 MAP Mathematics Syllabus &amp; Beast Academy 1B–1D Alignment
+          </div>
+          <div class="p-4 space-y-3">
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">1. Operations &amp; Algebraic Thinking</div>
+              <p class="text-slate-700 mt-0.5">Two-step word problems; missing addends; <strong>BA 1B Making-10 &amp; Compensation strategies</strong>; <strong>BA 1B Odds &amp; Evens parity</strong>; number patterns &amp; skip-counting series; arrays &amp; <strong>BA 1D Working Backwards / Magic Squares</strong>.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">2. Number &amp; Operations</div>
+              <p class="text-slate-700 mt-0.5">Place value up to 1,000; <strong>BA 1C flexible regrouping</strong> &amp; vertical addition/subtraction algorithms with carrying/borrowing across zeros; <strong>BA 1B inequalities (&lt;, &gt;, =)</strong>; rounding to nearest 10 &amp; 100.</p>
+            </div>
+            <div class="bg-teal-50/70 p-3 rounded-xl border border-teal-100">
+              <div class="font-extrabold text-teal-900">3. Measurement &amp; Data</div>
+              <p class="text-slate-700 mt-0.5"><strong>BA 1D Money &amp; Coins</strong> (making change over $1.00); analog clocks to 5-minute intervals &amp; elapsed time; <strong>BA 1C Measurement &amp; Perimeter</strong>; inches, feet, yards, miles, cm, meters; bar/picture graphs &amp; <strong>BA 1D Venn Diagrams</strong>.</p>
             </div>
             <div class="p-3.5 space-y-2 flex-1">${listHtml}</div>
           </div>
